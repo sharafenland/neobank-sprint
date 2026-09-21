@@ -336,7 +336,7 @@ function Incident({ t, id, revealed, busy, send }: { t: TeamState; id: string; r
         <div className="ec-h">
           <span className="badge"><CardIcon name={card.icon} /></span>
           <div>
-            <span className="eyebrow">Incident{card.mit !== null ? ` · target ${card.mit}` : ""}</span>
+            <span className="eyebrow">{card.mit !== null ? `Mitigation target ${card.mit}` : "No roll"}</span>
             <h3>{card.n}</h3><p>{card.txt}</p>
           </div>
         </div>
@@ -419,7 +419,7 @@ function MarketEvent({ t, id, revealed, busy, send }: { t: TeamState; id: string
     <div className="eventcard world">
       <div className="ec-h">
         <span className="badge"><CardIcon name={card.icon} /></span>
-        <div><span className="eyebrow">Market event</span><h3>{card.n}</h3><p>{card.txt}</p></div>
+        <div><h3>{card.n}</h3><p>{card.txt}</p></div>
       </div>
       <div className="ec-b">
         {r ? (

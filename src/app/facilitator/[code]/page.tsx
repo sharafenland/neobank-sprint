@@ -92,9 +92,9 @@ export default function Facilitator() {
                       <span className="badge"><CardIcon name={INCIDENT_BY_ID[view.incidentId].icon} size={26} /></span>
                       <div>
                         <span className="eyebrow">
-                          Incident{INCIDENT_BY_ID[view.incidentId].mit !== null
-                            ? ` · mitigation target ${INCIDENT_BY_ID[view.incidentId].mit}`
-                            : " · no roll, it just happens"}
+                          {INCIDENT_BY_ID[view.incidentId].mit !== null
+                            ? `Mitigation target ${INCIDENT_BY_ID[view.incidentId].mit}`
+                            : "No roll \u2014 it just happens"}
                         </span>
                         <h3>{INCIDENT_BY_ID[view.incidentId].n}</h3>
                         <p>{INCIDENT_BY_ID[view.incidentId].txt}</p>
@@ -121,7 +121,6 @@ export default function Facilitator() {
                     <div className="ec-h">
                       <span className="badge"><CardIcon name={EVENT_BY_ID[view.eventId].icon} size={26} /></span>
                       <div>
-                        <span className="eyebrow">Market event</span>
                         <h3>{EVENT_BY_ID[view.eventId].n}</h3>
                         <p>{EVENT_BY_ID[view.eventId].txt}</p>
                       </div>
