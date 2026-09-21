@@ -6,8 +6,8 @@ import { EVENT_BY_ID, FEATURE_BY_ID, INCIDENT_BY_ID, PHASES, PRACTICES, PRACTICE
 import { act } from "@/lib/client";
 import { INCIDENT_FX } from "@/lib/effects";
 import {
-  FIX_PER_SLOT, INFRA_CAP, capacity, devBonus, devTarget, infraBonus, legacyDrag, maxFixSlots, mitBonus, own,
-  relBonus, relTarget, releasing, usedSlots,
+  FIX_PER_SLOT, INFRA_CAP, IP_BONUS_FROM_SPRINT, capacity, devBonus, devTarget, infraBonus, legacyDrag,
+  maxFixSlots, mitBonus, own, relBonus, relTarget, releasing, usedSlots,
 } from "@/lib/rules";
 import type { TeamState } from "@/lib/types";
 import { useGame } from "@/components/useGame";
@@ -93,7 +93,7 @@ export default function Play() {
               {phase.id === "incident" && <Incident t={t} id={view.incidentId} revealed={s.reveal_incident} busy={busy} send={send} />}
               {phase.id === "release" && <Release t={t} busy={busy} send={send} />}
               {phase.id === "market" && <MarketEvent t={t} id={view.eventId} revealed={s.reveal_event} busy={busy} send={send} />}
-              {phase.id === "retro" && <Retro t={t} busy={busy} send={send} />}
+              {phase.id === "retro" && <Retro t={t} sprint={s.sprint} busy={busy} send={send} />}
             </div>
           </div>
         </div>
@@ -427,9 +427,31 @@ function MarketEvent({ t, id, revealed, busy, send }: { t: TeamState; id: string
   );
 }
 
-function Retro({ t, busy, send }: { t: TeamState; busy: boolean; send: Send }) {
+function Retro({ t, sprint, busy, send }: { t: TeamState; sprint: number; busy: boolean; send: Send }) {
+  const pay = t.retroPay;
   return (
     <>
+      <div className="payline">
+        <span className="sum mono">
+          +{pay ? pay.base : 2}
+          {pay && pay.bonus > 0 && <span className="plus"> +{pay.bonus}</span>}
+          <span className="unit"> IP</span>
+        </span>
+        <span className="why">
+          {!pay ? <>Two from the retro.</> : (
+            <>
+              {pay.base} from the retro{pay.base < 2 && " \u2014 the blame storm took one"}
+              {pay.bonus > 0
+                ? <>, and one more because {pay.reason}.</>
+                : sprint < IP_BONUS_FROM_SPRINT
+                  ? <>. From sprint {IP_BONUS_FROM_SPRINT} onwards, a sprint that handles its incident &mdash; or
+                      ends with no bugs &mdash; pays one more. Never both.</>
+                  : <>. No bonus this time: {pay.reason}.</>}
+            </>
+          )}
+        </span>
+        <span className="expiry">Spend it. Unspent points are gone when the next sprint starts.</span>
+      </div>
       <div className="shop">
         {PRACTICES.map((p) => {
           const owned = own(t, p.id);

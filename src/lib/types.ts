@@ -98,6 +98,8 @@ export interface TeamState {
   devMod: number;
   blockRelease: boolean;
   ipPenalty: number;
+  /** What the retro paid and why, for the panel to explain itself. */
+  retroPay: { base: number; bonus: number; reason: string } | null;
 
   /** Marks which sprint/phase entry effects have already been applied. */
   applied: Record<string, true>;

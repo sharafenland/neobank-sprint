@@ -242,6 +242,14 @@ details.rules[open]>summary::before{content:"– "}
 .rules-body th{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);font-weight:500}
 .tablewrap{overflow-x:auto}
 
+.payline{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 16px;align-items:baseline;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:14px;background:var(--surface-2)}
+.payline .sum{grid-row:span 2;font-size:26px;font-weight:600;color:var(--ink);align-self:center}
+.payline .sum .plus{color:var(--good)}
+.payline .sum .unit{font-size:13px;color:var(--faint)}
+.payline .why{font-size:13.5px;color:var(--ink)}
+.payline .expiry{font-size:12.5px;color:var(--amber);font-family:var(--mono)}
+@media (max-width:560px){.payline{grid-template-columns:minmax(0,1fr)}.payline .sum{grid-row:auto}}
+
 /* ---------- shop ---------- */
 .shop{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:10px}
 .pcard{text-align:left;border:1px solid var(--line);border-radius:9px;padding:10px 12px;background:var(--surface);cursor:pointer;display:flex;flex-direction:column;gap:4px}

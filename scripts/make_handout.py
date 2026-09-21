@@ -144,6 +144,14 @@ story.append(Paragraph(
     "instead &mdash; capped at +4 in each of Dev, Rel and Mit. The bug counter models unfinished work; legacy "
     "drag models the architecture you never built.", BODY))
 
+story.append(Paragraph("Investment points", H2))
+story.append(Paragraph(
+    "Every retro pays <b>two</b>. From sprint 3 it pays a <b>third</b> if the sprint handled its incident &mdash; "
+    "rolled against it and won, or built the card that removes it &mdash; or ended with no bugs. Only one extra "
+    "point, however well both went. <b>Points do not carry over:</b> whatever is not spent at the retro is gone "
+    "when the next sprint starts, so the three-point practices are only within reach in a sprint that earned "
+    "the bonus.", BODY))
+
 story.append(Paragraph("Paying down debt", H2))
 story.append(Paragraph(
     "A slot does not have to go on a feature. In planning you may spend one on remediation instead: "

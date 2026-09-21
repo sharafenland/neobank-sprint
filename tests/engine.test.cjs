@@ -115,6 +115,65 @@ for (const [name, strat] of Object.entries(strategies)) {
   check("planning action during Release is refused", blocked);
 }
 
+// --- investment points: conditional bonus, never both, and no hoarding ---
+{
+  const { IP_BONUS_FROM_SPRINT } = require("../.test-build/rules");
+  const mk = (sprint) => ({ code: "X", seed: 7, sprints: 8, sprint, phase: 5,
+    reveal_incident: true, reveal_event: true, finished: false });
+  /**
+   * Stands the team at the retro of a given sprint with a chosen outcome
+   * behind it. Every earlier phase is marked applied, because syncToPhase
+   * would otherwise reset the sprint and draw its own incident over ours.
+   */
+  const atRetro = (sprint, { bugs, inc }) => {
+    const t = emptyTeamState();
+    t.applied[`reset:${sprint}`] = true;
+    for (let p = 0; p < 5; p++) t.applied[`${sprint}:${p}`] = true;
+    t.bugs = bugs;
+    t.inc = inc;
+    syncToPhase(t, mk(sprint));
+    return t;
+  };
+
+  // before the bonus opens, a perfect sprint still pays the base
+  {
+    const t = atRetro(IP_BONUS_FROM_SPRINT - 1, { bugs: 0, inc: { skip: false, auto: false, rolled: true, pass: true, done: true } });
+    check("no bonus before the bonus sprint", t.ip === 2, t.ip);
+  }
+  // handled incident earns it
+  {
+    const t = atRetro(IP_BONUS_FROM_SPRINT, { bugs: 3, inc: { skip: false, auto: false, rolled: true, pass: true, done: true } });
+    check("a handled incident pays the bonus", t.ip === 3 && t.retroPay.bonus === 1, t.ip);
+  }
+  // an incident a card removed outright counts as handled
+  {
+    const t = atRetro(IP_BONUS_FROM_SPRINT, { bugs: 3, inc: { skip: false, auto: true, rolled: false, done: true } });
+    check("an incident avoided by preparation counts too", t.ip === 3, t.ip);
+  }
+  // clean books earn it
+  {
+    const t = atRetro(IP_BONUS_FROM_SPRINT, { bugs: 0, inc: { skip: false, auto: false, rolled: true, pass: false, done: true } });
+    check("ending with no bugs pays the bonus", t.ip === 3, t.ip);
+  }
+  // both at once still pays one
+  {
+    const t = atRetro(IP_BONUS_FROM_SPRINT, { bugs: 0, inc: { skip: false, auto: false, rolled: true, pass: true, done: true } });
+    check("both conditions still pay only one", t.ip === 3, t.ip);
+  }
+  // neither
+  {
+    const t = atRetro(IP_BONUS_FROM_SPRINT, { bugs: 2, inc: { skip: false, auto: false, rolled: true, pass: false, done: true } });
+    check("a bad sprint pays the base only", t.ip === 2, t.ip);
+  }
+  // and nothing carries over
+  {
+    const t = atRetro(3, { bugs: 0, inc: { skip: false, auto: false, rolled: true, pass: true, done: true } });
+    check("the retro leaves points to spend", t.ip >= 2, t.ip);
+    syncToPhase(t, { ...mk(4), phase: 0 });
+    check("unspent points expire with the sprint", t.ip === 0, t.ip);
+  }
+}
+
 // --- a slot spent on remediation is a way out of the five-bug wall ---
 {
   const { applyAction } = require("../.test-build/engine");

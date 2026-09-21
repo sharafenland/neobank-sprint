@@ -70,6 +70,15 @@ export default function Rules() {
         capped at +4 per category.
       </p>
 
+      <h2 style={{ fontSize: 21, margin: "30px 0 4px" }}>Investment points</h2>
+      <p style={{ margin: 0, color: "var(--muted)", maxWidth: "62ch", fontSize: 13.5 }}>
+        Every retro pays <b>two</b>. From sprint 3 it pays <b>a third</b> if the sprint handled its incident
+        &mdash; rolled against it and won, or built the card that removes it &mdash; or ended with no bugs.
+        Only one extra point, however well both went. <b>Points do not carry over</b>: whatever is not spent at
+        the retro is gone when the next sprint starts, so the three-point practices are only within reach in a
+        sprint that earned the bonus.
+      </p>
+
       <h2 style={{ fontSize: 21, margin: "30px 0 4px" }}>Paying down debt</h2>
       <p style={{ margin: 0, color: "var(--muted)", maxWidth: "62ch", fontSize: 13.5 }}>
         A slot does not have to go on a feature. In planning you can spend one on remediation instead:

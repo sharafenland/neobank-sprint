@@ -134,7 +134,9 @@ export default function Facilitator() {
               {phase.id === "retro" && (
                 <>
                   <p style={{ margin: "0 0 14px", color: "var(--muted)", fontSize: 13.5 }}>
-                    +2 Investment Points each. Twelve practices are available; every card names the session it comes from.
+                    Two points each, three when a group handled its incident or ended the sprint with no bugs &mdash;
+                    never both, and not before sprint 3. Points expire with the sprint, so every retro is a decision.
+                    Twelve practices; each card names the session it comes from.
                   </p>
                   <div className="shop">
                     {PRACTICES.map((p) => (

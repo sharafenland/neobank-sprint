@@ -122,6 +122,6 @@ export const PHASES: Phase[] = [
     note: ["Technical debt has an interest rate", "Each bug is −1 on this roll and on every roll after it, until someone pays it down. At five bugs nothing ships at all. Nobody decided to stop shipping; it just became arithmetic."] },
   { id: "market", n: "Market Event", minutes: 2, lead: "The world reacts to the portfolio you have actually built.",
     note: ["Defensive work pays late, and all at once", "Privacy, failover and monitoring earn almost nothing when you build them. They decide this phase. A backlog ranked purely on customer value never gets to them."] },
-  { id: "retro", n: "Retro & Investment", minutes: 5, lead: "+2 Investment Points per group. Spend them on permanent practices.",
-    note: ["Improvement compounds, so timing dominates", "A practice bought in sprint 1 applies to every roll that follows; the same practice bought in the last sprint applies to one. This is the whole argument for investing in the way you work while there is still runway."] },
+  { id: "retro", n: "Retro & Investment", minutes: 5, lead: "Two points, three for a sprint handled well. They do not carry over.",
+    note: ["Improvement compounds, so timing dominates", "A practice bought in sprint 1 applies to every roll that follows; the same practice bought in the last sprint applies to one. Points expire with the sprint, so the question is never whether to spend but on what."] },
 ];

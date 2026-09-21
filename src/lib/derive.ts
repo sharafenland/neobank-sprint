@@ -44,17 +44,18 @@ const PLATFORM_IDS = FEATURES.filter((f) => f.c === "platform").map((f) => f.id)
 
 /**
  * Capacity is two slots, and only Cross-Functional Team raises it to three.
- * That costs 3 IP against an income of 2 per retro, so it cannot be owned
- * before the sprint-3 planning. A three-slot card dealt earlier is not a hard
- * choice, it is a card that cannot be clicked — and it holds one of the three
- * platform places for three sprints while being so.
+ * That costs 3 IP, points do not carry over, and a retro pays three only from
+ * sprint 3 and only when the sprint was handled well — so the earliest the
+ * third slot can exist is the sprint-4 planning. A three-slot card dealt
+ * earlier is not a hard choice, it is a card that cannot be clicked, and it
+ * holds one of three platform places for three sprints while being so.
  *
  * The sliding window covers indices sprint-1 … sprint+1, so keeping those
  * cards out of the first four positions keeps them off the table until
  * sprint 3. Done as a deterministic reshuffle, not a filter, so the pile
  * still holds every card.
  */
-const EARLIEST_BIG_SPRINT = 3;
+const EARLIEST_BIG_SPRINT = 4;
 
 function deferBigCards(pile: string[], seed: number): string[] {
   const cost = new Map(FEATURES.map((f) => [f.id, f.s]));

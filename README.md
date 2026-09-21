@@ -80,6 +80,20 @@ releases fail more often.
 | Hard wall | 5 bugs → nothing ships | 3 findings → one slot less capacity |
 | Paid down by | Automated Testing, or a slot | Compliance by Design, or a slot |
 
+**Investment points are earned and then expire.** A retro pays two, and from
+sprint 3 a third when the sprint handled its incident — rolled and won, or
+built the card that removes it — or ended with no bugs. One extra point,
+however well both went. Nothing carries over: whatever is unspent at the retro
+is gone when the next sprint starts.
+
+That pair of rules is what makes the retro a decision rather than a savings
+account. Flat income that accumulates means a group that played well and one
+that floundered arrive at the same shop with the same money, and the only
+question is when to spend. With a conditional point and no hoarding, the
+three-point practices — Definition of Done, Cross-Functional Team, Retro
+Culture, Agentic Coding, Compliance by Design — exist only for a sprint that
+earned them, and a spare point left on the table is a point lost.
+
 **Debt can always be worked off, at the price of the sprint.** During planning
 a group may spend capacity on remediation instead of features: one slot clears
 two bugs, or one audit finding. It resolves at the start of Development, before

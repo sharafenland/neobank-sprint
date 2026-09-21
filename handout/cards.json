@@ -843,10 +843,10 @@
    "id": "retro",
    "n": "Retro & Investment",
    "minutes": 5,
-   "lead": "+2 Investment Points per group. Spend them on permanent practices.",
+   "lead": "Two points, three for a sprint handled well. They do not carry over.",
    "note": [
     "Improvement compounds, so timing dominates",
-    "A practice bought in sprint 1 applies to every roll that follows; the same practice bought in the last sprint applies to one. This is the whole argument for investing in the way you work while there is still runway."
+    "A practice bought in sprint 1 applies to every roll that follows; the same practice bought in the last sprint applies to one. Points expire with the sprint, so the question is never whether to spend but on what."
    ]
   }
  ]

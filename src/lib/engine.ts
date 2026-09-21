@@ -6,8 +6,8 @@ import { FEATURE_BY_ID, INCIDENT_BY_ID, PHASES, PRACTICE_BY_ID } from "./cards";
 import { eventIdFor, incidentIdFor, marketFor } from "./derive";
 import { EVENT_FX, INCIDENT_FX, bug, cust, finding, log, type Fx } from "./effects";
 import {
-  FIX_PER_SLOT, capacity, devBonus, devTarget, has, maxFixSlots, mitBonus, own, relBonus, relTarget,
-  releasing, resetSprint, usedSlots,
+  FIX_PER_SLOT, IP_BONUS_FROM_SPRINT, capacity, devBonus, devTarget, has, maxFixSlots, mitBonus, own,
+  relBonus, relTarget, releasing, resetSprint, usedSlots,
 } from "./rules";
 import type { SessionRow, TeamState } from "./types";
 
@@ -78,9 +78,25 @@ export function syncToPhase(t: TeamState, session: SessionRow): TeamState {
     }
 
     if (id === "retro") {
-      const gain = 2 - t.ipPenalty;
-      t.ip += gain;
-      log(fx, `${gain >= 0 ? "+" : ""}${gain} IP`, gain > 0 ? "up" : "down");
+      // One point for handling the sprint well — never two, however well.
+      // Preparation counts: an incident a portfolio card removed outright is
+      // handled just as much as one that was rolled against.
+      const handled = !!t.inc && (t.inc.pass === true || t.inc.auto === true);
+      const clean = t.bugs === 0;
+      const earned = sprint >= IP_BONUS_FROM_SPRINT && (handled || clean);
+      const base = 2 - t.ipPenalty;
+      const bonus = earned ? 1 : 0;
+      const reason = !earned
+        ? sprint < IP_BONUS_FROM_SPRINT
+          ? `no bonus before sprint ${IP_BONUS_FROM_SPRINT}`
+          : "the incident hit you and you are carrying bugs"
+        : handled
+          ? "the incident was handled"
+          : "you ended the sprint with no bugs";
+
+      t.retroPay = { base, bonus, reason };
+      t.ip += base + bonus;
+      log(fx, `${base + bonus >= 0 ? "+" : ""}${base + bonus} IP${bonus ? " — " + reason : ""}`, base + bonus > 0 ? "up" : "down");
       if (own(t, "tests") && t.bugs > 0) bug(fx, -1);
       if (own(t, "compdes") && t.findings > 0) finding(fx, -1);
     }

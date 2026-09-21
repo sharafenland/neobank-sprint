@@ -9,6 +9,14 @@ export function capacity(t: TeamState): number {
   return Math.max(1, 2 + (own(t, "crossfn") ? 1 : 0) - (t.findings >= 3 ? 1 : 0));
 }
 
+/**
+ * Investment points do not accumulate: whatever is not spent at the retro is
+ * gone when the next sprint starts. Every retro is therefore a decision rather
+ * than a savings account, and the three-point practices are only reachable in
+ * a sprint that earned the bonus.
+ */
+export const IP_BONUS_FROM_SPRINT = 3;
+
 /** A slot of remediation clears this much. */
 export const FIX_PER_SLOT = { bugs: 2, findings: 1 };
 
@@ -102,7 +110,7 @@ export function emptyTeamState(): TeamState {
     practices: [], portfolio: [],
     picked: [], fix: { bugs: 0, findings: 0 },
     confirmed: false, dev: null, built: [], inc: null, rel: null, eventResolved: null,
-    devMod: 0, blockRelease: false, ipPenalty: 0,
+    devMod: 0, blockRelease: false, ipPenalty: 0, retroPay: null,
     applied: {}, feed: [],
   };
 }
@@ -111,4 +119,6 @@ export function resetSprint(t: TeamState): void {
   t.picked = []; t.fix = { bugs: 0, findings: 0 };
   t.confirmed = false; t.dev = null; t.built = []; t.inc = null; t.rel = null;
   t.eventResolved = null; t.devMod = 0; t.blockRelease = false; t.ipPenalty = 0;
+  t.retroPay = null;
+  t.ip = 0; // unspent points expire with the sprint
 }
