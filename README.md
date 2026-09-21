@@ -94,6 +94,14 @@ three-point practices — Definition of Done, Cross-Functional Team, Retro
 Culture, Agentic Coding, Compliance by Design — exist only for a sprint that
 earned them, and a spare point left on the table is a point lost.
 
+**Findings clear two ways, both of them a choice.** A remediation slot clears
+one, and Compliance by Design clears one each retro — priced at 2 IP, the same
+as Automated Testing, because the two are meant to read as a pair: one pays
+down technical debt automatically, the other regulatory debt. At 3 IP it
+competed with Cross-Functional Team and Definition of Done and was never
+bought in a session shorter than eight sprints; at 2 IP a group that has
+noticed its findings can buy it the same retro, every time.
+
 **Debt can always be worked off, at the price of the sprint.** During planning
 a group may spend capacity on remediation instead of features: one slot clears
 two bugs, or one audit finding. It resolves at the start of Development, before
@@ -134,15 +142,30 @@ the unfinished-work half. Without it, a group that never builds infrastructure
 pays nothing for it, and the game would teach the opposite of the course.
 
 **Practices compound.** Twelve permanent practices, each labelled with the
-session it comes from. `Agentic Coding` (Session 05) is deliberately
+session it comes from. `Agentic Coding` (Session 5) is deliberately
 double-edged: +3 on Development, but pushing unfinished work through costs two
 bugs instead of one.
 
-**Cards carry their session.** The 23 platform cards are the course content —
-Database Sharding and Caching Layer are Session 02, Microservice Migration and
-Observability are Session 04, Test Automation and Code Quality Gates are
-Session 06, Security Audit Log is Session 10. The label is printed on the card,
-so a group choosing between them is choosing between lectures.
+**Cards carry their session.** The platform cards and the practices are the
+course content, each labelled with the lecture it comes from, so a group
+choosing between two cards is choosing between two lectures:
+
+| Session | Cards |
+| --- | --- |
+| 1 Foundations & Data Management I | Core Ledger |
+| 2 Data Management II: Scaling | Database Sharding, Data Pipeline, Data Warehouse, Caching Layer, Performance Profiling |
+| 3 Architecture for Financial Systems | Microservice Migration, API Gateway, Disaster Recovery, *Modular Architecture* |
+| 4 Specialties in Finance I: Mainframes | Core Banking Migration |
+| 5 Agentic Software Engineering | *Agentic Coding* |
+| 6 Software Quality & Testing | Test Automation Suite, Code Quality Gates, Error Tracking, A/B Testing System, *Automated Testing* |
+| 7 Collaborative Development with Git & Agile | Documentation Wiki, *Pair Programming*, *Definition of Done*, *Retro Culture*, *Cross-Functional Team* |
+| 8 CI/CD, DevSecOps & Secure Coding | Containerization, Rate Limiting, Security Audit Log, *CI/CD Pipeline* |
+| 9 From Code to Production | Observability Stack, Service Monitoring, Incident Runbooks, Backup & Recovery, Load Balancer, CDN Integration, *Observability & SRE*, *Feature Flags*, *Blameless Postmortems* |
+| 10 Specialties in Finance II: Regulation | KYC Onboarding, AML Monitoring, PSD2 API, Strong Customer Auth, Privacy & GDPR, *Compliance by Design* |
+
+*Italic* entries are practices from the retro shop; the rest are feature cards.
+Sessions 3, 6, 7, 8 and 9 carry most of the deck, which is the point &mdash; those
+are the lectures the game is arguing for.
 
 Card content lives in [`src/lib/cards.ts`](src/lib/cards.ts) (text and numbers)
 and [`src/lib/effects.ts`](src/lib/effects.ts) (what each card does). Adding a

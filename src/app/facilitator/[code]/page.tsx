@@ -233,7 +233,7 @@ function Debrief({ view }: { view: NonNullable<ReturnType<typeof useGame>["view"
     ["Who skipped a compliance feature to grow faster, and when did that bill arrive?", "Session 10 — regulation as a non-functional requirement with a delay."],
     ["The Development roll was all-or-nothing across everything you picked. What does that argue about sprint scope and batch size?", "Small batches fail smaller and more often, which is the point."],
     ["Which of your losses were dice, and which were the portfolio you chose three sprints earlier?", "Separating variance from strategy — the core of empirical process control."],
-    ["Observability, failover and privacy earned almost nothing on release. Would a value-ranked backlog ever have reached them?", "Session 04 — the non-functional half of an architecture."],
+    ["Observability, failover and privacy earned almost nothing on release. Would a value-ranked backlog ever have reached them?", "Session 3 — the non-functional half of an architecture."],
   ];
   return (
     <>
