@@ -168,10 +168,19 @@ function Planning({ t, market, busy, send }: { t: TeamState; market: string[]; b
       <div className="market">
         {market.map((id) => {
           const on = t.picked.includes(id);
+          const size = FEATURE_BY_ID[id].s;
+          const tooBig = size > cap;
+          const noRoom = !tooBig && used + size > cap;
           return (
             <FeatureCard
               key={id} id={id} on={on}
-              disabled={busy || (!on && (t.confirmed || used + FEATURE_BY_ID[id].s > cap))}
+              disabled={busy || (!on && (t.confirmed || tooBig || noRoom))}
+              reason={
+                on || t.confirmed ? undefined
+                  : tooBig ? `Takes ${size} slots. Cross-Functional Team buys you the third.`
+                  : noRoom ? "No slots left this sprint."
+                  : undefined
+              }
               onPick={(f) => send({ kind: "pick", feature: f })}
             />
           );

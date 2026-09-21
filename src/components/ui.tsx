@@ -137,8 +137,8 @@ export function CheatSheet({ t, phase, alwaysOpen = false }: { t?: TeamState; ph
 }
 
 export function FeatureCard({
-  id, on = false, disabled = false, onPick,
-}: { id: string; on?: boolean; disabled?: boolean; onPick?: (id: string) => void }) {
+  id, on = false, disabled = false, reason, onPick,
+}: { id: string; on?: boolean; disabled?: boolean; reason?: string; onPick?: (id: string) => void }) {
   const f = FEATURE_BY_ID[id];
   const inner = (
     <>
@@ -160,6 +160,7 @@ export function FeatureCard({
           ].filter(Boolean).join("  ")}{"  forever"}
         </span>
       )}
+      {reason && <span className="whynot">{reason}</span>}
       <span className="stats">
         <span><span className="dt">Dev</span><span className="dd">{f.t}</span></span>
         <span><span className="dt">Rel</span><span className="dd">{f.r}</span></span>

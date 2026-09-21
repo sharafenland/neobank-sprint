@@ -138,6 +138,28 @@ for (const [name, strat] of Object.entries(strategies)) {
   }
 }
 
+// --- a card that cannot be taken must not hold a place on the table ---
+{
+  const { FEATURE_BY_ID } = require("../.test-build/cards");
+  let tooEarly = 0;
+  for (let seed = 1; seed <= 800; seed++) {
+    for (const sprint of [1, 2]) {
+      if (marketFor(seed, sprint).some((id) => FEATURE_BY_ID[id].s >= 3)) tooEarly++;
+    }
+  }
+  // Capacity is 2 until Cross-Functional Team, which cannot be bought before
+  // the sprint-2 retro, so a three-slot card is unclickable in sprints 1 and 2.
+  check("no three-slot card before capacity can reach three", tooEarly === 0, `${tooEarly} early`);
+
+  let found = 0;
+  for (let seed = 1; seed <= 200; seed++) {
+    for (let sprint = 3; sprint <= 10; sprint++) {
+      if (marketFor(seed, sprint).some((id) => FEATURE_BY_ID[id].s >= 3)) { found++; break; }
+    }
+  }
+  check("but they still reach the table later", found > 100, `${found}/200 sessions`);
+}
+
 // --- no card is ever dealt without the feature it hangs on ---
 {
   const { INCIDENT_BY_ID, EVENT_BY_ID } = require("../.test-build/cards");

@@ -147,8 +147,10 @@ story.append(Paragraph(
 story.append(Paragraph("The table", H2))
 story.append(Paragraph(
     "Six cards each sprint: three product, three platform. One of each rotates off the table at the end of the "
-    "sprint, whether or not anyone took it. Capacity is 2 slots, 3 with Cross-Functional Team, 1 fewer at three "
-    "open findings. Taking no new work is a legal move.", BODY))
+    "sprint, whether or not anyone took it &mdash; a card is therefore available for exactly three sprints. "
+    "Capacity is 2 slots, 3 with Cross-Functional Team, 1 fewer while you hold three open findings. The two "
+    "migration cards cost three slots on their own and stay off the table until the third slot can be bought. "
+    "Taking no new work is a legal move.", BODY))
 
 # ───────────────────────── page 2: product + practices ─────────────────────────
 story.append(PageBreak())

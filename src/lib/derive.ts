@@ -42,12 +42,42 @@ const cache = new Map<number, { product: string[]; platform: string[]; incidents
 const PRODUCT_IDS = FEATURES.filter((f) => f.c !== "platform").map((f) => f.id);
 const PLATFORM_IDS = FEATURES.filter((f) => f.c === "platform").map((f) => f.id);
 
+/**
+ * Capacity is two slots, and only Cross-Functional Team raises it to three.
+ * That costs 3 IP against an income of 2 per retro, so it cannot be owned
+ * before the sprint-3 planning. A three-slot card dealt earlier is not a hard
+ * choice, it is a card that cannot be clicked — and it holds one of the three
+ * platform places for three sprints while being so.
+ *
+ * The sliding window covers indices sprint-1 … sprint+1, so keeping those
+ * cards out of the first four positions keeps them off the table until
+ * sprint 3. Done as a deterministic reshuffle, not a filter, so the pile
+ * still holds every card.
+ */
+const EARLIEST_BIG_SPRINT = 3;
+
+function deferBigCards(pile: string[], seed: number): string[] {
+  const cost = new Map(FEATURES.map((f) => [f.id, f.s]));
+  const blocked = EARLIEST_BIG_SPRINT + 1; // positions 0 … blocked-1 are visible too early
+  const out = pile.slice();
+  const rand = mulberry32((seed ^ 0x51ed270b) >>> 0);
+  for (let i = 0; i < Math.min(blocked, out.length); i++) {
+    if ((cost.get(out[i]) ?? 1) < 3) continue;
+    const later = [];
+    for (let j = blocked; j < out.length; j++) if ((cost.get(out[j]) ?? 1) < 3) later.push(j);
+    if (!later.length) break;
+    const j = later[Math.floor(rand() * later.length)];
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
 function decks(seed: number) {
   let d = cache.get(seed);
   if (!d) {
     d = {
       product: seededShuffle(PRODUCT_IDS, (seed ^ 0x9e3779b9) >>> 0),
-      platform: seededShuffle(PLATFORM_IDS, (seed ^ 0x27d4eb2f) >>> 0),
+      platform: deferBigCards(seededShuffle(PLATFORM_IDS, (seed ^ 0x27d4eb2f) >>> 0), seed),
       incidents: seededShuffle(INCIDENTS.map((c) => c.id), (seed ^ 0x85ebca6b) >>> 0),
       events: seededShuffle(EVENTS.map((c) => c.id), (seed ^ 0xc2b2ae35) >>> 0),
     };

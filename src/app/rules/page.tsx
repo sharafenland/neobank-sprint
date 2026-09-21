@@ -70,6 +70,14 @@ export default function Rules() {
         capped at +4 per category.
       </p>
 
+      <h2 style={{ fontSize: 21, margin: "30px 0 4px" }}>Capacity</h2>
+      <p style={{ margin: 0, color: "var(--muted)", maxWidth: "62ch", fontSize: 13.5 }}>
+        Two slots a sprint, three with Cross-Functional Team, one fewer while you have three open findings.
+        The two migration cards cost three slots on their own &mdash; they are the whole sprint, and you cannot
+        take them at all until you have bought the third slot. They stay off the table until that is possible.
+        Taking no new work is always allowed.
+      </p>
+
       <h2 style={{ fontSize: 21, margin: "30px 0 8px" }}>Product cards <span className="mono" style={{ fontSize: 13, color: "var(--faint)" }}>{product.length}</span></h2>
       <div className="market">{product.map((f) => <FeatureCard key={f.id} id={f.id} />)}</div>
 

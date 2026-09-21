@@ -94,6 +94,15 @@ three product, three platform, one of each rotating out. Platform cards earn
 few customers and pay a permanent modifier instead — capped at +4 per category,
 so infrastructure shifts the distribution without removing the dice.
 
+**Three-slot cards are gated, not just expensive.** Microservice Migration and
+Core Banking Migration cost three slots against a base capacity of two, so
+neither can be taken until Cross-Functional Team is bought — 3 IP against an
+income of 2 a retro, which lands at the sprint-3 planning at the earliest. The
+deal therefore holds them back until then: dealt in sprint 1 they are not a
+hard choice, they are a card that cannot be clicked, occupying one of three
+platform places for three sprints. When a card is out of reach the planning
+screen says why on the card itself, rather than greying it out in silence.
+
 **Legacy drag.** One platform card carries two product features. Every product
 feature past that adds +1 to the combined Development target, capped at +6.
 This is the architectural half of technical debt; the bug counter only models
