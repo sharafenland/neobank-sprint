@@ -136,7 +136,17 @@ const final = (await call(`/api/sessions/${code}`, { host: hostToken })).json;
 check("session is finished", final.session.finished === true, final.session);
 const blocked = await call(`/api/sessions/${code}/actions`, { method: "POST", body: { kind: "commit" }, team: A });
 check("a finished session refuses further actions", blocked.status === 409, blocked.json);
-check("customers survived to the end", Object.values(lastCustomers).some((v) => v > 0), lastCustomers);
+// Not "someone finished with customers" — that asserts on dice, and a bad run
+// can legitimately leave both groups at zero. Assert that the session actually
+// recorded play for each of them.
+for (const [label, token] of [["Gruppe A", A], ["Gruppe B", B]]) {
+  const mine = (await call(`/api/sessions/${code}`, { team: token })).json;
+  const st = mine.you.state;
+  check(`${label} accumulated a sprint log`, st.feed.length > 0, st.feed.length);
+  check(`${label} carries the applied markers for every phase played`,
+    Object.keys(st.applied).length >= SPRINTS * 6, Object.keys(st.applied).length);
+}
+console.log("  final:", JSON.stringify(lastCustomers));
 
 // ---- the facilitator can stop early and can add a sprint ----
 {
