@@ -86,6 +86,8 @@ export interface TeamState {
 
   /** Per-sprint working set. */
   picked: string[];
+  /** Slots spent on paying down debt instead of taking new work. */
+  fix: { bugs: number; findings: number };
   confirmed: boolean;
   dev: { roll: number; total: number; target: number; pass: boolean; decided: Record<string, "push" | "shelve"> } | null;
   built: BuiltItem[];

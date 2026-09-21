@@ -70,6 +70,14 @@ export default function Rules() {
         capped at +4 per category.
       </p>
 
+      <h2 style={{ fontSize: 21, margin: "30px 0 4px" }}>Paying down debt</h2>
+      <p style={{ margin: 0, color: "var(--muted)", maxWidth: "62ch", fontSize: 13.5 }}>
+        A slot does not have to go on a feature. In planning you can spend one on remediation instead:
+        <b> one slot clears two bugs, or one audit finding</b>. It takes effect at the start of Development,
+        before the release roll &mdash; so at five bugs, one slot gets you shipping again in the same sprint.
+        It costs you what that slot would have earned.
+      </p>
+
       <h2 style={{ fontSize: 21, margin: "30px 0 4px" }}>Capacity</h2>
       <p style={{ margin: 0, color: "var(--muted)", maxWidth: "62ch", fontSize: 13.5 }}>
         Two slots a sprint, three with Cross-Functional Team, one fewer while you have three open findings.

@@ -9,8 +9,23 @@ export function capacity(t: TeamState): number {
   return Math.max(1, 2 + (own(t, "crossfn") ? 1 : 0) - (t.findings >= 3 ? 1 : 0));
 }
 
+/** A slot of remediation clears this much. */
+export const FIX_PER_SLOT = { bugs: 2, findings: 1 };
+
+export function fixSlots(t: TeamState): number {
+  return (t.fix?.bugs ?? 0) + (t.fix?.findings ?? 0);
+}
+
+/** The most remediation worth buying — never more slots than there is debt. */
+export function maxFixSlots(t: TeamState) {
+  return {
+    bugs: Math.ceil(t.bugs / FIX_PER_SLOT.bugs),
+    findings: Math.ceil(t.findings / FIX_PER_SLOT.findings),
+  };
+}
+
 export function usedSlots(t: TeamState): number {
-  return t.picked.reduce((a, id) => a + FEATURE_BY_ID[id].s, 0);
+  return t.picked.reduce((a, id) => a + FEATURE_BY_ID[id].s, 0) + fixSlots(t);
 }
 
 /**
@@ -85,13 +100,15 @@ export function emptyTeamState(): TeamState {
   return {
     customers: 0, bugs: 0, findings: 0, ip: 0, ipSpent: 0, shipped: 0,
     practices: [], portfolio: [],
-    picked: [], confirmed: false, dev: null, built: [], inc: null, rel: null, eventResolved: null,
+    picked: [], fix: { bugs: 0, findings: 0 },
+    confirmed: false, dev: null, built: [], inc: null, rel: null, eventResolved: null,
     devMod: 0, blockRelease: false, ipPenalty: 0,
     applied: {}, feed: [],
   };
 }
 
 export function resetSprint(t: TeamState): void {
-  t.picked = []; t.confirmed = false; t.dev = null; t.built = []; t.inc = null; t.rel = null;
+  t.picked = []; t.fix = { bugs: 0, findings: 0 };
+  t.confirmed = false; t.dev = null; t.built = []; t.inc = null; t.rel = null;
   t.eventResolved = null; t.devMod = 0; t.blockRelease = false; t.ipPenalty = 0;
 }

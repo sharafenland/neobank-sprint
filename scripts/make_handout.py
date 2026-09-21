@@ -129,7 +129,7 @@ debt = [
     ["Earned by", "Pushing unfinished work through", "Failed incidents and regulatory cards"],
     ["Taxes", "Every Release roll", "Every Mitigation roll"],
     ["Hard wall", "5 bugs → nothing ships at all", "3 findings → one slot less capacity"],
-    ["Paid down by", "Automated Testing (practice)", "Compliance by Design (practice)"],
+    ["Paid down by", "Automated Testing, or a slot (\u22122)", "Compliance by Design, or a slot (\u22121)"],
 ]
 rows = [[th(c) if i == 0 else (Paragraph(c, CELLM) if j == 0 else Paragraph(c, CELL))
          for j, c in enumerate(r)] for i, r in enumerate(debt)]
@@ -143,6 +143,13 @@ story.append(Paragraph(
     "combined Development target, up to +6. Platform cards earn few customers and pay a permanent modifier "
     "instead &mdash; capped at +4 in each of Dev, Rel and Mit. The bug counter models unfinished work; legacy "
     "drag models the architecture you never built.", BODY))
+
+story.append(Paragraph("Paying down debt", H2))
+story.append(Paragraph(
+    "A slot does not have to go on a feature. In planning you may spend one on remediation instead: "
+    "<b>one slot clears two bugs, or one audit finding</b>. It takes effect at the start of Development, before "
+    "the release roll &mdash; so at five bugs, one slot gets you shipping again in the same sprint. It costs you "
+    "whatever that slot would have earned.", BODY))
 
 story.append(Paragraph("The table", H2))
 story.append(Paragraph(

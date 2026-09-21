@@ -6,7 +6,8 @@ import { EVENT_BY_ID, FEATURE_BY_ID, INCIDENT_BY_ID, PHASES, PRACTICES, PRACTICE
 import { act } from "@/lib/client";
 import { INCIDENT_FX } from "@/lib/effects";
 import {
-  INFRA_CAP, capacity, devBonus, devTarget, infraBonus, legacyDrag, mitBonus, own, relBonus, relTarget, releasing, usedSlots,
+  FIX_PER_SLOT, INFRA_CAP, capacity, devBonus, devTarget, infraBonus, legacyDrag, maxFixSlots, mitBonus, own,
+  relBonus, relTarget, releasing, usedSlots,
 } from "@/lib/rules";
 import type { TeamState } from "@/lib/types";
 import { useGame } from "@/components/useGame";
@@ -186,6 +187,7 @@ function Planning({ t, market, busy, send }: { t: TeamState; market: string[]; b
           );
         })}
       </div>
+      <Remediation t={t} busy={busy} send={send} />
       <div className="spread" style={{ marginTop: 16 }}>
         <div className="calc">
           Combined Dev target <b>{t.picked.length ? devTarget(t) : "\u2014"}</b>
@@ -208,6 +210,55 @@ function Planning({ t, market, busy, send }: { t: TeamState; market: string[]; b
         )}
       </div>
     </>
+  );
+}
+
+/**
+ * Without this a team at five bugs simply waits: releases are blocked, the only
+ * lever is a practice that clears one bug a retro, and nothing they decide in
+ * between changes anything. A slot spent here is a sprint's earnings given up
+ * to get moving again — the trade every team eventually has to make.
+ */
+function Remediation({ t, busy, send }: { t: TeamState; busy: boolean; send: Send }) {
+  if (t.bugs === 0 && t.findings === 0) return null;
+  const max = maxFixSlots(t);
+  const free = capacity(t) - usedSlots(t);
+  const fix = t.fix ?? { bugs: 0, findings: 0 };
+
+  const row = (what: "bugs" | "findings", debt: number, per: number) => {
+    if (debt === 0) return null;
+    const n = fix[what];
+    return (
+      <div className="fixrow" key={what}>
+        <span className="lab">
+          {what === "bugs" ? "Fix bugs" : "Clear findings"}
+          <span className="sub">one slot removes {per}, you have {debt}</span>
+        </span>
+        <span className="stepper-ctl">
+          <button className="btn ghost sm" disabled={busy || t.confirmed || n === 0}
+            onClick={() => send({ kind: "fix", what, delta: -1 })} aria-label={`One slot less on ${what}`}>&minus;</button>
+          <b className="mono">{n}</b>
+          <button className="btn ghost sm" disabled={busy || t.confirmed || free < 1 || n >= max[what]}
+            onClick={() => send({ kind: "fix", what, delta: 1 })} aria-label={`One slot more on ${what}`}>+</button>
+        </span>
+        <span className="outcome mono">
+          {n > 0 ? `${what === "bugs" ? t.bugs : t.findings} \u2192 ${Math.max(0, (what === "bugs" ? t.bugs : t.findings) - n * per)}` : "\u2014"}
+        </span>
+      </div>
+    );
+  };
+
+  return (
+    <div className="fixbox">
+      <span className="eyebrow">Pay down debt instead of taking new work</span>
+      {row("bugs", t.bugs, FIX_PER_SLOT.bugs)}
+      {row("findings", t.findings, FIX_PER_SLOT.findings)}
+      {t.bugs >= 5 && (
+        <p className="warn">
+          At five bugs nothing ships at all. One slot here brings you back under the line this sprint.
+        </p>
+      )}
+    </div>
   );
 }
 

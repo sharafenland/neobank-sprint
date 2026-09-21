@@ -78,7 +78,17 @@ releases fail more often.
 | Earned by | pushing unfinished work through | failed incidents, regulatory cards |
 | Taxes | every Release roll | every Mitigation roll |
 | Hard wall | 5 bugs → nothing ships | 3 findings → one slot less capacity |
-| Paid down by | Automated Testing | Compliance by Design |
+| Paid down by | Automated Testing, or a slot | Compliance by Design, or a slot |
+
+**Debt can always be worked off, at the price of the sprint.** During planning
+a group may spend capacity on remediation instead of features: one slot clears
+two bugs, or one audit finding. It resolves at the start of Development, before
+the release roll, so a team at five bugs can spend one slot and ship again in
+the same sprint. Without it, five bugs is not a hard state to recover from, it
+is a state with no decisions in it — releases blocked, the only lever a 2 IP
+practice that clears one bug a retro and does not clear in the retro you buy
+it, which is two dead sprints of watching. The choice is the lesson: you can
+always stop and fix, it just costs you what the sprint would have earned.
 
 **Defensive features pay late.** Observability, Disaster Recovery and Privacy
 earn almost nothing on release, and then decide the Incident and Market Event

@@ -6,7 +6,8 @@ import { FEATURE_BY_ID, INCIDENT_BY_ID, PHASES, PRACTICE_BY_ID } from "./cards";
 import { eventIdFor, incidentIdFor, marketFor } from "./derive";
 import { EVENT_FX, INCIDENT_FX, bug, cust, finding, log, type Fx } from "./effects";
 import {
-  capacity, devBonus, devTarget, has, mitBonus, own, relBonus, relTarget, releasing, resetSprint, usedSlots,
+  FIX_PER_SLOT, capacity, devBonus, devTarget, has, maxFixSlots, mitBonus, own, relBonus, relTarget,
+  releasing, resetSprint, usedSlots,
 } from "./rules";
 import type { SessionRow, TeamState } from "./types";
 
@@ -33,6 +34,7 @@ export interface RosterEntry {
  */
 export function syncToPhase(t: TeamState, session: SessionRow): TeamState {
   const { sprint } = session;
+  if (!t.fix) t.fix = { bugs: 0, findings: 0 };
 
   const resetKey = `reset:${sprint}`;
   if (sprint > 1 && !t.applied[resetKey]) {
@@ -45,6 +47,13 @@ export function syncToPhase(t: TeamState, session: SessionRow): TeamState {
     if (t.applied[key]) continue;
     const fx: Fx = { t, sprint };
     const id = PHASES[phase].id;
+
+    if (id === "dev") {
+      // Remediation resolves before the release roll, which is the point: a
+      // team at five bugs can spend a slot and ship again in the same sprint.
+      if (t.fix.bugs > 0) bug(fx, -Math.min(t.bugs, t.fix.bugs * FIX_PER_SLOT.bugs));
+      if (t.fix.findings > 0) finding(fx, -Math.min(t.findings, t.fix.findings * FIX_PER_SLOT.findings));
+    }
 
     if (id === "incident") {
       const cardId = incidentIdFor(session.seed, sprint);
@@ -94,6 +103,7 @@ function settleShelved(fx: Fx) {
 
 export type Action =
   | { kind: "pick"; feature: string }
+  | { kind: "fix"; what: "bugs" | "findings"; delta: 1 | -1 }
   | { kind: "commit" }
   | { kind: "unlock" }
   | { kind: "rollDev" }
@@ -130,6 +140,23 @@ export function applyAction(
       if (at >= 0) t.picked.splice(at, 1);
       else if (usedSlots(t) + f.s <= capacity(t)) t.picked.push(f.id);
       else throw new GameError("Not enough slots left for that card.");
+      return t;
+    }
+
+    case "fix": {
+      requirePhase(session, "planning");
+      if (t.confirmed) throw new GameError("Your plan is committed. Reopen it first.");
+      const current = t.fix[action.what];
+      if (action.delta < 0) {
+        if (current === 0) throw new GameError("Nothing to take back.");
+        t.fix[action.what] = current - 1;
+        return t;
+      }
+      if (usedSlots(t) + 1 > capacity(t)) throw new GameError("No slots left this sprint.");
+      if (current + 1 > maxFixSlots(t)[action.what]) {
+        throw new GameError(`One more slot would not clear anything — you have ${t[action.what]}.`);
+      }
+      t.fix[action.what] = current + 1;
       return t;
     }
 

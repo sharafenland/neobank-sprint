@@ -115,6 +115,60 @@ for (const [name, strat] of Object.entries(strategies)) {
   check("planning action during Release is refused", blocked);
 }
 
+// --- a slot spent on remediation is a way out of the five-bug wall ---
+{
+  const { applyAction } = require("../.test-build/engine");
+  const { usedSlots, capacity, FIX_PER_SLOT } = require("../.test-build/rules");
+  const session = { code: "X", seed: 7, sprints: 6, sprint: 1, phase: 0, reveal_incident: true, reveal_event: true, finished: false };
+  const t = emptyTeamState();
+  t.bugs = 5;
+  syncToPhase(t, session);
+
+  applyAction(t, session, [], { kind: "fix", what: "bugs", delta: 1 });
+  check("a remediation slot counts against capacity", usedSlots(t) === 1);
+  check("bugs are not cleared during planning", t.bugs === 5);
+
+  const cheap = marketFor(7, 1).find((id) => FEATURE_BY_ID[id].s === 1);
+  applyAction(t, session, [], { kind: "pick", feature: cheap });
+  check("the other slot still takes a feature", t.picked.length === 1 && usedSlots(t) === capacity(t));
+
+  let full = false;
+  try { applyAction(t, session, [], { kind: "fix", what: "bugs", delta: 1 }); } catch (e) { full = e instanceof GameError; }
+  check("remediation cannot exceed capacity", full);
+
+  applyAction(t, session, [], { kind: "commit" });
+  session.phase = 1;
+  syncToPhase(t, session);
+  check("one slot clears two bugs when the sprint starts", t.bugs === 5 - FIX_PER_SLOT.bugs);
+  check("which is back under the release wall", t.bugs < 5);
+
+  syncToPhase(t, session);
+  check("remediation is applied exactly once", t.bugs === 5 - FIX_PER_SLOT.bugs);
+}
+
+// --- remediation is capped by the debt that exists ---
+{
+  const { applyAction } = require("../.test-build/engine");
+  const session = { code: "X", seed: 9, sprints: 6, sprint: 1, phase: 0, reveal_incident: true, reveal_event: true, finished: false };
+  const t = emptyTeamState();
+  t.bugs = 1;
+  syncToPhase(t, session);
+  applyAction(t, session, [], { kind: "fix", what: "bugs", delta: 1 });
+  let pointless = false;
+  try { applyAction(t, session, [], { kind: "fix", what: "bugs", delta: 1 }); } catch (e) { pointless = e instanceof GameError; }
+  check("a slot that would clear nothing is refused", pointless);
+
+  const t2 = emptyTeamState();
+  t2.findings = 3;
+  syncToPhase(t2, session);
+  applyAction(t2, session, [], { kind: "fix", what: "findings", delta: 1 });
+  applyAction(t2, session, [], { kind: "commit" });
+  session.phase = 1;
+  syncToPhase(t2, session);
+  check("a findings slot clears one finding", t2.findings === 2);
+  check("which lifts the supervisory cap on capacity", capacity(t2) === 2);
+}
+
 // --- five bugs stops the release train ---
 {
   const session = { code: "X", seed: 7, sprints: 4, sprint: 1, phase: 3, reveal_incident: true, reveal_event: true, finished: false };
