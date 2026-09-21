@@ -135,7 +135,9 @@ export function applyAction(
 
     case "commit": {
       requirePhase(session, "planning");
-      if (!t.picked.length) throw new GameError("Pick at least one card before committing.");
+      // An empty plan is a legal move: a group may spend a sprint paying down
+      // debt instead of taking new work, and a capped group may have nothing
+      // on the table it can afford.
       t.confirmed = true;
       return t;
     }

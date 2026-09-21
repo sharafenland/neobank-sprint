@@ -175,8 +175,8 @@ function Planning({ t, market, busy, send }: { t: TeamState; market: string[]; b
         {t.confirmed ? (
           <button className="btn ghost" disabled={busy} onClick={() => send({ kind: "unlock" })}>Reopen the plan</button>
         ) : (
-          <button className="btn" disabled={busy || !t.picked.length} onClick={() => send({ kind: "commit" })}>
-            Commit this sprint&rsquo;s plan
+          <button className="btn" disabled={busy} onClick={() => send({ kind: "commit" })}>
+            {t.picked.length ? "Commit this sprint\u2019s plan" : "Take no new work this sprint"}
           </button>
         )}
       </div>

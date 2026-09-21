@@ -99,6 +99,18 @@ and it is not meant to survive someone who wants to cheat.
 
 ---
 
+## Tests
+
+```bash
+npm test
+```
+
+Compiles the pure modules and plays 36 complete six-sprint games across three
+strategies, checking that every phase can be finished, that no counter goes
+negative, that retro income is paid exactly once however often a device polls,
+that a group cannot roll twice, and that five bugs really do stop the release
+train. No database needed.
+
 ## Local development
 
 ```bash
