@@ -40,7 +40,9 @@ export async function createSession(sprints: number): Promise<{ code: string; ho
 export async function joinSession(code: string, name: string): Promise<{ token: string; name: string }> {
   return parse(await fetch(`/api/sessions/${code}/teams`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ name }) }));
 }
-export async function hostOp(code: string, op: "next" | "back" | "revealIncident" | "revealEvent") {
+export type HostOp = "next" | "back" | "revealIncident" | "revealEvent" | "finish" | "extend";
+
+export async function hostOp(code: string, op: HostOp) {
   return parse(await fetch(`/api/sessions/${code}/phase`, { method: "POST", headers: authHeaders(code), body: JSON.stringify({ op }) }));
 }
 export async function act(code: string, action: unknown) {

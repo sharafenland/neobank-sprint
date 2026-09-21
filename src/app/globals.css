@@ -118,6 +118,9 @@ input,textarea,select{font:inherit;color:inherit}
 
 /* ---------- cheat sheet ---------- */
 .cheat{border:1px dashed var(--line-strong);border-radius:9px;padding:11px 13px 10px;margin-bottom:16px;background:var(--surface-2)}
+.rail .cheat{margin-bottom:0;background:var(--surface)}
+.rail .cheat li{flex-direction:column;gap:1px}
+.rail .cheat li .k{min-width:0}
 .cheat>.eyebrow{display:block;margin-bottom:7px}
 .cheat ul{list-style:none;margin:0;padding:0;display:grid;gap:5px}
 .cheat li{display:flex;gap:9px;align-items:baseline;font-family:var(--mono);font-size:12px;line-height:1.45;color:var(--muted)}

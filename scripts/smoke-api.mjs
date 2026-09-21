@@ -138,6 +138,36 @@ const blocked = await call(`/api/sessions/${code}/actions`, { method: "POST", bo
 check("a finished session refuses further actions", blocked.status === 409, blocked.json);
 check("customers survived to the end", Object.values(lastCustomers).some((v) => v > 0), lastCustomers);
 
+// ---- the facilitator can stop early and can add a sprint ----
+{
+  const s2 = (await call("/api/sessions", { method: "POST", body: { sprints: 3 } })).json;
+  const h2 = s2.hostToken;
+  const atRetro = async () => {
+    for (let i = 0; i < 5; i++) await call(`/api/sessions/${s2.code}/phase`, { method: "POST", body: { op: "next" }, host: h2 });
+  };
+  await atRetro();
+  let v = (await call(`/api/sessions/${s2.code}`, { host: h2 })).json;
+  check("walked to the first retro", phaseName[v.session.phase] === "retro", v.session);
+
+  const ended = await call(`/api/sessions/${s2.code}/phase`, { method: "POST", body: { op: "finish" }, host: h2 });
+  v = (await call(`/api/sessions/${s2.code}`, { host: h2 })).json;
+  check("the facilitator can end the game after any sprint", ended.status === 200 && v.session.finished === true, v.session);
+
+  const notYours = await call(`/api/sessions/${s2.code}/phase`, { method: "POST", body: { op: "finish" } });
+  check("ending the game needs the host token", notYours.status === 403);
+}
+{
+  const s3 = (await call("/api/sessions", { method: "POST", body: { sprints: 3 } })).json;
+  const h3 = s3.hostToken;
+  const ext = await call(`/api/sessions/${s3.code}/phase`, { method: "POST", body: { op: "extend" }, host: h3 });
+  const v = (await call(`/api/sessions/${s3.code}`, { host: h3 })).json;
+  check("a sprint can be added", ext.status === 200 && v.session.sprints === 4, v.session);
+
+  for (let i = 0; i < 9; i++) await call(`/api/sessions/${s3.code}/phase`, { method: "POST", body: { op: "extend" }, host: h3 });
+  const tooMany = await call(`/api/sessions/${s3.code}/phase`, { method: "POST", body: { op: "extend" }, host: h3 });
+  check("extending stops at twelve sprints", tooMany.status === 400, tooMany.json);
+}
+
 const missing = await call("/api/sessions/ZZZZ");
 check("an unknown code is a 404", missing.status === 404);
 

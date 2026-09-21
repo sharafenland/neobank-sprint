@@ -17,9 +17,19 @@ Adapted from the CatTube sprint game, which is itself inspired by the
 4. You drive the phases from the facilitator console. Groups cannot skip ahead.
 
 Both consoles carry a **cheat sheet** in every phase: the three formulas, with the
-line for the current phase highlighted, and on a group's screen its live bonuses,
-bug count and legacy drag underneath. `/rules` has the same sheet plus every card,
-for students to open on a phone or for the projector before you start.
+line for the current phase highlighted. On a group's screen it sits above the
+phase and carries that group's live bonuses, bug count and legacy drag; on the
+facilitator's it sits in the right-hand rail above the standings, out of the way
+of the cards you are showing the room. `/rules` has the same sheet plus every
+card, for students to open on a phone or for the projector before you start.
+
+### Changing your mind about the length
+
+The retro is where the room can be redirected. At any retro before the last you
+get **End the game now** — two clicks, because a slip there is not recoverable —
+which finishes the session after the sprint in progress. At the last retro you
+get **Add another sprint** instead, up to a ceiling of twelve. Neither needs the
+groups to do anything; their screens follow.
 
 Six phases per sprint: **Sprint Planning → Development → Incident → Release →
 Market Event → Retro & Investment.**

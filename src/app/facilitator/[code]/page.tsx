@@ -3,7 +3,7 @@
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { EVENT_BY_ID, INCIDENT_BY_ID, PHASES, PRACTICES } from "@/lib/cards";
-import { hostOp } from "@/lib/client";
+import { hostOp, type HostOp } from "@/lib/client";
 import { useGame } from "@/components/useGame";
 import { CheatSheet, ErrorBar, FeatureCard, PhaseHead, Stepper, TeachingNote, Timer } from "@/components/ui";
 
@@ -11,6 +11,7 @@ export default function Facilitator() {
   const code = String(useParams().code ?? "").toUpperCase();
   const { view, error, refresh } = useGame(code);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [confirmEnd, setConfirmEnd] = useState(false);
 
   if (!view) return <div className="setup"><p className="empty">{error ?? "Loading the session…"}</p></div>;
   if (!view.isHost) {
@@ -28,9 +29,10 @@ export default function Facilitator() {
   const s = view.session;
   const phase = PHASES[s.phase];
 
-  async function run(op: "next" | "back" | "revealIncident" | "revealEvent") {
+  async function run(op: HostOp) {
     try {
       setActionError(null);
+      setConfirmEnd(false);
       await hostOp(code, op);
       await refresh();
     } catch (err) {
@@ -62,7 +64,6 @@ export default function Facilitator() {
           <div className="panel">
             <PhaseHead phase={phase} />
             <div className="panel-body">
-              <CheatSheet phase={phase} />
               {phase.id === "planning" && (
                 <>
                   <p style={{ margin: "0 0 14px", color: "var(--muted)", fontSize: 13.5 }}>
@@ -157,7 +158,10 @@ export default function Facilitator() {
           </div>
         </div>
 
-        <aside className="rail"><Roster view={view} /></aside>
+        <aside className="rail">
+          <CheatSheet phase={phase} />
+          <Roster view={view} />
+        </aside>
       </main>
 
       <div className="footbar"><div className="footbar-in">
@@ -166,6 +170,15 @@ export default function Facilitator() {
             ? "Waiting for the first group to join."
             : `${view.teams.filter((t) => t.phaseDone).length} of ${view.teams.length} groups have finished this phase.`}
         </span>
+        {phase.id === "retro" && (
+          s.sprint >= s.sprints ? (
+            <button className="btn ghost" onClick={() => run("extend")}>Add another sprint</button>
+          ) : confirmEnd ? (
+            <button className="btn danger" onClick={() => run("finish")}>Yes, end it here</button>
+          ) : (
+            <button className="btn ghost" onClick={() => setConfirmEnd(true)}>End the game now</button>
+          )
+        )}
         <button className="btn ghost" disabled={s.phase === 0 && s.sprint === 1} onClick={() => run("back")}>Back</button>
         <button className="btn" onClick={() => run("next")}>
           {phase.id === "retro"

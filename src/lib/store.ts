@@ -88,6 +88,14 @@ export async function setPhase(code: string, sprint: number, phase: number, fini
   `;
 }
 
+export async function setSprints(code: string, sprints: number) {
+  await sql`update sessions set sprints = ${sprints}, updated_at = now() where code = ${code}`;
+}
+
+export async function finishSession(code: string) {
+  await sql`update sessions set finished = true, updated_at = now() where code = ${code}`;
+}
+
 export async function setReveal(code: string, which: "incident" | "event") {
   if (which === "incident") {
     await sql`update sessions set reveal_incident = true, updated_at = now() where code = ${code}`;

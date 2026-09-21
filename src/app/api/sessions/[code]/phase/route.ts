@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { PHASES } from "@/lib/cards";
 import { syncToPhase } from "@/lib/engine";
-import { getSession, isHost, listTeams, saveTeam, setPhase, setReveal, writeAudit } from "@/lib/store";
+import { finishSession, getSession, isHost, listTeams, saveTeam, setPhase, setReveal, setSprints, writeAudit } from "@/lib/store";
+
+/** A session can be extended, but not without end. */
+const MAX_SPRINTS = 12;
 
 /** Only the facilitator moves the room. Groups follow. */
 export async function POST(req: Request, ctx: { params: Promise<{ code: string }> }) {
@@ -18,6 +21,23 @@ export async function POST(req: Request, ctx: { params: Promise<{ code: string }
   if (op === "revealIncident" || op === "revealEvent") {
     await setReveal(session.code, op === "revealIncident" ? "incident" : "event");
     return NextResponse.json({ ok: true });
+  }
+
+  // Stop after the sprint in progress, whatever the plan said.
+  if (op === "finish") {
+    await finishSession(session.code);
+    await writeAudit(session.code, null, session.sprint, session.phase, "finish", { after: session.sprint });
+    return NextResponse.json({ ok: true, finished: true });
+  }
+
+  // Room still has energy at the last retro? Give it one more sprint.
+  if (op === "extend") {
+    if (session.sprints >= MAX_SPRINTS) {
+      return NextResponse.json({ error: `${MAX_SPRINTS} sprints is as far as this goes.` }, { status: 400 });
+    }
+    await setSprints(session.code, session.sprints + 1);
+    await writeAudit(session.code, null, session.sprint, session.phase, "extend", { sprints: session.sprints + 1 });
+    return NextResponse.json({ ok: true, sprints: session.sprints + 1 });
   }
 
   let { sprint, phase } = session;
