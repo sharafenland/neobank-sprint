@@ -52,7 +52,20 @@ const HIGHLIGHT: Record<Phase["id"], string> = {
   planning: "dev", dev: "dev", incident: "incident", release: "release", market: "", retro: "retro",
 };
 
-export function CheatSheet({ t, phase }: { t?: TeamState; phase: Phase }) {
+const CHEAT_KEY = "nbs.cheat.open";
+
+export function CheatSheet({ t, phase, alwaysOpen = false }: { t?: TeamState; phase: Phase; alwaysOpen?: boolean }) {
+  // Closed on arrival; the formulas are reference, the status line below is not.
+  // Starting closed also keeps the server and the first client render in step.
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    try { setOpen(localStorage.getItem(CHEAT_KEY) === "1"); } catch { /* private mode */ }
+  }, []);
+  function toggle(next: boolean) {
+    setOpen(next);
+    try { localStorage.setItem(CHEAT_KEY, next ? "1" : "0"); } catch { /* private mode */ }
+  }
+
   const drag = t ? legacyDrag(t) : 0;
   const rows: { k: string; id: string; f: React.ReactNode }[] = [
     {
@@ -74,15 +87,20 @@ export function CheatSheet({ t, phase }: { t?: TeamState; phase: Phase }) {
   ];
   return (
     <div className="cheat">
-      <span className="eyebrow">Cheat sheet</span>
-      <ul>
-        {rows.map((r) => (
-          <li key={r.id} className={r.id === HIGHLIGHT[phase.id] ? "on" : ""}>
-            <span className="k">{r.k}</span>
-            <span className="f">{r.f}</span>
-          </li>
-        ))}
-      </ul>
+      <details open={alwaysOpen || open} onToggle={(e) => { if (!alwaysOpen) toggle((e.currentTarget as HTMLDetailsElement).open); }}>
+        <summary style={alwaysOpen ? { pointerEvents: "none" } : undefined}>
+          <span className="eyebrow">Cheat sheet</span>
+          {!alwaysOpen && <span className="hintword">{open ? "hide" : "the three rolls"}</span>}
+        </summary>
+        <ul>
+          {rows.map((r) => (
+            <li key={r.id} className={r.id === HIGHLIGHT[phase.id] ? "on" : ""}>
+              <span className="k">{r.k}</span>
+              <span className="f">{r.f}</span>
+            </li>
+          ))}
+        </ul>
+      </details>
       {t && (
         <div className="state">
           <span>Dev <b>{sgn(devBonus(t))}</b></span>

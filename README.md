@@ -23,7 +23,12 @@ incident, the event. A group's copy carries that group's live bonuses, bug
 count and legacy drag underneath; the facilitator's is followed by the phase's
 teaching point and the live standings. Below 900px the rail stacks, and the
 cheat sheet is ordered to the top rather than buried under the phase, because
-half the room is on a phone. `/rules` has the same sheet plus every
+half the room is on a phone.
+
+The formulas start **collapsed** — they are reference, read once — and the
+choice is remembered per device. The status line underneath is not collapsible:
+those numbers are what a group checks between every roll. `/rules` shows the
+sheet open, since reading it is the point of that page. `/rules` has the same sheet plus every
 card, for students to open on a phone or for the projector before you start.
 
 ### Changing your mind about the length

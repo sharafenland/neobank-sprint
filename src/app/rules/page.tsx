@@ -15,7 +15,7 @@ export default function Rules() {
       <h1 style={{ fontSize: 30, marginTop: 4 }}>How the game works</h1>
       <div className="rule" />
 
-      <CheatSheet phase={PHASES[0]} />
+      <CheatSheet phase={PHASES[0]} alwaysOpen />
 
       <p style={{ color: "var(--muted)", maxWidth: "62ch" }}>
         Six phases per sprint, the same for every group. The facilitator moves the room on; you decide and roll on
