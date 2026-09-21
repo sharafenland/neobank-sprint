@@ -6,6 +6,7 @@ import { useState } from "react";
 import { EVENT_BY_ID, INCIDENT_BY_ID, PHASES, PRACTICES } from "@/lib/cards";
 import { hostOp, type HostOp } from "@/lib/client";
 import { useGame } from "@/components/useGame";
+import { CardIcon } from "@/components/CardIcon";
 import { CheatSheet, ErrorBar, FeatureCard, PhaseHead, Stepper, TeachingNote, Timer } from "@/components/ui";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
 
@@ -88,13 +89,16 @@ export default function Facilitator() {
                 s.reveal_incident ? (
                   <div className="eventcard risk">
                     <div className="ec-h">
-                      <span className="eyebrow">
-                        Incident{INCIDENT_BY_ID[view.incidentId].mit !== null
-                          ? ` · mitigation target ${INCIDENT_BY_ID[view.incidentId].mit}`
-                          : " · no roll, it just happens"}
-                      </span>
-                      <h3>{INCIDENT_BY_ID[view.incidentId].n}</h3>
-                      <p>{INCIDENT_BY_ID[view.incidentId].txt}</p>
+                      <span className="badge"><CardIcon name={INCIDENT_BY_ID[view.incidentId].icon} size={26} /></span>
+                      <div>
+                        <span className="eyebrow">
+                          Incident{INCIDENT_BY_ID[view.incidentId].mit !== null
+                            ? ` · mitigation target ${INCIDENT_BY_ID[view.incidentId].mit}`
+                            : " · no roll, it just happens"}
+                        </span>
+                        <h3>{INCIDENT_BY_ID[view.incidentId].n}</h3>
+                        <p>{INCIDENT_BY_ID[view.incidentId].txt}</p>
+                      </div>
                     </div>
                   </div>
                 ) : (
@@ -115,9 +119,12 @@ export default function Facilitator() {
                 s.reveal_event ? (
                   <div className="eventcard world">
                     <div className="ec-h">
-                      <span className="eyebrow">Market event</span>
-                      <h3>{EVENT_BY_ID[view.eventId].n}</h3>
-                      <p>{EVENT_BY_ID[view.eventId].txt}</p>
+                      <span className="badge"><CardIcon name={EVENT_BY_ID[view.eventId].icon} size={26} /></span>
+                      <div>
+                        <span className="eyebrow">Market event</span>
+                        <h3>{EVENT_BY_ID[view.eventId].n}</h3>
+                        <p>{EVENT_BY_ID[view.eventId].txt}</p>
+                      </div>
                     </div>
                     {EVENT_BY_ID[view.eventId].needsCall && (
                       <div className="ec-b">

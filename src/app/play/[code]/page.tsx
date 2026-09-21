@@ -12,6 +12,7 @@ import {
 } from "@/lib/rules";
 import type { TeamState } from "@/lib/types";
 import { useGame } from "@/components/useGame";
+import { CardIcon } from "@/components/CardIcon";
 import { CheatSheet, Die, ErrorBar, FeatureCard, PhaseHead, Stepper, sgn } from "@/components/ui";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
 
@@ -333,8 +334,11 @@ function Incident({ t, id, revealed, busy, send }: { t: TeamState; id: string; r
     <>
       <div className="eventcard risk" style={{ marginBottom: 14 }}>
         <div className="ec-h">
-          <span className="eyebrow">Incident{card.mit !== null ? ` · target ${card.mit}` : ""}</span>
-          <h3>{card.n}</h3><p>{card.txt}</p>
+          <span className="badge"><CardIcon name={card.icon} /></span>
+          <div>
+            <span className="eyebrow">Incident{card.mit !== null ? ` · target ${card.mit}` : ""}</span>
+            <h3>{card.n}</h3><p>{card.txt}</p>
+          </div>
         </div>
       </div>
       {inc?.skip && <p className="empty">Not exposed this time &mdash; {card.onlyTxt}.</p>}
@@ -413,7 +417,10 @@ function MarketEvent({ t, id, revealed, busy, send }: { t: TeamState; id: string
   const r = t.eventResolved;
   return (
     <div className="eventcard world">
-      <div className="ec-h"><span className="eyebrow">Market event</span><h3>{card.n}</h3><p>{card.txt}</p></div>
+      <div className="ec-h">
+        <span className="badge"><CardIcon name={card.icon} /></span>
+        <div><span className="eyebrow">Market event</span><h3>{card.n}</h3><p>{card.txt}</p></div>
+      </div>
       <div className="ec-b">
         {r ? (
           <div className="spread">

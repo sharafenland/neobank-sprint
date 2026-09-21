@@ -167,6 +167,13 @@ choosing between two cards is choosing between two lectures:
 Sessions 3, 6, 7, 8 and 9 carry most of the deck, which is the point &mdash; those
 are the lectures the game is arguing for.
 
+Each incident and market event carries an `icon`, drawn in
+[`src/components/CardIcon.tsx`](src/components/CardIcon.tsx): twenty-five
+stroked marks on one 24-grid at a single weight, in `currentColor`, so the
+card's own tone carries them through both themes. Not emoji — those render
+differently on every device and would be the only thing on screen not set in
+the house style.
+
 Card content lives in [`src/lib/cards.ts`](src/lib/cards.ts) (text and numbers)
 and [`src/lib/effects.ts`](src/lib/effects.ts) (what each card does). Adding a
 feature, incident or market event means editing those two files and nothing else.

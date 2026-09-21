@@ -276,7 +276,14 @@ details.rules[open]>summary::before{content:"– "}
 
 /* ---------- event card ---------- */
 .eventcard{border:1px solid var(--line-strong);border-radius:11px;overflow:hidden;background:var(--surface)}
-.eventcard .ec-h{padding:13px 16px;border-bottom:1px solid var(--line)}
+.eventcard .ec-h{padding:13px 16px;border-bottom:1px solid var(--line);display:flex;gap:13px;align-items:flex-start}
+.eventcard .ec-h>div{min-width:0}
+.eventcard .badge{flex:none;width:42px;height:42px;border-radius:10px;display:grid;place-items:center;
+  background:var(--surface);border:1px solid currentColor;margin-top:1px}
+.eventcard.risk .badge{color:var(--bad)}
+.eventcard.world .badge{color:var(--amber)}
+.eventcard .badge .cardicon{display:block}
+@media (max-width:480px){.eventcard .badge{width:36px;height:36px}}
 .eventcard.risk .ec-h{background:var(--bad-soft);border-bottom-color:color-mix(in srgb,var(--bad) 30%,transparent)}
 .eventcard.world .ec-h{background:var(--amber-soft);border-bottom-color:color-mix(in srgb,var(--amber) 30%,transparent)}
 .eventcard h3{font-size:19px;font-weight:700}

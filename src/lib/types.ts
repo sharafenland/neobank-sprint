@@ -42,6 +42,8 @@ export interface Practice {
 export interface CardDeps {
   needs?: string[];
   needsCount?: number;
+  /** Key into the icon set in components/CardIcon.tsx. */
+  icon?: string;
 }
 
 export interface IncidentCard extends CardDeps {

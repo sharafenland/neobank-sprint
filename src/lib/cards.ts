@@ -69,36 +69,36 @@ export const PRACTICES: Practice[] = [
 export const PRACTICE_BY_ID: Record<string, Practice> = Object.fromEntries(PRACTICES.map((p) => [p.id, p]));
 
 export const INCIDENTS: IncidentCard[] = [
-  { id: "outage",    n: "Payday Peak Outage",              mit: 12, txt: "It is the 28th. Salaries land, everyone opens the app at once, and the authorisation service starts timing out." },
-  { id: "breach",    n: "Data Breach", needs: ["gdpr"],     mit: 14, txt: "A misconfigured storage bucket exposed customer documents. The clock on the 72-hour notification has started." },
-  { id: "resign",    n: "Lead Engineer Resigns",           mit: null, txt: "Your most senior developer hands in notice. Everything she knew lives in her head.", autoTxt: "Pair Programming — the knowledge was never in one head" },
-  { id: "audit",     n: "BaFin Spot Audit", needs: ["aml", "auditlog"], needsCount: 1, mit: 13, txt: "The supervisor arrives unannounced and asks to see your transaction monitoring evidence." },
-  { id: "scheme",    n: "Card Scheme Mandate",             mit: 11, txt: "The scheme pushes a mandatory protocol update with a hard deadline. Non-compliance means suspension." },
-  { id: "fraudring", n: "Fraud Ring", needs: ["fraud"],     mit: 12, txt: "A coordinated ring is testing stolen card numbers against your authorisation endpoint.", autoTxt: "Fraud Detection scores them out in real time" },
-  { id: "region",    n: "Cloud Region Failure", needs: ["dr"], mit: 13, txt: "Your primary region goes dark for four hours. The provider's status page is still green.", autoTxt: "Disaster Recovery — failover to the second region held" },
-  { id: "cve",       n: "Critical Dependency CVE",         mit: 12, txt: "A remote-code-execution flaw drops in a library that sits in every one of your services." },
-  { id: "sla",       n: "Instant Payment SLA Breach", needs: ["sepa"], mit: 12, txt: "Settlement drifts past the ten-second limit. Every breach is reportable.", onlyTxt: "only teams that shipped SEPA Instant are exposed" },
-  { id: "warroom",   n: "Blame Storm",                     mit: null, txt: "The post-incident review turns into a search for someone to fire. Two days disappear.", autoTxt: "Blameless Postmortems — the review stayed about the system" },
-  { id: "reporting", n: "Regulatory Reporting Deadline", needs: ["dwh", "pipeline"], needsCount: 1, mit: 11, txt: "Quarterly reporting is due and the numbers have to reconcile to the cent.", autoTxt: "Data Warehouse — the report generates itself" },
-  { id: "phish",     n: "Customer Phishing Wave", needs: ["sca", "ratelimit"], needsCount: 1, mit: 12, txt: "A convincing SMS campaign is harvesting your customers' credentials." },
+  { id: "outage",    n: "Payday Peak Outage", icon: "power",              mit: 12, txt: "It is the 28th. Salaries land, everyone opens the app at once, and the authorisation service starts timing out." },
+  { id: "breach",    n: "Data Breach", icon: "unlock", needs: ["gdpr"],     mit: 14, txt: "A misconfigured storage bucket exposed customer documents. The clock on the 72-hour notification has started." },
+  { id: "resign",    n: "Lead Engineer Resigns", icon: "person-leaving",           mit: null, txt: "Your most senior developer hands in notice. Everything she knew lives in her head.", autoTxt: "Pair Programming — the knowledge was never in one head" },
+  { id: "audit",     n: "BaFin Spot Audit", icon: "magnifier", needs: ["aml", "auditlog"], needsCount: 1, mit: 13, txt: "The supervisor arrives unannounced and asks to see your transaction monitoring evidence." },
+  { id: "scheme",    n: "Card Scheme Mandate", icon: "card",             mit: 11, txt: "The scheme pushes a mandatory protocol update with a hard deadline. Non-compliance means suspension." },
+  { id: "fraudring", n: "Fraud Ring", icon: "person-x", needs: ["fraud"],     mit: 12, txt: "A coordinated ring is testing stolen card numbers against your authorisation endpoint.", autoTxt: "Fraud Detection scores them out in real time" },
+  { id: "region",    n: "Cloud Region Failure", icon: "cloud-off", needs: ["dr"], mit: 13, txt: "Your primary region goes dark for four hours. The provider's status page is still green.", autoTxt: "Disaster Recovery — failover to the second region held" },
+  { id: "cve",       n: "Critical Dependency CVE", icon: "bug",         mit: 12, txt: "A remote-code-execution flaw drops in a library that sits in every one of your services." },
+  { id: "sla",       n: "Instant Payment SLA Breach", icon: "stopwatch", needs: ["sepa"], mit: 12, txt: "Settlement drifts past the ten-second limit. Every breach is reportable.", onlyTxt: "only teams that shipped SEPA Instant are exposed" },
+  { id: "warroom",   n: "Blame Storm", icon: "speech",                     mit: null, txt: "The post-incident review turns into a search for someone to fire. Two days disappear.", autoTxt: "Blameless Postmortems — the review stayed about the system" },
+  { id: "reporting", n: "Regulatory Reporting Deadline", icon: "calendar", needs: ["dwh", "pipeline"], needsCount: 1, mit: 11, txt: "Quarterly reporting is due and the numbers have to reconcile to the cent.", autoTxt: "Data Warehouse — the report generates itself" },
+  { id: "phish",     n: "Customer Phishing Wave", icon: "hook", needs: ["sca", "ratelimit"], needsCount: 1, mit: 12, txt: "A convincing SMS campaign is harvesting your customers' credentials." },
 ];
 
 export const INCIDENT_BY_ID: Record<string, IncidentCard> = Object.fromEntries(INCIDENTS.map((c) => [c.id, c]));
 
 export const EVENTS: EventCard[] = [
-  { id: "dora",      n: "DORA Comes Into Force", needs: ["dr"], txt: "Digital operational resilience becomes supervisory law. Tested failover is no longer optional." },
-  { id: "gdprwave",  n: "GDPR Enforcement Wave", needs: ["gdpr"], txt: "The data protection authority publishes its fines for the quarter." },
-  { id: "ipr",       n: "Instant Payments Regulation", needs: ["sepa"], txt: "Instant transfers must be offered at the price of a standard transfer. Customers switch on it." },
-  { id: "winter",    n: "Funding Winter",                txt: "Venture money dries up. The market leader is expected to prove unit economics first.", needsCall: "the current leader" },
-  { id: "feature",   n: "App Store Feature Spot",        txt: "The editorial team picks the category leader for the front page.", needsCall: "the current leader" },
-  { id: "mica",      n: "MiCA Licensing Round", needs: ["crypto"], txt: "A clear crypto-asset framework opens the market to licensed institutions." },
-  { id: "rates",     n: "Central Bank Raises Rates", needs: ["pots"], txt: "Deposits are suddenly worth holding, and savers go shopping for yield." },
-  { id: "openbank",  n: "Open Banking Breakthrough", needs: ["psd2"], txt: "An aggregator with millions of users adds every bank with a working API." },
-  { id: "viral",     n: "Reviewer Tests Every Neobank",  txt: "A widely-followed reviewer runs the same twenty transactions through each app and posts the bugs.", needsCall: "the group with the fewest bugs" },
-  { id: "pricewar",  n: "Incumbent Price War", needs: ["app"], txt: "The big banks drop their fees to zero for twelve months." },
-  { id: "trust",     n: "Consumer Trust Index",          txt: "A consumer body publishes supervisory findings per provider." },
-  { id: "latency",   n: "Latency Benchmark Published", needs: ["cdn", "cache", "profiling"], needsCount: 1, txt: "A magazine times the same twenty actions in every banking app and prints the table." },
-  { id: "hiring",    n: "Engineering Brand", needs: ["wiki", "gates", "testauto"], needsCount: 2, txt: "Two senior engineers pick an employer this quarter, and they read the public repositories first." },
+  { id: "dora",      n: "DORA Comes Into Force", icon: "shield-check", needs: ["dr"], txt: "Digital operational resilience becomes supervisory law. Tested failover is no longer optional." },
+  { id: "gdprwave",  n: "GDPR Enforcement Wave", icon: "gavel", needs: ["gdpr"], txt: "The data protection authority publishes its fines for the quarter." },
+  { id: "ipr",       n: "Instant Payments Regulation", icon: "bolt", needs: ["sepa"], txt: "Instant transfers must be offered at the price of a standard transfer. Customers switch on it." },
+  { id: "winter",    n: "Funding Winter", icon: "snowflake",                txt: "Venture money dries up. The market leader is expected to prove unit economics first.", needsCall: "the current leader" },
+  { id: "feature",   n: "App Store Feature Spot", icon: "star",        txt: "The editorial team picks the category leader for the front page.", needsCall: "the current leader" },
+  { id: "mica",      n: "MiCA Licensing Round", icon: "coin", needs: ["crypto"], txt: "A clear crypto-asset framework opens the market to licensed institutions." },
+  { id: "rates",     n: "Central Bank Raises Rates", icon: "trend-up", needs: ["pots"], txt: "Deposits are suddenly worth holding, and savers go shopping for yield." },
+  { id: "openbank",  n: "Open Banking Breakthrough", icon: "network", needs: ["psd2"], txt: "An aggregator with millions of users adds every bank with a working API." },
+  { id: "viral",     n: "Reviewer Tests Every Neobank", icon: "eye",  txt: "A widely-followed reviewer runs the same twenty transactions through each app and posts the bugs.", needsCall: "the group with the fewest bugs" },
+  { id: "pricewar",  n: "Incumbent Price War", icon: "tag", needs: ["app"], txt: "The big banks drop their fees to zero for twelve months." },
+  { id: "trust",     n: "Consumer Trust Index", icon: "rosette",          txt: "A consumer body publishes supervisory findings per provider." },
+  { id: "latency",   n: "Latency Benchmark Published", icon: "gauge", needs: ["cdn", "cache", "profiling"], needsCount: 1, txt: "A magazine times the same twenty actions in every banking app and prints the table." },
+  { id: "hiring",    n: "Engineering Brand", icon: "people", needs: ["wiki", "gates", "testauto"], needsCount: 2, txt: "Two senior engineers pick an employer this quarter, and they read the public repositories first." },
 ];
 
 export const EVENT_BY_ID: Record<string, EventCard> = Object.fromEntries(EVENTS.map((c) => [c.id, c]));
