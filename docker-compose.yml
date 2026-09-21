@@ -1,0 +1,26 @@
+# Local Postgres for development. Production runs on Neon; src/lib/db.ts picks
+# the driver from the connection string, so nothing else changes.
+#
+#   docker compose up -d && npm run db:push
+#
+# Port 5433, not 5432, so this does not collide with another project's database.
+services:
+  db:
+    image: postgres:16
+    container_name: neobank-sprint-db
+    environment:
+      POSTGRES_USER: neobank
+      POSTGRES_PASSWORD: neobank
+      POSTGRES_DB: neobank_sprint
+    ports:
+      - "5433:5432"
+    volumes:
+      - neobank-sprint-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U neobank -d neobank_sprint"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  neobank-sprint-data:

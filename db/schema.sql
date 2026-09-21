@@ -21,11 +21,13 @@ create table if not exists teams (
   token       text        not null,
   state       jsonb       not null,
   created_at  timestamptz not null default now(),
-  updated_at  timestamptz not null default now(),
-  unique (code, lower(name))
+  updated_at  timestamptz not null default now()
 );
 
 create index if not exists teams_code_idx on teams (code);
+-- Group names are unique per session, case-insensitively. An expression like
+-- lower(name) is not allowed in a table constraint, so it lives in an index.
+create unique index if not exists teams_code_name_idx on teams (code, lower(name));
 
 create table if not exists audit_log (
   id          bigserial   primary key,

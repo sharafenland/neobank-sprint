@@ -132,6 +132,12 @@ or not anyone picked them.
 lecture hall are well inside Neon's free tier. If you ever want it tighter,
 replace the interval with SSE in that one hook — nothing else changes.
 
+**Two drivers, one `sql`.** On Vercel the connection string points at Neon and
+`src/lib/db.ts` uses its HTTP driver, which is what works from a serverless
+function. Against any other host it falls back to node-postgres, so the project
+runs and is testable on a laptop with no cloud account. Both are resolved
+lazily — `next build` never needs a database.
+
 **Auth is two opaque tokens** in `localStorage`: a host token minted with the
 session, a team token minted on join. Rejoining with the same group name returns
 the existing token, so a group can switch devices without losing progress. This
@@ -172,10 +178,28 @@ train. No database needed.
 
 ```bash
 npm install
-cp .env.example .env.local     # paste your Neon connection string
+docker compose up -d           # Postgres 16 on port 5433
+echo 'DATABASE_URL="postgres://neobank:neobank@localhost:5433/neobank_sprint"' > .env.local
 npm run db:push                # creates the three tables, safe to re-run
 npm run dev
 ```
+
+Port 5433 rather than the default, so this does not collide with another
+project's database. To develop against Neon instead, put that connection
+string in `.env.local` — the driver switches itself.
+
+### The integration test
+
+```bash
+BASE=http://localhost:3000 npm run smoke
+```
+
+Creates a session, joins two groups and drives every phase of every sprint
+through the HTTP API. It checks what the unit test cannot: the SQL, the token
+checks (a group cannot move the room; an unjoined device cannot act), that a
+group cannot roll twice or resolve an event twice, that an action from the
+wrong phase is refused, and that a finished session is closed. Run it against
+a preview deployment before a lecture.
 
 ## Deploying to Vercel
 

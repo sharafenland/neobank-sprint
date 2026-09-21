@@ -23,7 +23,7 @@ export async function createSession(sprints: number) {
       values (${code}, ${seed}, ${sprints}, ${hostToken})
       on conflict (code) do nothing
       returning code
-    `) as { code: string }[];
+    `) as unknown as { code: string }[];
     if (rows.length) return { code, hostToken };
   }
   throw new Error("Could not allocate a free access code. Try again.");
@@ -33,7 +33,7 @@ export async function getSession(code: string): Promise<SessionRow | null> {
   const rows = (await sql`
     select code, seed, sprints, sprint, phase, reveal_incident, reveal_event, finished
     from sessions where code = ${code}
-  `) as SessionRow[];
+  `) as unknown as SessionRow[];
   return rows[0] ?? null;
 }
 
@@ -46,14 +46,14 @@ export async function isHost(code: string, token: string | null): Promise<boolea
 export async function listTeams(code: string): Promise<TeamRow[]> {
   return (await sql`
     select id::text, name, token, state from teams where code = ${code} order by created_at
-  `) as TeamRow[];
+  `) as unknown as TeamRow[];
 }
 
 export async function getTeamByToken(code: string, token: string | null): Promise<TeamRow | null> {
   if (!token) return null;
   const rows = (await sql`
     select id::text, name, token, state from teams where code = ${code} and token = ${token}
-  `) as TeamRow[];
+  `) as unknown as TeamRow[];
   return rows[0] ?? null;
 }
 
@@ -64,7 +64,7 @@ export async function saveTeam(id: string, state: TeamState) {
 export async function joinTeam(session: SessionRow, name: string) {
   const existing = (await sql`
     select id::text, name, token, state from teams where code = ${session.code} and lower(name) = lower(${name})
-  `) as TeamRow[];
+  `) as unknown as TeamRow[];
   if (existing.length) {
     // Rejoining from a new device is allowed — the group keeps its progress.
     return { token: existing[0].token, rejoined: true };

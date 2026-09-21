@@ -182,7 +182,7 @@ function Planning({ t, market, busy, send }: { t: TeamState; market: string[]; b
       </div>
       <div className="spread" style={{ marginTop: 16 }}>
         <div className="calc">
-          Combined Dev target <b>{devTarget(t)}</b>
+          Combined Dev target <b>{t.picked.length ? devTarget(t) : "\u2014"}</b>
           {legacyDrag(t) > 0 && <span style={{ color: "var(--bad)" }}> (+{legacyDrag(t)} legacy drag)</span>}
           {own(t, "modular") && t.picked.length >= 2 && <span style={{ color: "var(--accent)" }}> (&minus;3 modular)</span>}
           {" · "}Release target <b>{t.picked.reduce((a, id) => a + FEATURE_BY_ID[id].r, 0)}</b>
