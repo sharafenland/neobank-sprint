@@ -119,6 +119,8 @@ input,textarea,select{font:inherit;color:inherit}
 /* ---------- cheat sheet ---------- */
 .cheat{border:1px dashed var(--line-strong);border-radius:9px;padding:11px 13px 10px;margin-bottom:16px;background:var(--surface-2)}
 .rail .cheat{margin-bottom:0;background:var(--surface)}
+.rail .note{margin-top:0;border-radius:0 9px 9px 0}
+.rail .note p{font-size:12.5px;line-height:1.45}
 .rail .cheat li{flex-direction:column;gap:1px}
 .rail .cheat li .k{min-width:0}
 .cheat>.eyebrow{display:block;margin-bottom:7px}

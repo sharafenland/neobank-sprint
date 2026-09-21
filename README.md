@@ -18,9 +18,10 @@ Adapted from the CatTube sprint game, which is itself inspired by the
 
 Both consoles carry a **cheat sheet** in every phase: the three formulas, with the
 line for the current phase highlighted. On a group's screen it sits above the
-phase and carries that group's live bonuses, bug count and legacy drag; on the
-facilitator's it sits in the right-hand rail above the standings, out of the way
-of the cards you are showing the room. `/rules` has the same sheet plus every
+phase and carries that group's live bonuses, bug count and legacy drag. On the
+facilitator's it sits in the right-hand rail, together with the phase's teaching
+point and the live standings, so the main panel holds nothing but the cards you
+are showing the room. `/rules` has the same sheet plus every
 card, for students to open on a phone or for the projector before you start.
 
 ### Changing your mind about the length

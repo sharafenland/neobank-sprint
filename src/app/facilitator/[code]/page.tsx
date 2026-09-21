@@ -153,13 +153,13 @@ export default function Facilitator() {
                 </>
               )}
 
-              <TeachingNote phase={phase} />
             </div>
           </div>
         </div>
 
         <aside className="rail">
           <CheatSheet phase={phase} />
+          <TeachingNote phase={phase} />
           <Roster view={view} />
         </aside>
       </main>
