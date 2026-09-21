@@ -56,11 +56,6 @@ export default function Facilitator() {
         <div>
           <ErrorBar message={actionError ?? error} onDismiss={() => setActionError(null)} />
 
-          <div className="codebox" style={{ marginBottom: 16 }}>
-            <div><div className="lab">Access code</div><div className="val">{s.code}</div></div>
-            <div className="side">{view.teams.length} group{view.teams.length === 1 ? "" : "s"} joined<br />{s.sprints} sprints</div>
-          </div>
-
           <div className="panel">
             <PhaseHead phase={phase} />
             <div className="panel-body">
@@ -158,6 +153,13 @@ export default function Facilitator() {
         </div>
 
         <aside className="rail">
+          <div className="codebox">
+            <div className="lab">Access code</div>
+            <div className="val">{s.code}</div>
+            <div className="side">
+              {view.teams.length} group{view.teams.length === 1 ? "" : "s"} joined &middot; {s.sprints} sprints
+            </div>
+          </div>
           <CheatSheet phase={phase} />
           <TeachingNote phase={phase} />
           <Roster view={view} />

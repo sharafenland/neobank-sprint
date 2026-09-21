@@ -28,7 +28,16 @@ half the room is on a phone.
 The formulas start **collapsed** — they are reference, read once — and the
 choice is remembered per device. The status line underneath is not collapsible:
 those numbers are what a group checks between every roll. `/rules` shows the
-sheet open, since reading it is the point of that page. `/rules` has the same sheet plus every
+sheet open, since reading it is the point of that page.
+
+The facilitator's rail reads: access code, cheat sheet, teaching point, live
+standings. The teaching point is collapsed too, but its heading stays visible —
+"Scope is a commitment, not a wish list" already says most of it; the paragraph
+behind it is what you read out.
+
+Each phase names the roll it is asking for — **Roll to build**, **Roll to
+mitigate**, **Roll to release** — rather than naming the action, so it is always
+obvious that a die is about to decide something. `/rules` has the same sheet plus every
 card, for students to open on a phone or for the projector before you start.
 
 ### Changing your mind about the length

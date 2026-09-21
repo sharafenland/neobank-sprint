@@ -215,7 +215,7 @@ function Development({ t, busy, send }: { t: TeamState; busy: boolean; send: Sen
           Roll <b>d20 {sgn(devBonus(t))}</b>
           {t.devMod !== 0 && <span style={{ color: "var(--bad)" }}> (incident penalty included)</span>}
         </div>
-        <button className="btn" style={{ marginLeft: "auto" }} disabled={busy} onClick={() => send({ kind: "rollDev" })}>Roll</button>
+        <button className="btn" style={{ marginLeft: "auto" }} disabled={busy} onClick={() => send({ kind: "rollDev" })}>Roll to build</button>
       </div>
     );
   }
@@ -286,7 +286,7 @@ function Incident({ t, id, revealed, busy, send }: { t: TeamState; id: string; r
             Mitigation target <b>{card.mit}</b><br />Roll <b>d20 {sgn(mitBonus(t) + mod)}</b>
             {modTxt && <><br /><span style={{ color: "var(--muted)" }}>{modTxt}</span></>}
           </div>
-          <button className="btn" style={{ marginLeft: "auto" }} disabled={busy} onClick={() => send({ kind: "rollIncident" })}>Roll</button>
+          <button className="btn" style={{ marginLeft: "auto" }} disabled={busy} onClick={() => send({ kind: "rollIncident" })}>Roll to mitigate</button>
         </div>
       )}
       {inc?.rolled && (
@@ -327,7 +327,7 @@ function Release({ t, busy, send }: { t: TeamState; busy: boolean; send: Send })
             {t.bugs ? `, bugs −${t.bugs}` : ""}{buggy ? `, buggy work −${2 * buggy}` : ""})
           </span>
         </div>
-        <button className="btn" style={{ marginLeft: "auto" }} disabled={busy} onClick={() => send({ kind: "rollRelease" })}>Release</button>
+        <button className="btn" style={{ marginLeft: "auto" }} disabled={busy} onClick={() => send({ kind: "rollRelease" })}>Roll to release</button>
       </div>
     );
   }

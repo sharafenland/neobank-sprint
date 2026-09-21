@@ -34,11 +34,30 @@ export function PhaseHead({ phase, extra }: { phase: Phase; extra?: React.ReactN
   );
 }
 
+const NOTE_KEY = "nbs.note.open";
+
+/**
+ * Collapsed, the heading is still the point — "Scope is a commitment, not a
+ * wish list" says most of it. The paragraph behind it is what you read out.
+ */
 export function TeachingNote({ phase }: { phase: Phase }) {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    try { setOpen(localStorage.getItem(NOTE_KEY) === "1"); } catch { /* private mode */ }
+  }, []);
+  function toggle(next: boolean) {
+    setOpen(next);
+    try { localStorage.setItem(NOTE_KEY, next ? "1" : "0"); } catch { /* private mode */ }
+  }
   return (
     <div className="note">
-      <span className="eyebrow">Teaching point &middot; {phase.note[0]}</span>
-      <p>{phase.note[1]}</p>
+      <details open={open} onToggle={(e) => toggle((e.currentTarget as HTMLDetailsElement).open)}>
+        <summary>
+          <span className="eyebrow">Teaching point</span>
+          <span className="head">{phase.note[0]}</span>
+        </summary>
+        <p>{phase.note[1]}</p>
+      </details>
     </div>
   );
 }
