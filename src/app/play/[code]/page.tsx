@@ -6,7 +6,7 @@ import { EVENT_BY_ID, FEATURE_BY_ID, INCIDENT_BY_ID, PHASES, PRACTICES, PRACTICE
 import { act } from "@/lib/client";
 import { INCIDENT_FX } from "@/lib/effects";
 import {
-  capacity, devBonus, devTarget, mitBonus, own, relBonus, relTarget, releasing, usedSlots,
+  INFRA_CAP, capacity, devBonus, devTarget, infraBonus, legacyDrag, mitBonus, own, relBonus, relTarget, releasing, usedSlots,
 } from "@/lib/rules";
 import type { TeamState } from "@/lib/types";
 import { useGame } from "@/components/useGame";
@@ -106,6 +106,19 @@ export default function Play() {
               <span className="chip">Rel {sgn(relBonus(t))}</span>
               <span className="chip">Mit {sgn(mitBonus(t))}</span>
             </div>
+            {(() => {
+              const infra = infraBonus(t);
+              if (!infra.dev && !infra.rel && !infra.mit) return null;
+              const capped = infra.dev === INFRA_CAP || infra.rel === INFRA_CAP || infra.mit === INFRA_CAP;
+              return (
+                <div className="chips" style={{ borderTop: "1px solid var(--line)" }}>
+                  <span className="chip on">
+                    From infrastructure: Dev {sgn(infra.dev)} &middot; Rel {sgn(infra.rel)} &middot; Mit {sgn(infra.mit)}
+                    {capped ? ` (capped at ${INFRA_CAP})` : ""}
+                  </span>
+                </div>
+              );
+            })()}
             {t.practices.length > 0 && (
               <div className="chips" style={{ borderTop: "1px solid var(--line)" }}>
                 {t.practices.map((p) => <span key={p} className="chip on">{PRACTICE_BY_ID[p].n}</span>)}
@@ -169,9 +182,16 @@ function Planning({ t, market, busy, send }: { t: TeamState; market: string[]; b
       <div className="spread" style={{ marginTop: 16 }}>
         <div className="calc">
           Combined Dev target <b>{devTarget(t)}</b>
+          {legacyDrag(t) > 0 && <span style={{ color: "var(--bad)" }}> (+{legacyDrag(t)} legacy drag)</span>}
           {own(t, "modular") && t.picked.length >= 2 && <span style={{ color: "var(--accent)" }}> (&minus;3 modular)</span>}
           {" · "}Release target <b>{t.picked.reduce((a, id) => a + FEATURE_BY_ID[id].r, 0)}</b>
         </div>
+        {legacyDrag(t) > 0 && (
+          <p style={{ margin: "8px 0 0", flexBasis: "100%", fontSize: 12.5, color: "var(--muted)" }}>
+            Your product features have outgrown your platform. One platform card carries two product features;
+            everything past that adds +1 to the Development target{legacyDrag(t) >= 6 ? ", and you are at the cap" : ""}.
+          </p>
+        )}
         {t.confirmed ? (
           <button className="btn ghost" disabled={busy} onClick={() => send({ kind: "unlock" })}>Reopen the plan</button>
         ) : (
@@ -192,6 +212,7 @@ function Development({ t, busy, send }: { t: TeamState; busy: boolean; send: Sen
         <Die />
         <div className="calc">
           Target <b>{devTarget(t)}</b> = {t.picked.map((id) => FEATURE_BY_ID[id].t).join(" + ")}
+          {legacyDrag(t) > 0 ? ` + ${legacyDrag(t)} legacy drag` : ""}
           {own(t, "modular") && t.picked.length >= 2 ? " − 3" : ""}<br />
           Roll <b>d20 {sgn(devBonus(t))}</b>
           {t.devMod !== 0 && <span style={{ color: "var(--bad)" }}> (incident penalty included)</span>}

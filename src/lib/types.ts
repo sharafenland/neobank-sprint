@@ -13,6 +13,13 @@ export interface Feature {
   /** Capacity slots consumed. */
   s: number;
   b: string;
+  /** Lecture session this card teaches, printed on the card. */
+  src?: string;
+  /**
+   * Permanent modifier once the card is in the portfolio. Infrastructure earns
+   * few customers directly and pays through these instead.
+   */
+  bonus?: { dev?: number; rel?: number; mit?: number };
 }
 
 export interface Practice {

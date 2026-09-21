@@ -11,7 +11,7 @@ const check = (label, cond) => { if (!cond) { failures++; console.log("  FAIL:",
 check("same seed, same market", JSON.stringify(marketFor(12345, 3)) === JSON.stringify(marketFor(12345, 3)));
 check("different seed, different market", JSON.stringify(marketFor(1, 1)) !== JSON.stringify(marketFor(2, 1)));
 check("market is 6 cards", marketFor(999, 1).length === 6);
-check("market rotates by 2", marketFor(999, 1)[2] === marketFor(999, 2)[0]);
+check("market rotates by one card per pile", marketFor(999, 1)[1] === marketFor(999, 2)[0]);
 for (let s = 1; s <= 8; s++) {
   check("market has no duplicates in sprint " + s, new Set(marketFor(999, s)).size === 6);
 }
@@ -123,6 +123,65 @@ for (const [name, strat] of Object.entries(strategies)) {
   t.built = [{ id: "kyc", buggy: false, shelved: false }];
   syncToPhase(t, session);
   check("five bugs blocks the release", t.rel.blocked === true && t.rel.done === true);
+}
+
+// --- the table always offers something to sell and something to build on ---
+{
+  const { FEATURE_BY_ID } = require("../.test-build/cards");
+  for (let seed = 1; seed <= 60; seed++) {
+    for (let sprint = 1; sprint <= 8; sprint++) {
+      const m = marketFor(seed * 977, sprint);
+      const platform = m.filter((id) => FEATURE_BY_ID[id].c === "platform").length;
+      check("three product and three platform cards on the table", platform === 3 && m.length === 6);
+      check("no duplicate cards on the table", new Set(m).size === 6);
+    }
+  }
+}
+
+// --- infrastructure bonuses are real, and capped ---
+{
+  const { infraBonus, INFRA_CAP, mitBonus } = require("../.test-build/rules");
+  const t = emptyTeamState();
+  check("no portfolio, no infrastructure bonus", infraBonus(t).mit === 0);
+  t.portfolio = ["obs", "runbooks"];                       // +2 and +2
+  check("infrastructure raises mitigation", infraBonus(t).mit === 4 && mitBonus(t) === 6);
+  t.portfolio = ["obs", "runbooks", "shard", "lb", "svcmon", "errtrack", "backup", "dr"];
+  check("mitigation bonus stops at the cap", infraBonus(t).mit === INFRA_CAP);
+  t.portfolio = ["gates", "wiki", "testauto", "containers", "micro"];
+  check("development bonus stops at the cap", infraBonus(t).dev <= INFRA_CAP);
+}
+
+// --- legacy drag: one platform card carries two product features ---
+{
+  const { legacyDrag, devTarget, DRAG_CAP } = require("../.test-build/rules");
+  const t = emptyTeamState();
+  check("an empty portfolio has no drag", legacyDrag(t) === 0);
+  t.portfolio = ["kyc", "app"];
+  check("two product features and no platform is +1", legacyDrag(t) === 1);
+  t.portfolio = ["kyc", "app", "obs"];
+  check("a platform card carries two product features", legacyDrag(t) === 0);
+  t.portfolio = ["kyc", "app", "pots", "notify", "sepa", "cards", "fx", "robo", "crypto", "payouts", "fraud", "aml", "psd2", "sca"];
+  check("drag stops at the cap", legacyDrag(t) === DRAG_CAP);
+  t.picked = ["kyc"];
+  check("drag raises the combined Development target", devTarget(t) > FEATURE_BY_ID.kyc.t);
+}
+
+// --- a market event may pay in investment points ---
+{
+  const session = { code: "X", seed: 7, sprints: 4, sprint: 1, phase: 4, reveal_incident: true, reveal_event: true, finished: false };
+  const { EVENT_FX } = require("../.test-build/effects");
+  const t = emptyTeamState();
+  t.portfolio = ["wiki", "gates"];
+  const out = EVENT_FX.hiring(t, { isLeader: false, hasFewestBugs: false });
+  check("Engineering Brand pays an investment point", out.ip === 1);
+}
+
+// --- documentation keeps the bus factor above one ---
+{
+  const { INCIDENT_FX } = require("../.test-build/effects");
+  const t = emptyTeamState();
+  t.portfolio = ["wiki"];
+  check("a wiki survives the lead engineer resigning", INCIDENT_FX.resign.auto(t) === true);
 }
 
 console.log(failures === 0 ? "\nAll engine checks passed." : `\n${failures} check(s) failed.`);

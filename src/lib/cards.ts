@@ -5,26 +5,48 @@
 import type { EventCard, Feature, IncidentCard, Practice } from "./types";
 
 export const FEATURES: Feature[] = [
-  { id: "ledger",  n: "Core Ledger",             c: "platform",   t: 12, r: 8,  k: 6,  s: 2, b: "Double-entry bookkeeping. Every balance in the bank derives from it." },
-  { id: "kyc",     n: "KYC Onboarding",          c: "compliance", t: 9,  r: 7,  k: 10, s: 1, b: "Identity verification before the first euro moves." },
+  // ——— Product: what customers notice and what the regulator demands ———
+  { id: "ledger",  n: "Core Ledger",             c: "platform",   t: 12, r: 8,  k: 6,  s: 2, src: "Session 01", b: "Double-entry bookkeeping. Every balance in the bank derives from it." },
+  { id: "kyc",     n: "KYC Onboarding",          c: "compliance", t: 9,  r: 7,  k: 10, s: 1, src: "Session 10", b: "Identity verification before the first euro moves." },
   { id: "sepa",    n: "SEPA Instant Payments",   c: "core",       t: 13, r: 12, k: 22, s: 2, b: "Ten-second settlement, 24/7/365. No maintenance window." },
   { id: "cards",   n: "Card Issuing",            c: "core",       t: 11, r: 10, k: 18, s: 2, b: "Virtual and physical debit cards on a scheme BIN." },
   { id: "fraud",   n: "Fraud Detection",         c: "compliance", t: 12, r: 8,  k: 8,  s: 2, b: "Real-time scoring on the authorisation path." },
-  { id: "aml",     n: "AML Monitoring",          c: "compliance", t: 11, r: 7,  k: 5,  s: 1, b: "Transaction surveillance and suspicious-activity reports." },
-  { id: "psd2",    n: "PSD2 Open Banking API",   c: "compliance", t: 10, r: 9,  k: 9,  s: 1, b: "Account information and payment initiation for third parties." },
+  { id: "aml",     n: "AML Monitoring",          c: "compliance", t: 11, r: 7,  k: 5,  s: 1, src: "Session 10", b: "Transaction surveillance and suspicious-activity reports." },
+  { id: "psd2",    n: "PSD2 Open Banking API",   c: "compliance", t: 10, r: 9,  k: 9,  s: 1, src: "Session 10", b: "Account information and payment initiation for third parties." },
   { id: "app",     n: "Mobile App Redesign",     c: "growth",     t: 8,  r: 11, k: 20, s: 1, b: "The thing customers actually judge you on." },
   { id: "pots",    n: "Savings Pots",            c: "growth",     t: 7,  r: 9,  k: 14, s: 1, b: "Sub-accounts with goals and round-ups." },
   { id: "notify",  n: "Real-Time Notifications", c: "growth",     t: 6,  r: 8,  k: 11, s: 1, b: "Push within a second of authorisation." },
-  { id: "obs",     n: "Observability Stack",     c: "platform",   t: 10, r: 5,  k: 3,  s: 1, b: "Traces, metrics, structured logs. Nobody asks for it." },
-  { id: "dwh",     n: "Data Warehouse",          c: "platform",   t: 11, r: 6,  k: 4,  s: 2, b: "Regulatory reporting needs a place to read from." },
-  { id: "sca",     n: "Strong Customer Auth",    c: "compliance", t: 9,  r: 8,  k: 6,  s: 1, b: "Two factors, dynamic linking, PSD2 Article 97." },
+  { id: "sca",     n: "Strong Customer Auth",    c: "compliance", t: 9,  r: 8,  k: 6,  s: 1, src: "Session 10", b: "Two factors, dynamic linking, PSD2 Article 97." },
   { id: "fx",      n: "FX & Multi-Currency",     c: "growth",     t: 12, r: 11, k: 19, s: 2, b: "Interbank rates with a transparent markup." },
   { id: "robo",    n: "Robo-Advisor",            c: "growth",     t: 14, r: 13, k: 26, s: 2, b: "Suitability questionnaire, model portfolios, MiFID paperwork." },
   { id: "crypto",  n: "Crypto Custody",          c: "growth",     t: 15, r: 14, k: 30, s: 2, b: "High reward, high scrutiny. Ask the regulator first." },
-  { id: "dr",      n: "Disaster Recovery",       c: "platform",   t: 12, r: 6,  k: 2,  s: 2, b: "Second region, tested failover, documented RTO." },
-  { id: "gdpr",    n: "Privacy & GDPR Controls", c: "compliance", t: 8,  r: 6,  k: 4,  s: 1, b: "Consent, retention, erasure. Pays nothing until it pays everything." },
-  { id: "migrate", n: "Core Banking Migration",  c: "platform",   t: 16, r: 9,  k: 12, s: 3, b: "Off the legacy mainframe. The one everybody postpones." },
+  { id: "gdpr",    n: "Privacy & GDPR Controls", c: "compliance", t: 8,  r: 6,  k: 4,  s: 1, src: "Session 10", b: "Consent, retention, erasure. Pays nothing until it pays everything." },
   { id: "payouts", n: "Merchant Payouts",        c: "core",       t: 12, r: 11, k: 17, s: 2, b: "Same-day settlement for business customers." },
+
+  // ——— Platform: few customers, permanent leverage ———
+  { id: "micro",      n: "Microservice Migration", c: "platform", t: 14, r: 8, k: 7, s: 3, src: "Session 04", bonus: { rel: 2 },          b: "Break the monolith so two teams stop queueing behind one deploy." },
+  { id: "shard",      n: "Database Sharding",      c: "platform", t: 13, r: 7, k: 5, s: 2, src: "Session 02", bonus: { mit: 1 },          b: "Partition the ledger by customer range. Writes stop fighting each other." },
+  { id: "pipeline",   n: "Data Pipeline",          c: "platform", t: 11, r: 6, k: 4, s: 2, src: "Session 02", bonus: { mit: 1 },          b: "Streaming ingestion into the warehouse, not a nightly batch and a prayer." },
+  { id: "dwh",        n: "Data Warehouse",         c: "platform", t: 11, r: 6, k: 4, s: 2, src: "Session 02", bonus: { mit: 1 },          b: "Regulatory reporting needs a place to read from." },
+  { id: "testauto",   n: "Test Automation Suite",  c: "platform", t: 10, r: 6, k: 3, s: 2, src: "Session 06", bonus: { dev: 1, rel: 1 },  b: "A suite that runs on every commit and actually gets read when it fails." },
+  { id: "gates",      n: "Code Quality Gates",     c: "platform", t: 9,  r: 5, k: 2, s: 1, src: "Session 06", bonus: { dev: 2 },          b: "Coverage, linting and review rules enforced by the pipeline, not by asking nicely." },
+  { id: "errtrack",   n: "Error Tracking",         c: "platform", t: 8,  r: 5, k: 3, s: 1, src: "Session 06", bonus: { mit: 1 },          b: "Exceptions aggregated and attributed instead of scrolling a log." },
+  { id: "abtest",     n: "A/B Testing System",     c: "platform", t: 10, r: 8, k: 9, s: 2, src: "Session 06", bonus: { rel: 1 },          b: "Ship to five percent first and find out before everyone sees it." },
+  { id: "obs",        n: "Observability Stack",    c: "platform", t: 10, r: 5, k: 3, s: 1, src: "Session 04", bonus: { mit: 2 },          b: "Traces, metrics, structured logs. Nobody asks for it." },
+  { id: "svcmon",     n: "Service Monitoring",     c: "platform", t: 8,  r: 5, k: 3, s: 1, src: "Session 04", bonus: { mit: 1 },          b: "Health checks and alerting, so the customer is not your monitoring." },
+  { id: "runbooks",   n: "Incident Runbooks",      c: "platform", t: 7,  r: 4, k: 2, s: 1, src: "Session 04", bonus: { mit: 2 },          b: "Written, rehearsed, and findable at three in the morning." },
+  { id: "gateway",    n: "API Gateway",            c: "platform", t: 11, r: 7, k: 5, s: 2, src: "Session 04", bonus: { rel: 1 },          b: "One edge for auth, routing and versioning instead of twelve." },
+  { id: "containers", n: "Containerization",       c: "platform", t: 10, r: 6, k: 3, s: 2, src: "Session 04", bonus: { dev: 1, rel: 1 },  b: "The same image in dev, staging and production. No more works-on-my-machine." },
+  { id: "cache",      n: "Caching Layer",          c: "platform", t: 9,  r: 6, k: 5, s: 1, src: "Session 02", bonus: { rel: 1 },          b: "Balance reads served from memory instead of hammering the core." },
+  { id: "lb",         n: "Load Balancer",          c: "platform", t: 8,  r: 5, k: 4, s: 1, src: "Session 02", bonus: { mit: 1 },          b: "Spread the traffic and drain a node without an outage." },
+  { id: "cdn",        n: "CDN Integration",        c: "platform", t: 7,  r: 5, k: 6, s: 1, src: "Session 02", bonus: { rel: 1 },          b: "Static assets close to the customer. The app stops feeling slow abroad." },
+  { id: "profiling",  n: "Performance Profiling",  c: "platform", t: 9,  r: 6, k: 4, s: 1, src: "Session 02", bonus: { rel: 1 },          b: "Find the query that costs you the p99 instead of guessing at it." },
+  { id: "ratelimit",  n: "Rate Limiting",          c: "platform", t: 7,  r: 5, k: 3, s: 1, src: "Session 04", bonus: { mit: 1 },          b: "Per-client quotas on the public API. The cheapest abuse defence there is." },
+  { id: "auditlog",   n: "Security Audit Log",     c: "platform", t: 9,  r: 5, k: 3, s: 1, src: "Session 10", bonus: { mit: 1 },          b: "Tamper-evident record of who touched which account. The supervisor will ask." },
+  { id: "backup",     n: "Backup & Recovery",      c: "platform", t: 9,  r: 5, k: 2, s: 1, src: "Session 04", bonus: { mit: 1 },          b: "Point-in-time restore that somebody has actually tested this year." },
+  { id: "dr",         n: "Disaster Recovery",      c: "platform", t: 12, r: 6, k: 2, s: 2, src: "Session 04", bonus: { mit: 1 },          b: "Second region, tested failover, documented RTO." },
+  { id: "wiki",       n: "Documentation Wiki",     c: "platform", t: 6,  r: 4, k: 2, s: 1, src: "Session 01", bonus: { dev: 1 },          b: "Decisions written down where the next person will look for them." },
+  { id: "migrate",    n: "Core Banking Migration", c: "platform", t: 16, r: 9, k: 12, s: 3, src: "Session 04", bonus: { dev: 1, rel: 1 }, b: "Off the legacy mainframe. The one everybody postpones." },
 ];
 
 export const FEATURE_BY_ID: Record<string, Feature> = Object.fromEntries(FEATURES.map((f) => [f.id, f]));
@@ -75,6 +97,8 @@ export const EVENTS: EventCard[] = [
   { id: "viral",     n: "Reviewer Tests Every Neobank",  txt: "A widely-followed reviewer runs the same twenty transactions through each app and posts the bugs.", needsCall: "the group with the fewest bugs" },
   { id: "pricewar",  n: "Incumbent Price War",           txt: "The big banks drop their fees to zero for twelve months." },
   { id: "trust",     n: "Consumer Trust Index",          txt: "A consumer body publishes supervisory findings per provider." },
+  { id: "latency",   n: "Latency Benchmark Published",   txt: "A magazine times the same twenty actions in every banking app and prints the table." },
+  { id: "hiring",    n: "Engineering Brand",             txt: "Two senior engineers pick an employer this quarter, and they read the public repositories first." },
 ];
 
 export const EVENT_BY_ID: Record<string, EventCard> = Object.fromEntries(EVENTS.map((c) => [c.id, c]));

@@ -54,7 +54,17 @@ export function FeatureCard({
         </span>
       </span>
       <span className="ttl">{f.n}</span>
+      {f.src && <span className="src">{f.src}</span>}
       <span className="blurb">{f.b}</span>
+      {f.bonus && (
+        <span className="bonus">
+          {[
+            f.bonus.dev ? `Dev +${f.bonus.dev}` : null,
+            f.bonus.rel ? `Rel +${f.bonus.rel}` : null,
+            f.bonus.mit ? `Mit +${f.bonus.mit}` : null,
+          ].filter(Boolean).join("  ")}{"  forever"}
+        </span>
+      )}
       <span className="stats">
         <span><span className="dt">Dev</span><span className="dd">{f.t}</span></span>
         <span><span className="dt">Rel</span><span className="dd">{f.r}</span></span>

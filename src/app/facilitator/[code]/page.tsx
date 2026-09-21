@@ -65,7 +65,9 @@ export default function Facilitator() {
               {phase.id === "planning" && (
                 <>
                   <p style={{ margin: "0 0 14px", color: "var(--muted)", fontSize: 13.5 }}>
-                    Six cards on the table. Two rotate out at the end of the sprint, picked or not.
+                    Six cards on the table &mdash; three product, three platform. One of each rotates out at the end
+                    of the sprint, picked or not. Platform cards earn few customers and pay a permanent modifier
+                    instead; a group that only ships product picks up legacy drag on every later Development roll.
                   </p>
                   <div className="market">{view.market.map((id) => <FeatureCard key={id} id={id} />)}</div>
                 </>

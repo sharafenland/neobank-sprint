@@ -52,14 +52,49 @@ releases fail more often.
 earn almost nothing on release, and then decide the Incident and Market Event
 phases. A backlog ranked purely on customer value never reaches them.
 
+**Losses are proportional, gains are flat.** An outage or an enforcement action
+costs a percentage of the customers you already have, with a floor so the first
+sprints still sting. Flat penalties stop mattering once a group passes 80k, and
+with them the reason to keep buying defensive work.
+
+**Product and platform sit on the table together.** Six cards each sprint:
+three product, three platform, one of each rotating out. Platform cards earn
+few customers and pay a permanent modifier instead — capped at +4 per category,
+so infrastructure shifts the distribution without removing the dice.
+
+**Legacy drag.** One platform card carries two product features. Every product
+feature past that adds +1 to the combined Development target, capped at +6.
+This is the architectural half of technical debt; the bug counter only models
+the unfinished-work half. Without it, a group that never builds infrastructure
+pays nothing for it, and the game would teach the opposite of the course.
+
 **Practices compound.** Twelve permanent practices, each labelled with the
 session it comes from. `Agentic Coding` (Session 05) is deliberately
 double-edged: +3 on Development, but pushing unfinished work through costs two
 bugs instead of one.
 
+**Cards carry their session.** The 23 platform cards are the course content —
+Database Sharding and Caching Layer are Session 02, Microservice Migration and
+Observability are Session 04, Test Automation and Code Quality Gates are
+Session 06, Security Audit Log is Session 10. The label is printed on the card,
+so a group choosing between them is choosing between lectures.
+
 Card content lives in [`src/lib/cards.ts`](src/lib/cards.ts) (text and numbers)
 and [`src/lib/effects.ts`](src/lib/effects.ts) (what each card does). Adding a
 feature, incident or market event means editing those two files and nothing else.
+
+### Balance, honestly
+
+38 feature cards, 12 incidents, 13 market events. Simulated over 600 runs per
+strategy with naive bots, no single approach dominates: pure growth and a
+balanced one-of-each split finish level on the median at six and eight sprints,
+while balanced carries far fewer bugs and almost no drag. Building only
+platform cards loses badly, which is correct — it is not a strategy, it is a
+refusal to sell anything.
+
+That is where simulation stops being useful. The bots do not read the legacy
+drag indicator and adapt; students do. The balance is sound enough to run and
+should be revisited after the first real session.
 
 ---
 

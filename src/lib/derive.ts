@@ -36,13 +36,17 @@ function seededShuffle<T>(arr: readonly T[], seed: number): T[] {
   return out;
 }
 
-const cache = new Map<number, { features: string[]; incidents: string[]; events: string[] }>();
+const cache = new Map<number, { product: string[]; platform: string[]; incidents: string[]; events: string[] }>();
+
+const PRODUCT_IDS = FEATURES.filter((f) => f.c !== "platform").map((f) => f.id);
+const PLATFORM_IDS = FEATURES.filter((f) => f.c === "platform").map((f) => f.id);
 
 function decks(seed: number) {
   let d = cache.get(seed);
   if (!d) {
     d = {
-      features: seededShuffle(FEATURES.map((f) => f.id), (seed ^ 0x9e3779b9) >>> 0),
+      product: seededShuffle(PRODUCT_IDS, (seed ^ 0x9e3779b9) >>> 0),
+      platform: seededShuffle(PLATFORM_IDS, (seed ^ 0x27d4eb2f) >>> 0),
       incidents: seededShuffle(INCIDENTS.map((c) => c.id), (seed ^ 0x85ebca6b) >>> 0),
       events: seededShuffle(EVENTS.map((c) => c.id), (seed ^ 0xc2b2ae35) >>> 0),
     };
@@ -51,11 +55,17 @@ function decks(seed: number) {
   return d;
 }
 
-/** Six cards on the table; two rotate out every sprint, picked or not. */
+/**
+ * Six cards on the table: three product, three platform. One of each rotates
+ * out per sprint. The split is deliberate — drawn from one pile, a deck that is
+ * half infrastructure would regularly offer a table with nothing to sell, and
+ * the trade-off the game is about would disappear.
+ */
 export function marketFor(seed: number, sprint: number): string[] {
-  const d = decks(seed).features;
-  const start = 2 * (sprint - 1);
-  return Array.from({ length: 6 }, (_, i) => d[(start + i) % d.length]);
+  const d = decks(seed);
+  const at = sprint - 1;
+  const take = (pile: string[]) => Array.from({ length: 3 }, (_, i) => pile[(at + i) % pile.length]);
+  return [...take(d.product), ...take(d.platform)];
 }
 
 export function incidentIdFor(seed: number, sprint: number): string {

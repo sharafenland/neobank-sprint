@@ -234,6 +234,10 @@ export function applyAction(
       });
       if (outcome.d) cust(fx, outcome.d);
       if (outcome.f) finding(fx, outcome.f);
+      if (outcome.ip) {
+        t.ip += outcome.ip;
+        log(fx, `+${outcome.ip} IP`, "up");
+      }
       t.eventResolved = { d: outcome.d, f: outcome.f ?? 0, w: outcome.w };
       return t;
     }
