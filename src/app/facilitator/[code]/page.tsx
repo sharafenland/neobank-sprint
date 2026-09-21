@@ -5,7 +5,7 @@ import { useState } from "react";
 import { EVENT_BY_ID, INCIDENT_BY_ID, PHASES, PRACTICES } from "@/lib/cards";
 import { hostOp } from "@/lib/client";
 import { useGame } from "@/components/useGame";
-import { ErrorBar, FeatureCard, PhaseHead, Stepper, TeachingNote, Timer } from "@/components/ui";
+import { CheatSheet, ErrorBar, FeatureCard, PhaseHead, Stepper, TeachingNote, Timer } from "@/components/ui";
 
 export default function Facilitator() {
   const code = String(useParams().code ?? "").toUpperCase();
@@ -62,6 +62,7 @@ export default function Facilitator() {
           <div className="panel">
             <PhaseHead phase={phase} />
             <div className="panel-body">
+              <CheatSheet phase={phase} />
               {phase.id === "planning" && (
                 <>
                   <p style={{ margin: "0 0 14px", color: "var(--muted)", fontSize: 13.5 }}>

@@ -30,6 +30,11 @@ export default function Landing() {
           <JoinForm />
         </div>
       </div>
+
+      <p style={{ marginTop: 22, fontSize: 13.5, color: "var(--muted)" }}>
+        New to it? <Link href="/rules" style={{ color: "var(--accent-ink)" }}>The rules on one page</Link> &mdash;
+        the three formulas, the six phases and every card.
+      </p>
     </div>
   );
 }

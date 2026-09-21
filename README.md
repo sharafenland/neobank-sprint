@@ -16,6 +16,11 @@ Adapted from the CatTube sprint game, which is itself inspired by the
 3. Groups open the start page, enter the code and a group name — one device per group.
 4. You drive the phases from the facilitator console. Groups cannot skip ahead.
 
+Both consoles carry a **cheat sheet** in every phase: the three formulas, with the
+line for the current phase highlighted, and on a group's screen its live bonuses,
+bug count and legacy drag underneath. `/rules` has the same sheet plus every card,
+for students to open on a phone or for the projector before you start.
+
 Six phases per sprint: **Sprint Planning → Development → Incident → Release →
 Market Event → Retro & Investment.**
 
@@ -110,6 +115,7 @@ src/lib/store.ts     all SQL
 src/app/api/…        five route handlers
 src/app/play/[code]  the group console
 src/app/facilitator  the projector console
+src/app/rules        every card and formula on one page, for phones
 ```
 
 **Every die is rolled on the server.** A group cannot reroll by reloading, and

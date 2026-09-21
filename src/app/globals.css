@@ -112,6 +112,26 @@ button{font:inherit;color:inherit}
 .stats .dd{display:block;margin-top:1px;font-family:var(--mono);font-size:13.5px;font-weight:600}
 .fcard[aria-pressed="true"] .stats>span{background:var(--surface)}
 
+/* ---------- cheat sheet ---------- */
+.cheat{border:1px dashed var(--line-strong);border-radius:9px;padding:11px 13px 10px;margin-bottom:16px;background:var(--surface-2)}
+.cheat>.eyebrow{display:block;margin-bottom:7px}
+.cheat ul{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.cheat li{display:flex;gap:9px;align-items:baseline;font-family:var(--mono);font-size:12px;line-height:1.45;color:var(--muted)}
+.cheat li .k{flex:none;min-width:58px;font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint)}
+.cheat li .f{min-width:0}
+.cheat li.on{color:var(--ink)}
+.cheat li.on .k{color:var(--accent);font-weight:600}
+.cheat li.on .f b{color:var(--accent-ink)}
+.cheat .state{margin-top:9px;padding-top:8px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:4px 14px;font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.cheat .state span{white-space:nowrap}
+.cheat .state b{color:var(--ink);font-weight:600}
+.cheat .state b.warn{color:var(--amber)}
+.cheat .state b.crit{color:var(--bad)}
+@media (max-width:560px){
+  .cheat li{flex-direction:column;gap:1px}
+  .cheat li .k{min-width:0}
+}
+
 /* ---------- generic bits ---------- */
 .btn{border:1px solid var(--accent);background:var(--accent);color:#fff;padding:8px 16px;border-radius:7px;font-weight:600;font-size:14px;cursor:pointer}
 .btn:hover{filter:brightness(1.07)}

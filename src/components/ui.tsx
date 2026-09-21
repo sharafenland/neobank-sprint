@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { FEATURE_BY_ID, PHASES, type Phase } from "@/lib/cards";
+import { capacity, devBonus, legacyDrag, mitBonus, relBonus } from "@/lib/rules";
+import type { TeamState } from "@/lib/types";
 
 export const sgn = (n: number) => (n > 0 ? "+" : "") + n;
 
@@ -37,6 +39,57 @@ export function TeachingNote({ phase }: { phase: Phase }) {
     <div className="note">
       <span className="eyebrow">Teaching point &middot; {phase.note[0]}</span>
       <p>{phase.note[1]}</p>
+    </div>
+  );
+}
+
+/**
+ * The three formulas, on screen in every phase. Nobody in a lecture hall has
+ * read the rules; the line that matters right now is highlighted.
+ */
+export function CheatSheet({ t, phase }: { t?: TeamState; phase: Phase }) {
+  const drag = t ? legacyDrag(t) : 0;
+  const rows: { k: string; id: string; f: React.ReactNode }[] = [
+    {
+      k: "Develop", id: "dev",
+      f: <>d20 + <b>Dev</b> &ge; sum of the targets you picked{drag > 0 ? <> + <b>{drag}</b> legacy drag</> : null} &mdash; all or nothing</>,
+    },
+    {
+      k: "Mitigate", id: "incident",
+      f: <>d20 + <b>Mit</b> &ge; the incident&rsquo;s target</>,
+    },
+    {
+      k: "Release", id: "release",
+      f: <>d20 + <b>Rel</b> &minus; bugs &minus; 2 per buggy feature &ge; sum of the release targets &mdash; miss it and everything soft-launches at 25%</>,
+    },
+    {
+      k: "Debt", id: "retro",
+      f: <>5 bugs &rarr; nothing ships &nbsp;&middot;&nbsp; 3 findings &rarr; one slot less</>,
+    },
+  ];
+  return (
+    <div className="cheat">
+      <span className="eyebrow">Cheat sheet</span>
+      <ul>
+        {rows.map((r) => (
+          <li key={r.id} className={r.id === phase.id ? "on" : ""}>
+            <span className="k">{r.k}</span>
+            <span className="f">{r.f}</span>
+          </li>
+        ))}
+      </ul>
+      {t && (
+        <div className="state">
+          <span>Dev <b>{sgn(devBonus(t))}</b></span>
+          <span>Mit <b>{sgn(mitBonus(t))}</b></span>
+          <span>Rel <b>{sgn(relBonus(t))}</b></span>
+          <span>Slots <b>{capacity(t)}</b></span>
+          <span>Bugs <b className={t.bugs >= 5 ? "crit" : t.bugs >= 3 ? "warn" : ""}>{t.bugs}</b></span>
+          <span>Findings <b className={t.findings >= 3 ? "crit" : t.findings >= 2 ? "warn" : ""}>{t.findings}</b></span>
+          {drag > 0 && <span>Legacy drag <b className="warn">+{drag}</b></span>}
+          <span>IP <b>{t.ip}</b></span>
+        </div>
+      )}
     </div>
   );
 }

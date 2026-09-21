@@ -10,7 +10,7 @@ import {
 } from "@/lib/rules";
 import type { TeamState } from "@/lib/types";
 import { useGame } from "@/components/useGame";
-import { Die, ErrorBar, FeatureCard, PhaseHead, Stepper, sgn } from "@/components/ui";
+import { CheatSheet, Die, ErrorBar, FeatureCard, PhaseHead, Stepper, sgn } from "@/components/ui";
 
 export default function Play() {
   const code = String(useParams().code ?? "").toUpperCase();
@@ -87,6 +87,7 @@ export default function Play() {
               }
             />
             <div className="panel-body">
+              <CheatSheet t={t} phase={phase} />
               {phase.id === "planning" && <Planning t={t} market={view.market} busy={busy} send={send} />}
               {phase.id === "dev" && <Development t={t} busy={busy} send={send} />}
               {phase.id === "incident" && <Incident t={t} id={view.incidentId} revealed={s.reveal_incident} busy={busy} send={send} />}
