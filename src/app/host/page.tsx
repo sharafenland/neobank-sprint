@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createSession, writeToken } from "@/lib/client";
+import { ThemeSwitch } from "@/components/ThemeSwitch";
 
 export default function HostSetup() {
   const router = useRouter();
@@ -25,7 +26,10 @@ export default function HostSetup() {
 
   return (
     <div className="setup">
-      <p className="eyebrow">Facilitator setup</p>
+      <div className="spread" style={{ marginBottom: 6 }}>
+        <p className="eyebrow" style={{ margin: 0 }}>Facilitator setup</p>
+        <ThemeSwitch />
+      </div>
       <h1 style={{ fontSize: 30, marginTop: 4 }}>Start a session</h1>
 
       <div className="field">

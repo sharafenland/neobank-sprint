@@ -12,6 +12,7 @@ import {
 import type { TeamState } from "@/lib/types";
 import { useGame } from "@/components/useGame";
 import { CheatSheet, Die, ErrorBar, FeatureCard, PhaseHead, Stepper, sgn } from "@/components/ui";
+import { ThemeSwitch } from "@/components/ThemeSwitch";
 
 export default function Play() {
   const code = String(useParams().code ?? "").toUpperCase();
@@ -62,6 +63,7 @@ export default function Play() {
           <span className={`metric ${t.findings >= 3 ? "crit" : t.findings >= 2 ? "warn" : ""}`}><b>{t.findings}</b><span>Findings</span></span>
           <span className="metric"><b>{t.ip}</b><span>IP</span></span>
           <span className="metric"><b>{s.sprint}/{s.sprints}</b><span>Sprint</span></span>
+          <ThemeSwitch />
         </div>
       </div></header>
 

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FEATURES, PHASES, PRACTICES } from "@/lib/cards";
 import { CheatSheet, FeatureCard } from "@/components/ui";
+import { ThemeSwitch } from "@/components/ThemeSwitch";
 
 /** Open on a phone during the game, or put on the projector before it. */
 export default function Rules() {
@@ -11,7 +12,10 @@ export default function Rules() {
 
   return (
     <div className="setup" style={{ maxWidth: 980 }}>
-      <p className="eyebrow">Neobank Sprint</p>
+      <div className="spread" style={{ marginBottom: 6 }}>
+        <p className="eyebrow" style={{ margin: 0 }}>Neobank Sprint</p>
+        <ThemeSwitch />
+      </div>
       <h1 style={{ fontSize: 30, marginTop: 4 }}>How the game works</h1>
       <div className="rule" />
 

@@ -6,6 +6,7 @@ import { EVENT_BY_ID, INCIDENT_BY_ID, PHASES, PRACTICES } from "@/lib/cards";
 import { hostOp, type HostOp } from "@/lib/client";
 import { useGame } from "@/components/useGame";
 import { CheatSheet, ErrorBar, FeatureCard, PhaseHead, Stepper, TeachingNote, Timer } from "@/components/ui";
+import { ThemeSwitch } from "@/components/ThemeSwitch";
 
 export default function Facilitator() {
   const code = String(useParams().code ?? "").toUpperCase();
@@ -48,6 +49,7 @@ export default function Facilitator() {
         <div className="brand"><b>Neobank Sprint</b><span>Facilitator</span></div>
         <span className="sprintchip">Sprint {s.sprint} / {s.sprints}</span>
         <Timer minutes={phase.minutes} />
+        <ThemeSwitch />
       </div></header>
 
       <Stepper phase={s.phase} />

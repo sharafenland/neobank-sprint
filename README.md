@@ -186,6 +186,24 @@ should be revisited after the first real session.
 
 ---
 
+## Theme
+
+The palette is the school's: `#003E5B` for the accent, `#173042` for text,
+`#627186` for secondary, `#DCE5EA` for tinted panels — the same values the
+handout takes from the lab instructions, so the screen and the paper match.
+
+Dark mode cannot use `#003E5B` as an accent; it disappears against a dark
+ground. It lifts to `#5CAACB`, the tint the school uses on navy, and a
+separate `--on-accent` token carries the text colour that sits on the accent:
+white in light, near-black in dark.
+
+Every screen has a **Light / Dark switch**, stored per device. A lecture hall
+is usually dim and a group's laptop usually is not, so the two ends of the
+room want opposite themes. An inline script in the layout stamps the stored
+choice on `<html>` before first paint, so nothing flashes; `<html>` carries
+`suppressHydrationWarning` because that attribute is, by design, one the
+server did not render. With nothing stored, the operating system decides.
+
 ## Architecture
 
 ```

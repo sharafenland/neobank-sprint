@@ -1,11 +1,15 @@
 import Link from "next/link";
 import { JoinForm } from "@/components/JoinForm";
+import { ThemeSwitch } from "@/components/ThemeSwitch";
 
 export default function Landing() {
   return (
     <div className="setup">
       <div className="hero">
-        <p className="eyebrow">Financial Software Engineering &middot; in-class simulation</p>
+        <div className="spread" style={{ marginBottom: 10 }}>
+          <p className="eyebrow" style={{ margin: 0 }}>Frankfurt School &middot; Financial Software Engineering</p>
+          <ThemeSwitch />
+        </div>
         <h1>Neobank Sprint</h1>
         <div className="rule" />
         <p className="lede">

@@ -7,39 +7,43 @@ img{max-width:100%}
 [hidden]{display:none!important}
 
 :root{
-  --paper:#EFF2F1; --surface:#FFFFFF; --surface-2:#F7F9F8;
-  --ink:#16211F; --muted:#5E6E6B; --faint:#8A9A97;
-  --line:#D5DEDB; --line-strong:#B6C4C0;
-  --accent:#0E7C86; --accent-soft:#DCEDEE; --accent-ink:#095960;
-  --amber:#B36A2E; --amber-soft:#F6E9DA;
-  --good:#38724A; --good-soft:#DFEDE3;
-  --bad:#AB2E38; --bad-soft:#F7E1E2;
-  --shadow:0 1px 2px rgba(22,33,31,.06), 0 8px 24px -16px rgba(22,33,31,.28);
+  --paper:#F2F5F7; --surface:#FFFFFF; --surface-2:#F7F9FB;
+  --ink:#173042; --muted:#627186; --faint:#919DA6;
+  --line:#E0E6EC; --line-strong:#B9C5CE;
+  --accent:#003E5B; --accent-soft:#DCE5EA; --accent-ink:#004763; --on-accent:#FFFFFF;
+  --amber:#9A5E1E; --amber-soft:#F5E9D9;
+  --good:#2E6B4F; --good-soft:#DEEBE3;
+  --bad:#9E2F38; --bad-soft:#F6E1E2;
+  --shadow:0 1px 2px rgba(0,62,91,.07), 0 8px 24px -16px rgba(0,62,91,.30);
   --display:"Bricolage Grotesque","Helvetica Neue",Helvetica,Arial,sans-serif;
   --body:"Source Sans 3","Helvetica Neue",Helvetica,Arial,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --paper:#0B1211; --surface:#182523; --surface-2:#1F2E2B;
-    --ink:#E9F0ED; --muted:#A3B2AE; --faint:#7A8C88;
-    --line:#2F4340; --line-strong:#496662;
-    --accent:#45B3BC; --accent-soft:#12312F; --accent-ink:#8FD8DE;
-    --amber:#D8945A; --amber-soft:#332317;
-    --good:#6FB585; --good-soft:#15291C;
-    --bad:#E2727B; --bad-soft:#331617;
-    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+    /* The band colour is too dark to carry text on a dark ground, so the
+       accent lifts to the tint the school uses on navy backgrounds. */
+    --paper:#081620; --surface:#10242F; --surface-2:#16303D;
+    --ink:#E7EFF4; --muted:#9DB2C0; --faint:#748E9D;
+    --line:#22404F; --line-strong:#3A5D70;
+    --accent:#5CAACB; --accent-soft:#0E2E3D; --accent-ink:#9BD2E8; --on-accent:#06202C; --on-accent:#06202C;
+    --amber:#D2954F; --amber-soft:#2E2314;
+    --good:#6DB392; --good-soft:#13291F;
+    --bad:#E08089; --bad-soft:#301518;
+    --shadow:0 1px 2px rgba(0,0,0,.45), 0 8px 24px -16px rgba(0,0,0,.85);
   }
 }
 :root[data-theme="dark"]{
-  --paper:#0B1211; --surface:#182523; --surface-2:#1F2E2B;
-  --ink:#E9F0ED; --muted:#A3B2AE; --faint:#7A8C88;
-  --line:#2F4340; --line-strong:#496662;
-  --accent:#45B3BC; --accent-soft:#12312F; --accent-ink:#8FD8DE;
-  --amber:#D8945A; --amber-soft:#332317;
-  --good:#6FB585; --good-soft:#15291C;
-  --bad:#E2727B; --bad-soft:#331617;
-  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+  /* The band colour is too dark to carry text on a dark ground, so the
+     accent lifts to the tint the school uses on navy backgrounds. */
+  --paper:#081620; --surface:#10242F; --surface-2:#16303D;
+  --ink:#E7EFF4; --muted:#9DB2C0; --faint:#748E9D;
+  --line:#22404F; --line-strong:#3A5D70;
+  --accent:#5CAACB; --accent-soft:#0E2E3D; --accent-ink:#9BD2E8;
+  --amber:#D2954F; --amber-soft:#2E2314;
+  --good:#6DB392; --good-soft:#13291F;
+  --bad:#E08089; --bad-soft:#301518;
+  --shadow:0 1px 2px rgba(0,0,0,.45), 0 8px 24px -16px rgba(0,0,0,.85);
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
@@ -51,6 +55,13 @@ input,textarea,select{font:inherit;color:inherit}
 ::placeholder{color:var(--faint);opacity:1}
 .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+
+.themeswitch{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line-strong);border-radius:999px;padding:3px;background:var(--surface)}
+.themeswitch button{display:inline-flex;align-items:center;gap:5px;border:0;background:transparent;color:var(--muted);
+  font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;padding:4px 9px;border-radius:999px;cursor:pointer}
+.themeswitch button:hover{color:var(--ink)}
+.themeswitch button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+.themeswitch svg{width:12px;height:12px;flex:none}
 
 /* ---------- top bar ---------- */
 .topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;background:var(--surface);border-bottom:1px solid var(--line)}
@@ -73,7 +84,7 @@ input,textarea,select{font:inherit;color:inherit}
 .step.done{color:var(--muted)}
 .step.done em{background:var(--muted);border-color:var(--muted);color:var(--surface)}
 .step.now{color:var(--accent-ink);border-bottom-color:var(--accent)}
-.step.now em{background:var(--accent);border-color:var(--accent);color:#fff}
+.step.now em{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 
 /* ---------- layout ---------- */
 .desk{max-width:1220px;margin:0 auto;padding:18px 16px 96px;display:grid;grid-template-columns:minmax(0,1fr) 322px;gap:20px;align-items:start}
@@ -149,7 +160,7 @@ input,textarea,select{font:inherit;color:inherit}
 }
 
 /* ---------- generic bits ---------- */
-.btn{border:1px solid var(--accent);background:var(--accent);color:#fff;padding:8px 16px;border-radius:7px;font-weight:600;font-size:14px;cursor:pointer}
+.btn{border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);padding:8px 16px;border-radius:7px;font-weight:600;font-size:14px;cursor:pointer}
 .btn:hover{filter:brightness(1.07)}
 .btn{text-decoration:none;display:inline-block;text-align:center}
 .btn:hover{text-decoration:none}
@@ -158,7 +169,7 @@ input,textarea,select{font:inherit;color:inherit}
 .btn.ghost{background:transparent;color:var(--ink);border-color:var(--line-strong)}
 .btn.ghost:hover{border-color:var(--ink);filter:none}
 .btn.sm{padding:5px 11px;font-size:12.5px;border-radius:6px}
-.btn.danger{background:var(--bad);border-color:var(--bad)}
+.btn.danger{background:var(--bad);border-color:var(--bad);color:#fff}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .spread{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 .note{margin-top:16px;border-left:3px solid var(--accent);background:var(--accent-soft);padding:10px 13px;border-radius:0 7px 7px 0}
@@ -224,7 +235,7 @@ input,textarea,select{font:inherit;color:inherit}
 .field input[type=text]:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .seg{display:flex;gap:6px;flex-wrap:wrap}
 .seg button{padding:7px 14px;border:1px solid var(--line-strong);background:var(--surface);border-radius:7px;cursor:pointer;font-family:var(--mono);font-size:13px;font-weight:500}
-.seg button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:#fff}
+.seg button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--on-accent)}
 .teamlist{display:flex;flex-direction:column;gap:8px}
 .teamrow{display:flex;align-items:center;gap:9px}
 .teamrow .dot{width:12px;height:12px;border-radius:50%;flex:none}
