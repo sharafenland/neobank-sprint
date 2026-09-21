@@ -17,11 +17,13 @@ Adapted from the CatTube sprint game, which is itself inspired by the
 4. You drive the phases from the facilitator console. Groups cannot skip ahead.
 
 Both consoles carry a **cheat sheet** in every phase: the three formulas, with the
-line for the current phase highlighted. On a group's screen it sits above the
-phase and carries that group's live bonuses, bug count and legacy drag. On the
-facilitator's it sits in the right-hand rail, together with the phase's teaching
-point and the live standings, so the main panel holds nothing but the cards you
-are showing the room. `/rules` has the same sheet plus every
+line for the current phase highlighted. Both consoles keep it in the right-hand
+rail so the main column holds only what is being looked at — the cards, the
+incident, the event. A group's copy carries that group's live bonuses, bug
+count and legacy drag underneath; the facilitator's is followed by the phase's
+teaching point and the live standings. Below 900px the rail stacks, and the
+cheat sheet is ordered to the top rather than buried under the phase, because
+half the room is on a phone. `/rules` has the same sheet plus every
 card, for students to open on a phone or for the projector before you start.
 
 ### Changing your mind about the length

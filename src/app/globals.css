@@ -326,6 +326,16 @@ details.rules[open]>summary::before{content:"– "}
 .metric.warn b{color:var(--amber)} .metric.crit b{color:var(--bad)}
 .tsplit{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
 .solo{max-width:1220px;margin:0 auto;padding:18px 16px 96px;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:start}
-@media (max-width:900px){.solo{grid-template-columns:minmax(0,1fr)}}
+/* Narrow screens stack, and the cheat sheet has to lead — a phone would
+   otherwise bury it under the whole phase. `display: contents` lifts the
+   rail's blocks into the same flex flow so they can be ordered. */
+@media (max-width:900px){
+  .solo{display:flex;flex-direction:column}
+  .solo>aside.rail{display:contents}
+  .solo>div{order:1}
+  .solo .rail>.cheat{order:0}
+  .solo .rail>.ledger{order:2}
+  .solo .rail>.feed{order:3}
+}
 .toggle{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;border:1px solid var(--line-strong);border-radius:8px;padding:7px 11px;cursor:pointer;background:var(--surface)}
 .toggle input{accent-color:var(--accent);width:15px;height:15px}

@@ -87,7 +87,6 @@ export default function Play() {
               }
             />
             <div className="panel-body">
-              <CheatSheet t={t} phase={phase} />
               {phase.id === "planning" && <Planning t={t} market={view.market} busy={busy} send={send} />}
               {phase.id === "dev" && <Development t={t} busy={busy} send={send} />}
               {phase.id === "incident" && <Incident t={t} id={view.incidentId} revealed={s.reveal_incident} busy={busy} send={send} />}
@@ -99,29 +98,24 @@ export default function Play() {
         </div>
 
         <aside className="rail">
+          <CheatSheet t={t} phase={phase} />
           <div className="ledger">
-            <div className="ledger-h"><span className="dot" style={{ background: "var(--accent)" }} /><b>Your modifiers</b></div>
-            <div className="chips">
-              <span className="chip">Slots {capacity(t)}{t.findings >= 3 ? " (capped)" : ""}</span>
-              <span className="chip">Dev {sgn(devBonus(t))}</span>
-              <span className="chip">Rel {sgn(relBonus(t))}</span>
-              <span className="chip">Mit {sgn(mitBonus(t))}</span>
-            </div>
+            <div className="ledger-h"><span className="dot" style={{ background: "var(--accent)" }} /><b>What you own</b></div>
             {(() => {
               const infra = infraBonus(t);
               if (!infra.dev && !infra.rel && !infra.mit) return null;
               const capped = infra.dev === INFRA_CAP || infra.rel === INFRA_CAP || infra.mit === INFRA_CAP;
               return (
-                <div className="chips" style={{ borderTop: "1px solid var(--line)" }}>
+                <div className="chips">
                   <span className="chip on">
-                    From infrastructure: Dev {sgn(infra.dev)} &middot; Rel {sgn(infra.rel)} &middot; Mit {sgn(infra.mit)}
+                    Infrastructure gives you Dev {sgn(infra.dev)} &middot; Rel {sgn(infra.rel)} &middot; Mit {sgn(infra.mit)}
                     {capped ? ` (capped at ${INFRA_CAP})` : ""}
                   </span>
                 </div>
               );
             })()}
             {t.practices.length > 0 && (
-              <div className="chips" style={{ borderTop: "1px solid var(--line)" }}>
+              <div className="chips">
                 {t.practices.map((p) => <span key={p} className="chip on">{PRACTICE_BY_ID[p].n}</span>)}
               </div>
             )}
@@ -129,6 +123,9 @@ export default function Play() {
               <div className="chips" style={{ borderTop: "1px solid var(--line)" }}>
                 {t.portfolio.map((f) => <span key={f} className="chip">{FEATURE_BY_ID[f].n}</span>)}
               </div>
+            )}
+            {t.practices.length === 0 && t.portfolio.length === 0 && (
+              <div className="chips"><span className="empty" style={{ fontSize: 12.5 }}>Nothing shipped or adopted yet.</span></div>
             )}
           </div>
           {t.feed.length > 0 && (
