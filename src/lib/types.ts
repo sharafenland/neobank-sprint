@@ -30,7 +30,21 @@ export interface Practice {
   e: string;
 }
 
-export interface IncidentCard {
+/**
+ * Features a card leans on. A session only deals thirty-nine cards' worth of
+ * market across six-card tables, so a card whose counter-play never reaches
+ * the table is either dead or a tax nobody could have avoided. `needs` lists
+ * the features that make the card mean something; `needsCount` is how many of
+ * them must be showable (default: all of them).
+ *
+ * Cards whose counter-play is a *practice* need nothing: the shop is always open.
+ */
+export interface CardDeps {
+  needs?: string[];
+  needsCount?: number;
+}
+
+export interface IncidentCard extends CardDeps {
   id: string;
   n: string;
   txt: string;
@@ -40,7 +54,7 @@ export interface IncidentCard {
   autoTxt?: string;
 }
 
-export interface EventCard {
+export interface EventCard extends CardDeps {
   id: string;
   n: string;
   txt: string;

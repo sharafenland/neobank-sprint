@@ -138,6 +138,36 @@ for (const [name, strat] of Object.entries(strategies)) {
   }
 }
 
+// --- no card is ever dealt without the feature it hangs on ---
+{
+  const { INCIDENT_BY_ID, EVENT_BY_ID } = require("../.test-build/cards");
+  const { incidentIdFor, eventIdFor, SCHEDULE_LENGTH } = require("../.test-build/derive");
+  const shownThrough = (seed, sprint) => {
+    const shown = new Set();
+    for (let s = 1; s <= sprint; s++) for (const id of marketFor(seed, s)) shown.add(id);
+    return shown;
+  };
+  const satisfied = (card, shown) => {
+    if (!card.needs || !card.needs.length) return true;
+    const have = card.needs.filter((id) => shown.has(id)).length;
+    return have >= (card.needsCount ?? card.needs.length);
+  };
+  let unmet = 0;
+  for (let seed = 1; seed <= 500; seed++) {
+    for (let sprint = 1; sprint <= SCHEDULE_LENGTH; sprint++) {
+      const shown = shownThrough(seed, sprint);
+      if (!satisfied(INCIDENT_BY_ID[incidentIdFor(seed, sprint)], shown)) unmet++;
+      if (!satisfied(EVENT_BY_ID[eventIdFor(seed, sprint)], shown)) unmet++;
+    }
+  }
+  check("every incident and event fits the cards the table has shown", unmet === 0, `${unmet} unmet`);
+
+  // Adding a sprint must not rewrite what already happened.
+  const first = [1, 2, 3, 4].map((k) => `${incidentIdFor(77, k)}/${eventIdFor(77, k)}`).join(",");
+  const later = [1, 2, 3, 4, 5, 6, 7, 8].map((k) => `${incidentIdFor(77, k)}/${eventIdFor(77, k)}`).slice(0, 4).join(",");
+  check("extending a session leaves earlier sprints untouched", first === later);
+}
+
 // --- infrastructure bonuses are real, and capped ---
 {
   const { infraBonus, INFRA_CAP, mitBonus } = require("../.test-build/rules");

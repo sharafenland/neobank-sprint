@@ -502,6 +502,9 @@
   {
    "id": "breach",
    "n": "Data Breach",
+   "needs": [
+    "gdpr"
+   ],
    "mit": 14,
    "txt": "A misconfigured storage bucket exposed customer documents. The clock on the 72-hour notification has started."
   },
@@ -515,6 +518,11 @@
   {
    "id": "audit",
    "n": "BaFin Spot Audit",
+   "needs": [
+    "aml",
+    "auditlog"
+   ],
+   "needsCount": 1,
    "mit": 13,
    "txt": "The supervisor arrives unannounced and asks to see your transaction monitoring evidence."
   },
@@ -527,6 +535,9 @@
   {
    "id": "fraudring",
    "n": "Fraud Ring",
+   "needs": [
+    "fraud"
+   ],
    "mit": 12,
    "txt": "A coordinated ring is testing stolen card numbers against your authorisation endpoint.",
    "autoTxt": "Fraud Detection scores them out in real time"
@@ -534,6 +545,9 @@
   {
    "id": "region",
    "n": "Cloud Region Failure",
+   "needs": [
+    "dr"
+   ],
    "mit": 13,
    "txt": "Your primary region goes dark for four hours. The provider's status page is still green.",
    "autoTxt": "Disaster Recovery — failover to the second region held"
@@ -547,6 +561,9 @@
   {
    "id": "sla",
    "n": "Instant Payment SLA Breach",
+   "needs": [
+    "sepa"
+   ],
    "mit": 12,
    "txt": "Settlement drifts past the ten-second limit. Every breach is reportable.",
    "onlyTxt": "only teams that shipped SEPA Instant are exposed"
@@ -561,6 +578,11 @@
   {
    "id": "reporting",
    "n": "Regulatory Reporting Deadline",
+   "needs": [
+    "dwh",
+    "pipeline"
+   ],
+   "needsCount": 1,
    "mit": 11,
    "txt": "Quarterly reporting is due and the numbers have to reconcile to the cent.",
    "autoTxt": "Data Warehouse — the report generates itself"
@@ -568,6 +590,11 @@
   {
    "id": "phish",
    "n": "Customer Phishing Wave",
+   "needs": [
+    "sca",
+    "ratelimit"
+   ],
+   "needsCount": 1,
    "mit": 12,
    "txt": "A convincing SMS campaign is harvesting your customers' credentials."
   }
@@ -576,16 +603,25 @@
   {
    "id": "dora",
    "n": "DORA Comes Into Force",
+   "needs": [
+    "dr"
+   ],
    "txt": "Digital operational resilience becomes supervisory law. Tested failover is no longer optional."
   },
   {
    "id": "gdprwave",
    "n": "GDPR Enforcement Wave",
+   "needs": [
+    "gdpr"
+   ],
    "txt": "The data protection authority publishes its fines for the quarter."
   },
   {
    "id": "ipr",
    "n": "Instant Payments Regulation",
+   "needs": [
+    "sepa"
+   ],
    "txt": "Instant transfers must be offered at the price of a standard transfer. Customers switch on it."
   },
   {
@@ -603,16 +639,25 @@
   {
    "id": "mica",
    "n": "MiCA Licensing Round",
+   "needs": [
+    "crypto"
+   ],
    "txt": "A clear crypto-asset framework opens the market to licensed institutions."
   },
   {
    "id": "rates",
    "n": "Central Bank Raises Rates",
+   "needs": [
+    "pots"
+   ],
    "txt": "Deposits are suddenly worth holding, and savers go shopping for yield."
   },
   {
    "id": "openbank",
    "n": "Open Banking Breakthrough",
+   "needs": [
+    "psd2"
+   ],
    "txt": "An aggregator with millions of users adds every bank with a working API."
   },
   {
@@ -624,6 +669,9 @@
   {
    "id": "pricewar",
    "n": "Incumbent Price War",
+   "needs": [
+    "app"
+   ],
    "txt": "The big banks drop their fees to zero for twelve months."
   },
   {
@@ -634,11 +682,23 @@
   {
    "id": "latency",
    "n": "Latency Benchmark Published",
+   "needs": [
+    "cdn",
+    "cache",
+    "profiling"
+   ],
+   "needsCount": 1,
    "txt": "A magazine times the same twenty actions in every banking app and prints the table."
   },
   {
    "id": "hiring",
    "n": "Engineering Brand",
+   "needs": [
+    "wiki",
+    "gates",
+    "testauto"
+   ],
+   "needsCount": 2,
    "txt": "Two senior engineers pick an employer this quarter, and they read the public repositories first."
   }
  ],

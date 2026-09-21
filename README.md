@@ -152,8 +152,27 @@ team's state, so polling twice or joining late lands in the same place.
 
 **The deck comes from a seed**, not from rows: `marketFor(seed, sprint)` and
 friends are pure functions, so there is no per-sprint deck state to keep
-consistent. Six cards are on the table and two rotate out each sprint, whether
-or not anyone picked them.
+consistent. Six cards are on the table — three product, three platform — and
+one of each rotates out per sprint, whether or not anyone picked them. A card
+therefore sits on the table for exactly three sprints, and a six-sprint session
+shows 16 of the 39 cards, an eight-sprint one 20. Two sessions with different
+codes share very little, which is what makes a second lecture a different game.
+
+**Cards are dealt against what the table has shown.** Because a session never
+offers the whole deck, an incident or market event can hang on a feature that
+was never available: rewarding Crypto Custody in a session that never offered
+it does nothing to anybody, and punishing the absence of Privacy & GDPR taxes a
+choice nobody was given. So incidents and events declare `needs` — the features
+that make them mean something — and `scheduleFor` deals only cards whose needs
+the table has already met. Cards whose counter-play is a *practice* declare
+nothing, since the shop is always open.
+
+When the fitting pool runs dry, late in a long session, it repeats a card that
+fits rather than dealing one that does not: the same outage twice is a question
+worth asking. Measured over 3000 seeds, no card is ever dealt with an unmet
+dependency, and repeats first appear in sprint 5 (0.1% of cards) and stay under
+2% through sprint 8. The schedule is computed for a fixed twelve sprints so it
+depends on the seed alone — adding a sprint must not rewrite sprint 2.
 
 **Sync is polling**, every two seconds, from `useGame`. Thirty devices in a
 lecture hall are well inside Neon's free tier. If you ever want it tighter,
