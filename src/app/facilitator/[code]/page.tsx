@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { EVENT_BY_ID, INCIDENT_BY_ID, PHASES, PRACTICES } from "@/lib/cards";
@@ -22,6 +23,10 @@ export default function Facilitator() {
         <p className="lede" style={{ fontSize: 15 }}>
           The facilitator key for <b>{code}</b> lives in the browser that created the session. Open this page there,
           or create a new session and write the new code on the board.
+        </p>
+        <p style={{ marginTop: 14 }} className="row">
+          <Link className="btn" href="/host">Create a session</Link>
+          <Link className="btn ghost" href="/">Back to the start</Link>
         </p>
       </div>
     );
@@ -242,6 +247,9 @@ function Debrief({ view }: { view: NonNullable<ReturnType<typeof useGame>["view"
       <header className="topbar"><div className="topbar-in">
         <div className="brand"><b>Neobank Sprint</b><span>Debrief</span></div>
         <span className="sprintchip">{view.session.sprints} sprints &middot; code {view.session.code}</span>
+        <ThemeSwitch />
+        <Link className="btn ghost sm" href="/host">Start another session</Link>
+        <Link className="btn sm" href="/">Home</Link>
       </div></header>
       <main className="desk" style={{ gridTemplateColumns: "minmax(0,1fr)" }}>
         <div className="panel">

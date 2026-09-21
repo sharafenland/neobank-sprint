@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { EVENT_BY_ID, FEATURE_BY_ID, INCIDENT_BY_ID, PHASES, PRACTICES, PRACTICE_BY_ID } from "@/lib/cards";
@@ -29,7 +30,7 @@ export default function Play() {
           Go back to the start page and join with the code and your group&rsquo;s name. If your group already joined on
           another device, use the same name and you will pick up where it left off.
         </p>
-        <p style={{ marginTop: 14 }}><a className="btn" href="/">Back to the start</a></p>
+        <p style={{ marginTop: 14 }}><Link className="btn" href="/">Back to the start</Link></p>
       </div>
     );
   }
@@ -481,6 +482,14 @@ function Retro({ t, sprint, busy, send }: { t: TeamState; sprint: number; busy: 
 
 function TeamDebrief({ name, t }: { name: string; t: TeamState }) {
   return (
+    <>
+      <header className="tbar"><div className="tbar-in">
+        <span className="nm"><span className="dot" style={{ background: "var(--accent)" }} />{name}</span>
+        <div className="tsplit">
+          <ThemeSwitch />
+          <Link className="btn sm" href="/">Home</Link>
+        </div>
+      </div></header>
     <main className="solo" style={{ gridTemplateColumns: "minmax(0,1fr)" }}>
       <div className="panel">
         <div className="panel-head"><div><h2>{name} &mdash; final position</h2><p>The room&rsquo;s standings are on the projector.</p></div></div>
@@ -510,5 +519,6 @@ function TeamDebrief({ name, t }: { name: string; t: TeamState }) {
         </div>
       </div>
     </main>
+    </>
   );
 }
