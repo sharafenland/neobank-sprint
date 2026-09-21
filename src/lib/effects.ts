@@ -137,7 +137,9 @@ export const INCIDENT_FX: Record<string, IncidentSpec> = {
     fail: (c) => { c.t.ipPenalty = 1; log(c, "−1 Investment Point this retro", "down"); },
   },
   reporting: {
-    auto: (t) => has(t, "dwh") || has(t, "pipeline"),
+    auto: (t) => has(t, "dwh"),
+    mod: (t) => (has(t, "pipeline") ? 3 : 0),
+    modTxt: (t) => (has(t, "pipeline") ? "+3: the pipeline has the numbers, they just need assembling" : ""),
     fail: (c) => { finding(c, 1); cust(c, pctLoss(c.t, 0.05, 4)); },
   },
   phish: {

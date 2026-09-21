@@ -140,6 +140,22 @@ and it is not meant to survive someone who wants to cheat.
 
 ---
 
+## The printed handout
+
+```bash
+npm run handout      # needs python3 with reportlab
+```
+
+Exports the decks from `src/lib/cards.ts` and builds
+`handout/neobank-sprint-handout.pdf` — five A4 pages: the three formulas and
+the sprint loop, every product card, every platform card with its session
+label and permanent modifier, all incidents and market events with what moves
+them, and a blank sprint tracker. Print pages 1–3 for the groups; keep 4 for
+yourself, since it gives the incident and event outcomes away.
+
+Because it is generated from the same file the game reads, the handout cannot
+fall out of date. Re-run it after changing a card.
+
 ## Tests
 
 ```bash

@@ -1,0 +1,793 @@
+{
+ "FEATURES": [
+  {
+   "id": "ledger",
+   "n": "Core Ledger",
+   "c": "platform",
+   "t": 12,
+   "r": 8,
+   "k": 6,
+   "s": 2,
+   "src": "Session 01",
+   "b": "Double-entry bookkeeping. Every balance in the bank derives from it."
+  },
+  {
+   "id": "kyc",
+   "n": "KYC Onboarding",
+   "c": "compliance",
+   "t": 9,
+   "r": 7,
+   "k": 10,
+   "s": 1,
+   "src": "Session 10",
+   "b": "Identity verification before the first euro moves."
+  },
+  {
+   "id": "sepa",
+   "n": "SEPA Instant Payments",
+   "c": "core",
+   "t": 13,
+   "r": 12,
+   "k": 22,
+   "s": 2,
+   "b": "Ten-second settlement, 24/7/365. No maintenance window."
+  },
+  {
+   "id": "cards",
+   "n": "Card Issuing",
+   "c": "core",
+   "t": 11,
+   "r": 10,
+   "k": 18,
+   "s": 2,
+   "b": "Virtual and physical debit cards on a scheme BIN."
+  },
+  {
+   "id": "fraud",
+   "n": "Fraud Detection",
+   "c": "compliance",
+   "t": 12,
+   "r": 8,
+   "k": 8,
+   "s": 2,
+   "b": "Real-time scoring on the authorisation path."
+  },
+  {
+   "id": "aml",
+   "n": "AML Monitoring",
+   "c": "compliance",
+   "t": 11,
+   "r": 7,
+   "k": 5,
+   "s": 1,
+   "src": "Session 10",
+   "b": "Transaction surveillance and suspicious-activity reports."
+  },
+  {
+   "id": "psd2",
+   "n": "PSD2 Open Banking API",
+   "c": "compliance",
+   "t": 10,
+   "r": 9,
+   "k": 9,
+   "s": 1,
+   "src": "Session 10",
+   "b": "Account information and payment initiation for third parties."
+  },
+  {
+   "id": "app",
+   "n": "Mobile App Redesign",
+   "c": "growth",
+   "t": 8,
+   "r": 11,
+   "k": 20,
+   "s": 1,
+   "b": "The thing customers actually judge you on."
+  },
+  {
+   "id": "pots",
+   "n": "Savings Pots",
+   "c": "growth",
+   "t": 7,
+   "r": 9,
+   "k": 14,
+   "s": 1,
+   "b": "Sub-accounts with goals and round-ups."
+  },
+  {
+   "id": "notify",
+   "n": "Real-Time Notifications",
+   "c": "growth",
+   "t": 6,
+   "r": 8,
+   "k": 11,
+   "s": 1,
+   "b": "Push within a second of authorisation."
+  },
+  {
+   "id": "sca",
+   "n": "Strong Customer Auth",
+   "c": "compliance",
+   "t": 9,
+   "r": 8,
+   "k": 6,
+   "s": 1,
+   "src": "Session 10",
+   "b": "Two factors, dynamic linking, PSD2 Article 97."
+  },
+  {
+   "id": "fx",
+   "n": "FX & Multi-Currency",
+   "c": "growth",
+   "t": 12,
+   "r": 11,
+   "k": 19,
+   "s": 2,
+   "b": "Interbank rates with a transparent markup."
+  },
+  {
+   "id": "robo",
+   "n": "Robo-Advisor",
+   "c": "growth",
+   "t": 14,
+   "r": 13,
+   "k": 26,
+   "s": 2,
+   "b": "Suitability questionnaire, model portfolios, MiFID paperwork."
+  },
+  {
+   "id": "crypto",
+   "n": "Crypto Custody",
+   "c": "growth",
+   "t": 15,
+   "r": 14,
+   "k": 30,
+   "s": 2,
+   "b": "High reward, high scrutiny. Ask the regulator first."
+  },
+  {
+   "id": "gdpr",
+   "n": "Privacy & GDPR Controls",
+   "c": "compliance",
+   "t": 8,
+   "r": 6,
+   "k": 4,
+   "s": 1,
+   "src": "Session 10",
+   "b": "Consent, retention, erasure. Pays nothing until it pays everything."
+  },
+  {
+   "id": "payouts",
+   "n": "Merchant Payouts",
+   "c": "core",
+   "t": 12,
+   "r": 11,
+   "k": 17,
+   "s": 2,
+   "b": "Same-day settlement for business customers."
+  },
+  {
+   "id": "micro",
+   "n": "Microservice Migration",
+   "c": "platform",
+   "t": 14,
+   "r": 8,
+   "k": 7,
+   "s": 3,
+   "src": "Session 04",
+   "bonus": {
+    "rel": 2
+   },
+   "b": "Break the monolith so two teams stop queueing behind one deploy."
+  },
+  {
+   "id": "shard",
+   "n": "Database Sharding",
+   "c": "platform",
+   "t": 13,
+   "r": 7,
+   "k": 5,
+   "s": 2,
+   "src": "Session 02",
+   "bonus": {
+    "mit": 1
+   },
+   "b": "Partition the ledger by customer range. Writes stop fighting each other."
+  },
+  {
+   "id": "pipeline",
+   "n": "Data Pipeline",
+   "c": "platform",
+   "t": 12,
+   "r": 7,
+   "k": 6,
+   "s": 2,
+   "src": "Session 02",
+   "bonus": {
+    "rel": 1
+   },
+   "b": "Streaming ingestion, not a nightly batch and a prayer. Everything downstream gets fresher."
+  },
+  {
+   "id": "dwh",
+   "n": "Data Warehouse",
+   "c": "platform",
+   "t": 10,
+   "r": 5,
+   "k": 3,
+   "s": 2,
+   "src": "Session 02",
+   "bonus": {
+    "mit": 1
+   },
+   "b": "Dull, cheap, and the only place the regulator's numbers reconcile."
+  },
+  {
+   "id": "testauto",
+   "n": "Test Automation Suite",
+   "c": "platform",
+   "t": 10,
+   "r": 6,
+   "k": 3,
+   "s": 2,
+   "src": "Session 06",
+   "bonus": {
+    "dev": 1,
+    "rel": 1
+   },
+   "b": "A suite that runs on every commit and actually gets read when it fails."
+  },
+  {
+   "id": "gates",
+   "n": "Code Quality Gates",
+   "c": "platform",
+   "t": 9,
+   "r": 5,
+   "k": 2,
+   "s": 1,
+   "src": "Session 06",
+   "bonus": {
+    "dev": 2
+   },
+   "b": "Coverage, linting and review rules enforced by the pipeline, not by asking nicely."
+  },
+  {
+   "id": "errtrack",
+   "n": "Error Tracking",
+   "c": "platform",
+   "t": 8,
+   "r": 5,
+   "k": 3,
+   "s": 1,
+   "src": "Session 06",
+   "bonus": {
+    "mit": 1
+   },
+   "b": "Exceptions aggregated and attributed instead of scrolling a log."
+  },
+  {
+   "id": "abtest",
+   "n": "A/B Testing System",
+   "c": "platform",
+   "t": 10,
+   "r": 8,
+   "k": 9,
+   "s": 2,
+   "src": "Session 06",
+   "bonus": {
+    "rel": 1
+   },
+   "b": "Ship to five percent first and find out before everyone sees it."
+  },
+  {
+   "id": "obs",
+   "n": "Observability Stack",
+   "c": "platform",
+   "t": 10,
+   "r": 5,
+   "k": 3,
+   "s": 1,
+   "src": "Session 04",
+   "bonus": {
+    "mit": 2
+   },
+   "b": "Traces, metrics, structured logs. Nobody asks for it."
+  },
+  {
+   "id": "svcmon",
+   "n": "Service Monitoring",
+   "c": "platform",
+   "t": 8,
+   "r": 5,
+   "k": 3,
+   "s": 1,
+   "src": "Session 04",
+   "bonus": {
+    "mit": 1
+   },
+   "b": "Health checks and alerting, so the customer is not your monitoring."
+  },
+  {
+   "id": "runbooks",
+   "n": "Incident Runbooks",
+   "c": "platform",
+   "t": 7,
+   "r": 4,
+   "k": 2,
+   "s": 1,
+   "src": "Session 04",
+   "bonus": {
+    "mit": 2
+   },
+   "b": "Written, rehearsed, and findable at three in the morning."
+  },
+  {
+   "id": "gateway",
+   "n": "API Gateway",
+   "c": "platform",
+   "t": 11,
+   "r": 7,
+   "k": 5,
+   "s": 2,
+   "src": "Session 04",
+   "bonus": {
+    "rel": 1
+   },
+   "b": "One edge for auth, routing and versioning instead of twelve."
+  },
+  {
+   "id": "containers",
+   "n": "Containerization",
+   "c": "platform",
+   "t": 10,
+   "r": 6,
+   "k": 3,
+   "s": 2,
+   "src": "Session 04",
+   "bonus": {
+    "dev": 1,
+    "rel": 1
+   },
+   "b": "The same image in dev, staging and production. No more works-on-my-machine."
+  },
+  {
+   "id": "cache",
+   "n": "Caching Layer",
+   "c": "platform",
+   "t": 9,
+   "r": 6,
+   "k": 5,
+   "s": 1,
+   "src": "Session 02",
+   "bonus": {
+    "rel": 1
+   },
+   "b": "Balance reads served from memory instead of hammering the core."
+  },
+  {
+   "id": "lb",
+   "n": "Load Balancer",
+   "c": "platform",
+   "t": 8,
+   "r": 5,
+   "k": 4,
+   "s": 1,
+   "src": "Session 02",
+   "bonus": {
+    "mit": 1
+   },
+   "b": "Spread the traffic and drain a node without an outage."
+  },
+  {
+   "id": "cdn",
+   "n": "CDN Integration",
+   "c": "platform",
+   "t": 7,
+   "r": 5,
+   "k": 6,
+   "s": 1,
+   "src": "Session 02",
+   "bonus": {
+    "rel": 1
+   },
+   "b": "Static assets close to the customer. The app stops feeling slow abroad."
+  },
+  {
+   "id": "profiling",
+   "n": "Performance Profiling",
+   "c": "platform",
+   "t": 9,
+   "r": 6,
+   "k": 4,
+   "s": 1,
+   "src": "Session 02",
+   "bonus": {
+    "rel": 1
+   },
+   "b": "Find the query that costs you the p99 instead of guessing at it."
+  },
+  {
+   "id": "ratelimit",
+   "n": "Rate Limiting",
+   "c": "platform",
+   "t": 7,
+   "r": 5,
+   "k": 3,
+   "s": 1,
+   "src": "Session 04",
+   "bonus": {
+    "mit": 1
+   },
+   "b": "Per-client quotas on the public API. The cheapest abuse defence there is."
+  },
+  {
+   "id": "auditlog",
+   "n": "Security Audit Log",
+   "c": "platform",
+   "t": 9,
+   "r": 5,
+   "k": 3,
+   "s": 1,
+   "src": "Session 10",
+   "bonus": {
+    "mit": 1
+   },
+   "b": "Tamper-evident record of who touched which account. The supervisor will ask."
+  },
+  {
+   "id": "backup",
+   "n": "Backup & Recovery",
+   "c": "platform",
+   "t": 9,
+   "r": 5,
+   "k": 2,
+   "s": 1,
+   "src": "Session 04",
+   "bonus": {
+    "mit": 1
+   },
+   "b": "Point-in-time restore that somebody has actually tested this year."
+  },
+  {
+   "id": "dr",
+   "n": "Disaster Recovery",
+   "c": "platform",
+   "t": 12,
+   "r": 6,
+   "k": 2,
+   "s": 2,
+   "src": "Session 04",
+   "bonus": {
+    "mit": 1
+   },
+   "b": "Second region, tested failover, documented RTO."
+  },
+  {
+   "id": "wiki",
+   "n": "Documentation Wiki",
+   "c": "platform",
+   "t": 6,
+   "r": 4,
+   "k": 2,
+   "s": 1,
+   "src": "Session 01",
+   "bonus": {
+    "dev": 1
+   },
+   "b": "Decisions written down where the next person will look for them."
+  },
+  {
+   "id": "migrate",
+   "n": "Core Banking Migration",
+   "c": "platform",
+   "t": 16,
+   "r": 9,
+   "k": 12,
+   "s": 3,
+   "src": "Session 04",
+   "bonus": {
+    "dev": 1,
+    "rel": 1
+   },
+   "b": "Off the legacy mainframe. The one everybody postpones."
+  }
+ ],
+ "INCIDENTS": [
+  {
+   "id": "outage",
+   "n": "Payday Peak Outage",
+   "mit": 12,
+   "txt": "It is the 28th. Salaries land, everyone opens the app at once, and the authorisation service starts timing out."
+  },
+  {
+   "id": "breach",
+   "n": "Data Breach",
+   "mit": 14,
+   "txt": "A misconfigured storage bucket exposed customer documents. The clock on the 72-hour notification has started."
+  },
+  {
+   "id": "resign",
+   "n": "Lead Engineer Resigns",
+   "mit": null,
+   "txt": "Your most senior developer hands in notice. Everything she knew lives in her head.",
+   "autoTxt": "Pair Programming — the knowledge was never in one head"
+  },
+  {
+   "id": "audit",
+   "n": "BaFin Spot Audit",
+   "mit": 13,
+   "txt": "The supervisor arrives unannounced and asks to see your transaction monitoring evidence."
+  },
+  {
+   "id": "scheme",
+   "n": "Card Scheme Mandate",
+   "mit": 11,
+   "txt": "The scheme pushes a mandatory protocol update with a hard deadline. Non-compliance means suspension."
+  },
+  {
+   "id": "fraudring",
+   "n": "Fraud Ring",
+   "mit": 12,
+   "txt": "A coordinated ring is testing stolen card numbers against your authorisation endpoint.",
+   "autoTxt": "Fraud Detection scores them out in real time"
+  },
+  {
+   "id": "region",
+   "n": "Cloud Region Failure",
+   "mit": 13,
+   "txt": "Your primary region goes dark for four hours. The provider's status page is still green.",
+   "autoTxt": "Disaster Recovery — failover to the second region held"
+  },
+  {
+   "id": "cve",
+   "n": "Critical Dependency CVE",
+   "mit": 12,
+   "txt": "A remote-code-execution flaw drops in a library that sits in every one of your services."
+  },
+  {
+   "id": "sla",
+   "n": "Instant Payment SLA Breach",
+   "mit": 12,
+   "txt": "Settlement drifts past the ten-second limit. Every breach is reportable.",
+   "onlyTxt": "only teams that shipped SEPA Instant are exposed"
+  },
+  {
+   "id": "warroom",
+   "n": "Blame Storm",
+   "mit": null,
+   "txt": "The post-incident review turns into a search for someone to fire. Two days disappear.",
+   "autoTxt": "Blameless Postmortems — the review stayed about the system"
+  },
+  {
+   "id": "reporting",
+   "n": "Regulatory Reporting Deadline",
+   "mit": 11,
+   "txt": "Quarterly reporting is due and the numbers have to reconcile to the cent.",
+   "autoTxt": "Data Warehouse — the report generates itself"
+  },
+  {
+   "id": "phish",
+   "n": "Customer Phishing Wave",
+   "mit": 12,
+   "txt": "A convincing SMS campaign is harvesting your customers' credentials."
+  }
+ ],
+ "EVENTS": [
+  {
+   "id": "dora",
+   "n": "DORA Comes Into Force",
+   "txt": "Digital operational resilience becomes supervisory law. Tested failover is no longer optional."
+  },
+  {
+   "id": "gdprwave",
+   "n": "GDPR Enforcement Wave",
+   "txt": "The data protection authority publishes its fines for the quarter."
+  },
+  {
+   "id": "ipr",
+   "n": "Instant Payments Regulation",
+   "txt": "Instant transfers must be offered at the price of a standard transfer. Customers switch on it."
+  },
+  {
+   "id": "winter",
+   "n": "Funding Winter",
+   "txt": "Venture money dries up. The market leader is expected to prove unit economics first.",
+   "needsCall": "the current leader"
+  },
+  {
+   "id": "feature",
+   "n": "App Store Feature Spot",
+   "txt": "The editorial team picks the category leader for the front page.",
+   "needsCall": "the current leader"
+  },
+  {
+   "id": "mica",
+   "n": "MiCA Licensing Round",
+   "txt": "A clear crypto-asset framework opens the market to licensed institutions."
+  },
+  {
+   "id": "rates",
+   "n": "Central Bank Raises Rates",
+   "txt": "Deposits are suddenly worth holding, and savers go shopping for yield."
+  },
+  {
+   "id": "openbank",
+   "n": "Open Banking Breakthrough",
+   "txt": "An aggregator with millions of users adds every bank with a working API."
+  },
+  {
+   "id": "viral",
+   "n": "Reviewer Tests Every Neobank",
+   "txt": "A widely-followed reviewer runs the same twenty transactions through each app and posts the bugs.",
+   "needsCall": "the group with the fewest bugs"
+  },
+  {
+   "id": "pricewar",
+   "n": "Incumbent Price War",
+   "txt": "The big banks drop their fees to zero for twelve months."
+  },
+  {
+   "id": "trust",
+   "n": "Consumer Trust Index",
+   "txt": "A consumer body publishes supervisory findings per provider."
+  },
+  {
+   "id": "latency",
+   "n": "Latency Benchmark Published",
+   "txt": "A magazine times the same twenty actions in every banking app and prints the table."
+  },
+  {
+   "id": "hiring",
+   "n": "Engineering Brand",
+   "txt": "Two senior engineers pick an employer this quarter, and they read the public repositories first."
+  }
+ ],
+ "PRACTICES": [
+  {
+   "id": "pair",
+   "n": "Pair Programming",
+   "ip": 2,
+   "src": "Session 01",
+   "e": "+2 on every Development roll."
+  },
+  {
+   "id": "tests",
+   "n": "Automated Testing",
+   "ip": 2,
+   "src": "Session 06",
+   "e": "Clears 1 bug each retro. +3 against dependency incidents."
+  },
+  {
+   "id": "cicd",
+   "n": "CI/CD Pipeline",
+   "ip": 2,
+   "src": "Session 06",
+   "e": "+3 on every Release roll."
+  },
+  {
+   "id": "dod",
+   "n": "Definition of Done",
+   "ip": 3,
+   "src": "Session 06",
+   "e": "Pushed-through features no longer create bugs."
+  },
+  {
+   "id": "flags",
+   "n": "Feature Flags",
+   "ip": 2,
+   "src": "Session 06",
+   "e": "Shelved features still earn 20% of their reward."
+  },
+  {
+   "id": "modular",
+   "n": "Modular Architecture",
+   "ip": 2,
+   "src": "Session 04",
+   "e": "Picking 2+ features lowers the combined Dev target by 3."
+  },
+  {
+   "id": "sre",
+   "n": "Observability & SRE",
+   "ip": 2,
+   "src": "Session 04",
+   "e": "+2 on Mitigation. Outages no longer hit you harder."
+  },
+  {
+   "id": "agentic",
+   "n": "Agentic Coding",
+   "ip": 3,
+   "src": "Session 05",
+   "e": "+3 on Development — but pushing through costs 2 bugs, not 1."
+  },
+  {
+   "id": "blameless",
+   "n": "Blameless Postmortems",
+   "ip": 1,
+   "src": "Session 06",
+   "e": "+3 on Mitigation rolls."
+  },
+  {
+   "id": "retro",
+   "n": "Retro Culture",
+   "ip": 3,
+   "src": "Session 00",
+   "e": "+1 on every roll you make."
+  },
+  {
+   "id": "crossfn",
+   "n": "Cross-Functional Team",
+   "ip": 3,
+   "src": "Session 01",
+   "e": "One more feature slot per sprint."
+  },
+  {
+   "id": "compdes",
+   "n": "Compliance by Design",
+   "ip": 3,
+   "src": "Session 10",
+   "e": "Clears 1 audit finding each retro."
+  }
+ ],
+ "PHASES": [
+  {
+   "id": "planning",
+   "n": "Sprint Planning",
+   "minutes": 5,
+   "lead": "Each group picks features up to its capacity, then commits.",
+   "note": [
+    "Scope is a commitment, not a wish list",
+    "Every feature you add raises one shared bar. Two features are not two chances — they are one harder roll. This is batch size, and it is the same reason large releases fail more often than small ones."
+   ]
+  },
+  {
+   "id": "dev",
+   "n": "Development",
+   "minutes": 2,
+   "lead": "One d20 per group against the combined target. All or nothing.",
+   "note": [
+    "Why estimation feels unfair",
+    "Capability is the modifier, not the die. Groups that bought practices early are not luckier — they shifted the whole distribution. Compare the bonus columns at the end."
+   ]
+  },
+  {
+   "id": "incident",
+   "n": "Incident",
+   "minutes": 2,
+   "lead": "One card. It hits every group, but not equally.",
+   "note": [
+    "Operations is part of engineering",
+    "The card does not care what you planned. What decides the outcome is what you built three sprints ago — observability, failover, monitoring. Session 04 called this the non-functional half of the architecture."
+   ]
+  },
+  {
+   "id": "release",
+   "n": "Release",
+   "minutes": 2,
+   "lead": "Built is not shipped. Bugs tax every release roll.",
+   "note": [
+    "Technical debt has an interest rate",
+    "Each bug is −1 on this roll and on every roll after it, until someone pays it down. At five bugs nothing ships at all. Nobody decided to stop shipping; it just became arithmetic."
+   ]
+  },
+  {
+   "id": "market",
+   "n": "Market Event",
+   "minutes": 2,
+   "lead": "The world reacts to the portfolio you have actually built.",
+   "note": [
+    "Defensive work pays late, and all at once",
+    "Privacy, failover and monitoring earn almost nothing when you build them. They decide this phase. A backlog ranked purely on customer value never gets to them."
+   ]
+  },
+  {
+   "id": "retro",
+   "n": "Retro & Investment",
+   "minutes": 5,
+   "lead": "+2 Investment Points per group. Spend them on permanent practices.",
+   "note": [
+    "Improvement compounds, so timing dominates",
+    "A practice bought in sprint 1 applies to every roll that follows; the same practice bought in the last sprint applies to one. This is the whole argument for investing in the way you work while there is still runway."
+   ]
+  }
+ ]
+}

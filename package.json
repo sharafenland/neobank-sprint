@@ -11,7 +11,8 @@
     "start": "next start",
     "lint": "next lint",
     "db:push": "node --env-file-if-exists=.env.local scripts/push-schema.mjs",
-    "test": "tsc src/lib/cards.ts src/lib/rules.ts src/lib/derive.ts src/lib/effects.ts src/lib/engine.ts --outDir .test-build --module commonjs --target ES2022 --moduleResolution node --skipLibCheck --esModuleInterop && node tests/engine.test.cjs"
+    "test": "tsc src/lib/cards.ts src/lib/rules.ts src/lib/derive.ts src/lib/effects.ts src/lib/engine.ts --outDir .test-build --module commonjs --target ES2022 --moduleResolution node --skipLibCheck --esModuleInterop && node tests/engine.test.cjs",
+    "handout": "tsc src/lib/cards.ts --outDir .test-build --module commonjs --target ES2022 --moduleResolution node --skipLibCheck --esModuleInterop && node scripts/export-cards.cjs && python3 scripts/make_handout.py"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",

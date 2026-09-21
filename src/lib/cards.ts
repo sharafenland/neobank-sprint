@@ -26,8 +26,8 @@ export const FEATURES: Feature[] = [
   // ——— Platform: few customers, permanent leverage ———
   { id: "micro",      n: "Microservice Migration", c: "platform", t: 14, r: 8, k: 7, s: 3, src: "Session 04", bonus: { rel: 2 },          b: "Break the monolith so two teams stop queueing behind one deploy." },
   { id: "shard",      n: "Database Sharding",      c: "platform", t: 13, r: 7, k: 5, s: 2, src: "Session 02", bonus: { mit: 1 },          b: "Partition the ledger by customer range. Writes stop fighting each other." },
-  { id: "pipeline",   n: "Data Pipeline",          c: "platform", t: 11, r: 6, k: 4, s: 2, src: "Session 02", bonus: { mit: 1 },          b: "Streaming ingestion into the warehouse, not a nightly batch and a prayer." },
-  { id: "dwh",        n: "Data Warehouse",         c: "platform", t: 11, r: 6, k: 4, s: 2, src: "Session 02", bonus: { mit: 1 },          b: "Regulatory reporting needs a place to read from." },
+  { id: "pipeline",   n: "Data Pipeline",          c: "platform", t: 12, r: 7, k: 6, s: 2, src: "Session 02", bonus: { rel: 1 },          b: "Streaming ingestion, not a nightly batch and a prayer. Everything downstream gets fresher." },
+  { id: "dwh",        n: "Data Warehouse",         c: "platform", t: 10, r: 5, k: 3, s: 2, src: "Session 02", bonus: { mit: 1 },          b: "Dull, cheap, and the only place the regulator's numbers reconcile." },
   { id: "testauto",   n: "Test Automation Suite",  c: "platform", t: 10, r: 6, k: 3, s: 2, src: "Session 06", bonus: { dev: 1, rel: 1 },  b: "A suite that runs on every commit and actually gets read when it fails." },
   { id: "gates",      n: "Code Quality Gates",     c: "platform", t: 9,  r: 5, k: 2, s: 1, src: "Session 06", bonus: { dev: 2 },          b: "Coverage, linting and review rules enforced by the pipeline, not by asking nicely." },
   { id: "errtrack",   n: "Error Tracking",         c: "platform", t: 8,  r: 5, k: 3, s: 1, src: "Session 06", bonus: { mit: 1 },          b: "Exceptions aggregated and attributed instead of scrolling a log." },
