@@ -27,20 +27,18 @@ export function JoinForm() {
   }
 
   return (
-    <form onSubmit={submit} style={{ display: "grid", gap: 10, marginTop: 6 }}>
+    <form className="joinform" onSubmit={submit}>
       <input
         id="join-code" className="codeinput" value={code} maxLength={4} placeholder="CODE"
         autoComplete="off" spellCheck={false} aria-label="Access code"
         onChange={(e) => setCode(e.target.value.toUpperCase())}
-        style={{ width: "100%", padding: "8px 11px", border: "1px solid var(--line-strong)", borderRadius: 7, background: "var(--surface)", color: "var(--ink)" }}
       />
       <input
         id="join-name" value={name} maxLength={22} placeholder="Your group's name"
         autoComplete="off" aria-label="Group name"
         onChange={(e) => setName(e.target.value)}
-        style={{ width: "100%", padding: "8px 11px", border: "1px solid var(--line-strong)", borderRadius: 7, background: "var(--surface)", color: "var(--ink)", font: "inherit" }}
       />
-      {error && <span style={{ color: "var(--bad)", fontSize: 13 }}>{error}</span>}
+      {error && <span className="err">{error}</span>}
       <button className="btn" disabled={busy || code.length !== 4 || name.trim().length < 2}>
         {busy ? "Joining…" : "Join"}
       </button>

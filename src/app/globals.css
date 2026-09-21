@@ -21,9 +21,9 @@ img{max-width:100%}
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --paper:#0D1413; --surface:#151F1D; --surface-2:#1B2725;
-    --ink:#E6EDEA; --muted:#9BAAA6; --faint:#71827E;
-    --line:#293A37; --line-strong:#3A4E4A;
+    --paper:#0B1211; --surface:#182523; --surface-2:#1F2E2B;
+    --ink:#E9F0ED; --muted:#A3B2AE; --faint:#7A8C88;
+    --line:#2F4340; --line-strong:#496662;
     --accent:#45B3BC; --accent-soft:#12312F; --accent-ink:#8FD8DE;
     --amber:#D8945A; --amber-soft:#332317;
     --good:#6FB585; --good-soft:#15291C;
@@ -32,9 +32,9 @@ img{max-width:100%}
   }
 }
 :root[data-theme="dark"]{
-  --paper:#0D1413; --surface:#151F1D; --surface-2:#1B2725;
-  --ink:#E6EDEA; --muted:#9BAAA6; --faint:#71827E;
-  --line:#293A37; --line-strong:#3A4E4A;
+  --paper:#0B1211; --surface:#182523; --surface-2:#1F2E2B;
+  --ink:#E9F0ED; --muted:#A3B2AE; --faint:#7A8C88;
+  --line:#2F4340; --line-strong:#496662;
   --accent:#45B3BC; --accent-soft:#12312F; --accent-ink:#8FD8DE;
   --amber:#D8945A; --amber-soft:#332317;
   --good:#6FB585; --good-soft:#15291C;
@@ -45,6 +45,10 @@ img{max-width:100%}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
 h1,h2,h3,h4{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.015em}
 button{font:inherit;color:inherit}
+a{color:var(--accent-ink);text-underline-offset:2px;text-decoration-thickness:1px}
+a:hover{color:var(--accent)}
+input,textarea,select{font:inherit;color:inherit}
+::placeholder{color:var(--faint);opacity:1}
 .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
 
@@ -135,7 +139,10 @@ button{font:inherit;color:inherit}
 /* ---------- generic bits ---------- */
 .btn{border:1px solid var(--accent);background:var(--accent);color:#fff;padding:8px 16px;border-radius:7px;font-weight:600;font-size:14px;cursor:pointer}
 .btn:hover{filter:brightness(1.07)}
-.btn:disabled{opacity:.4;cursor:not-allowed;filter:none}
+.btn{text-decoration:none;display:inline-block;text-align:center}
+.btn:hover{text-decoration:none}
+.btn:disabled,.btn.is-disabled{background:var(--surface-2);border-color:var(--line);color:var(--faint);cursor:not-allowed;filter:none;box-shadow:none}
+.btn.ghost:disabled{background:transparent;color:var(--faint);border-color:var(--line)}
 .btn.ghost{background:transparent;color:var(--ink);border-color:var(--line-strong)}
 .btn.ghost:hover{border-color:var(--ink);filter:none}
 .btn.sm{padding:5px 11px;font-size:12.5px;border-radius:6px}
@@ -274,12 +281,16 @@ details.rules[open]>summary::before{content:"– "}
 
 /* ---------- landing ---------- */
 .choose{display:grid;grid-template-columns:repeat(auto-fit,minmax(248px,1fr));gap:14px;margin-top:26px}
-.mode{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;cursor:pointer;display:flex;flex-direction:column;gap:7px;box-shadow:var(--shadow)}
-.mode:hover{border-color:var(--accent)}
+.mode{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:7px;box-shadow:var(--shadow)}
 .mode .k{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);display:block}
-.mode .t{font-family:var(--display);font-size:20px;font-weight:700;display:block}
-.mode .d{font-size:13.5px;color:var(--muted);line-height:1.45;display:block}
-.codeinput{font-family:var(--mono)!important;font-size:22px!important;letter-spacing:.22em;text-transform:uppercase;text-align:center;font-weight:600!important}
+.mode .t{font-family:var(--display);font-size:20px;font-weight:700;display:block;color:var(--ink)}
+.mode .d{font-size:13.5px;color:var(--muted);line-height:1.45;display:block;margin-bottom:4px}
+.mode .btn{margin-top:auto;align-self:flex-start}
+.joinform{display:grid;gap:9px;margin-top:2px}
+.joinform input{width:100%;padding:9px 11px;border:1px solid var(--line-strong);border-radius:7px;background:var(--surface-2);color:var(--ink)}
+.joinform input:focus-visible{outline:2px solid var(--accent);outline-offset:1px;background:var(--surface)}
+.joinform .err{color:var(--bad);font-size:12.5px}
+.codeinput{font-family:var(--mono)!important;font-size:19px!important;letter-spacing:.3em;text-indent:.3em;text-transform:uppercase;text-align:center;font-weight:600!important}
 
 /* ---------- facilitator code ---------- */
 .codebox{display:flex;gap:16px;align-items:center;flex-wrap:wrap;background:var(--ink);color:var(--paper);border-radius:12px;padding:16px 20px}

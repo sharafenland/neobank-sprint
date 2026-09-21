@@ -16,24 +16,27 @@ export default function Landing() {
       </div>
 
       <div className="choose">
-        <Link className="mode" href="/host">
+        <div className="mode">
           <span className="k">Teaching</span>
           <span className="t">Facilitate a session</span>
           <span className="d">
             Creates the access code, paces the six phases on the projector, reveals the incident and market cards,
             and shows every group&rsquo;s standing live.
           </span>
-        </Link>
-        <div className="mode" style={{ cursor: "default" }}>
+          <Link className="btn" href="/host">Create a session</Link>
+        </div>
+
+        <div className="mode">
           <span className="k">Groups</span>
           <span className="t">Join with a code</span>
+          <span className="d">One device per group. Your own backlog, dice, bug count and practice shop.</span>
           <JoinForm />
         </div>
       </div>
 
       <p style={{ marginTop: 22, fontSize: 13.5, color: "var(--muted)" }}>
-        New to it? <Link href="/rules" style={{ color: "var(--accent-ink)" }}>The rules on one page</Link> &mdash;
-        the three formulas, the six phases and every card.
+        New to it? <Link href="/rules">The rules on one page</Link> &mdash; the three formulas, the six phases and
+        every card.
       </p>
     </div>
   );
