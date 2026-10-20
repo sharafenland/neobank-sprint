@@ -379,6 +379,33 @@ for (const [name, strat] of Object.entries(strategies)) {
   check("a card off the table and off the shelf cannot be picked", refused);
 }
 
+// --- base capacity is the facilitator's choice ---
+{
+  const { DEFAULT_SLOTS } = require("../.test-build/rules");
+  const base = { code: "X", seed: 7, sprints: 4, sprint: 1, phase: 0, reveal_incident: true, reveal_event: true, finished: false };
+  check("a session row without slots falls back to the default", capacity(syncToPhase(emptyTeamState(), base)) === DEFAULT_SLOTS);
+  for (const slots of [1, 2, 3, 4]) {
+    const t = syncToPhase(emptyTeamState(), { ...base, slots });
+    check(`a ${slots}-slot session gives ${slots} slots`, capacity(t) === slots);
+    t.practices.push("crossfn");
+    check(`Cross-Functional Team adds one on top of ${slots}`, capacity(t) === slots + 1);
+    t.findings = 3;
+    check(`three findings take one away from ${slots + 1}`, capacity(t) === slots);
+  }
+  const one = syncToPhase(emptyTeamState(), { ...base, slots: 1 });
+  one.findings = 3;
+  check("capacity never drops below one", capacity(one) === 1);
+
+  // The engine enforces the chosen capacity, not the old fixed two.
+  const roomy = { ...base, slots: 4 };
+  const t = syncToPhase(emptyTeamState(), roomy);
+  const roster = [{ name: "G", customers: 0, bugs: 0 }];
+  for (const f of marketFor(7, 1)) {
+    if (usedSlots(t) + FEATURE_BY_ID[f].s <= capacity(t)) applyAction(t, roomy, roster, { kind: "pick", feature: f });
+  }
+  check("a four-slot session can fill more than two slots", usedSlots(t) > 2 && usedSlots(t) <= 4);
+}
+
 // --- a market event may pay in investment points ---
 {
   const session = { code: "X", seed: 7, sprints: 4, sprint: 1, phase: 4, reveal_incident: true, reveal_event: true, finished: false };

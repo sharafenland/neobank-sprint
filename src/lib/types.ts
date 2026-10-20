@@ -82,6 +82,11 @@ export interface TeamState {
   findings: number;
   ip: number;
   ipSpent: number;
+  /**
+   * The session's base capacity, copied in by syncToPhase so that capacity()
+   * can stay a function of the team alone, on the server and in the UI.
+   */
+  slots: number;
   shipped: number;
   practices: string[];
   portfolio: string[];
@@ -118,6 +123,8 @@ export interface SessionRow {
   code: string;
   seed: number;
   sprints: number;
+  /** Base capacity per group per sprint, chosen by the facilitator. */
+  slots: number;
   sprint: number;
   phase: number;
   reveal_incident: boolean;

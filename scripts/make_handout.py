@@ -183,7 +183,8 @@ story.append(Paragraph(
     "Six cards each sprint: three product, three platform. One of each rotates off at the end of the sprint, "
     "whether or not anyone took it, so a card is available for exactly three sprints.", BODY))
 story.append(Paragraph(
-    "Two slots a sprint, three with Cross-Functional Team, one fewer while you hold three open findings. "
+    "Two slots a sprint by default (the facilitator may set one to four), plus one with Cross-Functional Team, "
+    "one fewer while you hold three open findings. "
     "Taking no new work is always allowed. The two migration cards cost three slots on their own &mdash; they "
     "are the whole sprint, and they stay off the table until the third slot can exist.", BODY))
 story.append(Paragraph(

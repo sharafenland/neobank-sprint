@@ -179,7 +179,10 @@ function Planning({ t, market, busy, send }: { t: TeamState; market: string[]; b
         disabled={busy || (!on && (t.confirmed || tooBig || noRoom))}
         reason={
           on || t.confirmed ? undefined
-            : tooBig ? `Takes ${size} slots. Cross-Functional Team buys you the third.`
+            : tooBig
+              ? (!own(t, "crossfn") && size <= cap + 1 && t.findings < 3
+                ? `Takes ${size} slots. Cross-Functional Team buys you one more.`
+                : `Takes ${size} slots — more than you have this sprint.`)
             : noRoom ? "No slots left this sprint."
             : undefined
         }

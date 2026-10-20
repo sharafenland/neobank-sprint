@@ -11,7 +11,8 @@ Adapted from the CatTube sprint game, which is itself inspired by the
 
 ## Running a session
 
-1. Open `/host`, choose the number of sprints, create the session.
+1. Open `/host`, choose the number of sprints and the slots per group per
+   sprint (1–4, default 2), create the session.
 2. Write the four-character code on the board.
 3. Groups open the start page, enter the code and a group name — one device per group.
 4. You drive the phases from the facilitator console. Groups cannot skip ahead.
@@ -135,6 +136,16 @@ with them the reason to keep buying defensive work.
 three product, three platform, one of each rotating out. Platform cards earn
 few customers and pay a permanent modifier instead — capped at +4 per category,
 so infrastructure shifts the distribution without removing the dice.
+
+**Base capacity is a facilitator setting.** Two slots is the balanced default
+and what the rest of these notes assume. One makes every sprint a single bet
+and keeps the migrations out of reach for good; three or four allow big
+batches from sprint 1 — which is a lesson too, since the one combined roll
+gets harder with every card. Cross-Functional Team and the three-findings
+penalty apply on top of whatever was chosen. The deck does not change with the
+setting: it is a function of the seed alone, so the migrations still arrive
+from sprint 4 at three or four slots, and at one slot they are dealt but can
+never be taken.
 
 **Three-slot cards are gated, not just expensive.** Microservice Migration and
 Core Banking Migration cost three slots against a base capacity of two, so
@@ -355,7 +366,7 @@ project.
 
 ## Schema
 
-Three tables: `sessions` (code, seed, sprint, phase, host token), `teams`
+Three tables: `sessions` (code, seed, sprints, slots, sprint, phase, host token), `teams`
 (one row per group, whole state as `jsonb`) and `audit_log` (append-only, every
 action with its sprint and phase). The audit log is not read by the app — it is
 there so you can show the students afterwards what their own decisions looked

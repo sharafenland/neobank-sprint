@@ -172,7 +172,7 @@ export default function Facilitator() {
             <div className="lab">Access code</div>
             <div className="val">{s.code}</div>
             <div className="side">
-              {view.teams.length} group{view.teams.length === 1 ? "" : "s"} joined &middot; {s.sprints} sprints
+              {view.teams.length} group{view.teams.length === 1 ? "" : "s"} joined &middot; {s.sprints} sprints &middot; {s.slots ?? 2} slot{(s.slots ?? 2) === 1 ? "" : "s"}
             </div>
           </div>
           <CheatSheet phase={phase} />

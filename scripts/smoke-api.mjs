@@ -30,11 +30,19 @@ console.log(`\nPlaying a ${SPRINTS}-sprint session against ${BASE}\n`);
 // ---- create ----
 const bad = await call("/api/sessions", { method: "POST", body: { sprints: 5 } });
 check("an invalid sprint count is rejected", bad.status === 400, bad.json);
+const badSlots = await call("/api/sessions", { method: "POST", body: { sprints: SPRINTS, slots: 7 } });
+check("an invalid slot count is rejected", badSlots.status === 400, badSlots.json);
 
 const created = await call("/api/sessions", { method: "POST", body: { sprints: SPRINTS } });
 check("session created", created.status === 201 && /^[A-Z0-9]{4}$/.test(created.json.code ?? ""), created.json);
 const { code, hostToken } = created.json;
 console.log(`  code ${code}\n`);
+const fresh = (await call(`/api/sessions/${code}`)).json;
+check("a session without a slot choice gets the default of 2", fresh.session?.slots === 2, fresh.session);
+
+const roomy = await call("/api/sessions", { method: "POST", body: { sprints: SPRINTS, slots: 3 } });
+const roomyView = (await call(`/api/sessions/${roomy.json.code}`)).json;
+check("the facilitator's slot choice is stored", roomy.status === 201 && roomyView.session?.slots === 3, roomyView.session);
 
 // ---- join ----
 const a = await call(`/api/sessions/${code}/teams`, { method: "POST", body: { name: "Gruppe A" } });

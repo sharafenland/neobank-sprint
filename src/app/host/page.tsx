@@ -3,11 +3,13 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createSession, writeToken } from "@/lib/client";
+import { DEFAULT_SLOTS, SLOT_CHOICES } from "@/lib/rules";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
 
 export default function HostSetup() {
   const router = useRouter();
   const [sprints, setSprints] = useState(6);
+  const [slots, setSlots] = useState<number>(DEFAULT_SLOTS);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -15,7 +17,7 @@ export default function HostSetup() {
     setBusy(true);
     setError(null);
     try {
-      const { code, hostToken } = await createSession(sprints);
+      const { code, hostToken } = await createSession(sprints, slots);
       writeToken("host", code, hostToken);
       router.push(`/facilitator/${code}`);
     } catch (err) {
@@ -42,6 +44,26 @@ export default function HostSetup() {
             </button>
           ))}
         </div>
+      </div>
+
+      <div className="field">
+        <span className="lbl">Slots per group per sprint</span>
+        <div className="seg" role="group" aria-label="Slots per group per sprint">
+          {SLOT_CHOICES.map((n) => (
+            <button key={n} aria-pressed={slots === n} onClick={() => setSlots(n)}>
+              {n}
+              {n === DEFAULT_SLOTS ? " · standard" : ""}
+            </button>
+          ))}
+        </div>
+        <p style={{ margin: "6px 0 0", fontSize: 12.5, color: "var(--muted)", maxWidth: "62ch" }}>
+          {slots === 1
+            ? "Very tight: two-slot cards need Cross-Functional Team, and the three-slot migrations stay out of reach."
+            : slots >= 3
+              ? "Generous: bigger batches from sprint 1, and the three-slot migrations are takeable as soon as they are dealt."
+              : "The balanced default. The three-slot migrations need Cross-Functional Team."}
+          {" "}Cross-Functional Team adds one; three open findings take one away.
+        </p>
       </div>
 
       {error && <p style={{ color: "var(--bad)", fontSize: 13.5 }}>{error}</p>}

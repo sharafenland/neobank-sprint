@@ -5,8 +5,13 @@ import type { TeamState } from "./types";
 export const has = (t: TeamState, featureId: string) => t.portfolio.includes(featureId);
 export const own = (t: TeamState, practiceId: string) => t.practices.includes(practiceId);
 
+/** Base capacity the facilitator can choose, and the one a session gets by default. */
+export const SLOT_CHOICES = [1, 2, 3, 4] as const;
+export const DEFAULT_SLOTS = 2;
+
 export function capacity(t: TeamState): number {
-  return Math.max(1, 2 + (own(t, "crossfn") ? 1 : 0) - (t.findings >= 3 ? 1 : 0));
+  const base = t.slots ?? DEFAULT_SLOTS;
+  return Math.max(1, base + (own(t, "crossfn") ? 1 : 0) - (t.findings >= 3 ? 1 : 0));
 }
 
 /**
@@ -119,7 +124,7 @@ export function relBonus(t: TeamState): number {
 
 export function emptyTeamState(): TeamState {
   return {
-    customers: 0, bugs: 0, findings: 0, ip: 0, ipSpent: 0, shipped: 0,
+    customers: 0, bugs: 0, findings: 0, ip: 0, ipSpent: 0, slots: DEFAULT_SLOTS, shipped: 0,
     practices: [], portfolio: [], shelf: [],
     picked: [], fix: { bugs: 0, findings: 0 },
     confirmed: false, dev: null, built: [], inc: null, rel: null, eventResolved: null,

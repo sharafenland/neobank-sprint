@@ -6,7 +6,7 @@ import { FEATURE_BY_ID, INCIDENT_BY_ID, PHASES, PRACTICE_BY_ID } from "./cards";
 import { eventIdFor, incidentIdFor, marketFor } from "./derive";
 import { EVENT_FX, INCIDENT_FX, bug, cust, finding, log, type Fx } from "./effects";
 import {
-  FIX_PER_SLOT, IP_BONUS_FROM_SPRINT, capacity, devBonus, devTarget, has, maxFixSlots, mitBonus, own,
+  DEFAULT_SLOTS, FIX_PER_SLOT, IP_BONUS_FROM_SPRINT, capacity, devBonus, devTarget, has, maxFixSlots, mitBonus, own,
   relBonus, relTarget, releasing, resetSprint, usedSlots,
 } from "./rules";
 import type { SessionRow, TeamState } from "./types";
@@ -36,6 +36,7 @@ export function syncToPhase(t: TeamState, session: SessionRow): TeamState {
   const { sprint } = session;
   if (!t.fix) t.fix = { bugs: 0, findings: 0 };
   if (!t.shelf) t.shelf = [];
+  t.slots = session.slots ?? DEFAULT_SLOTS;
 
   const resetKey = `reset:${sprint}`;
   if (sprint > 1 && !t.applied[resetKey]) {

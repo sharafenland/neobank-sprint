@@ -101,9 +101,10 @@ export default function Rules() {
 
       <h2 style={{ fontSize: 21, margin: "30px 0 4px" }}>Capacity</h2>
       <p style={{ margin: 0, color: "var(--muted)", maxWidth: "62ch", fontSize: 13.5 }}>
-        Two slots a sprint, three with Cross-Functional Team, one fewer while you have three open findings.
-        The two migration cards cost three slots on their own &mdash; they are the whole sprint, and you cannot
-        take them at all until you have bought the third slot. They stay off the table until that is possible.
+        Two slots a sprint by default &mdash; the facilitator can set anything from one to four when creating the
+        session. Cross-Functional Team adds one, three open findings take one away. The two migration cards cost
+        three slots on their own &mdash; at the default they are the whole sprint, and you cannot take them at all
+        until you have bought the third slot. They stay off the table until sprint 4.
         Taking no new work is always allowed.
       </p>
 

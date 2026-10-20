@@ -34,8 +34,8 @@ async function parse(res: Response) {
 export async function fetchView(code: string): Promise<View> {
   return parse(await fetch(`/api/sessions/${code}`, { headers: authHeaders(code), cache: "no-store" }));
 }
-export async function createSession(sprints: number): Promise<{ code: string; hostToken: string }> {
-  return parse(await fetch(`/api/sessions`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sprints }) }));
+export async function createSession(sprints: number, slots: number): Promise<{ code: string; hostToken: string }> {
+  return parse(await fetch(`/api/sessions`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sprints, slots }) }));
 }
 export async function joinSession(code: string, name: string): Promise<{ token: string; name: string }> {
   return parse(await fetch(`/api/sessions/${code}/teams`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ name }) }));
