@@ -123,6 +123,7 @@ for (let sprint = 1; sprint <= SPRINTS; sprint++) {
       if (id === "retro") {
         const st = (await call(`/api/sessions/${code}`, { team: token })).json.you.state;
         if (st.ip >= 1) await act({ kind: "buy", practice: "blameless" });
+        await act({ kind: "endRetro" });
       }
       if (id === "planning" && sprint === 2 && token === A) {
         const wrong = await act({ kind: "rollDev" });

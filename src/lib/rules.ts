@@ -1,5 +1,5 @@
 /** Pure derivations over a team's state. Shared by the server and the UI. */
-import { FEATURE_BY_ID } from "./cards";
+import { FEATURE_BY_ID, PRACTICES } from "./cards";
 import type { TeamState } from "./types";
 
 export const has = (t: TeamState, featureId: string) => t.portfolio.includes(featureId);
@@ -122,13 +122,18 @@ export function relBonus(t: TeamState): number {
     + infraBonus(t).rel - t.bugs - 2 * buggy;
 }
 
+/** Is there anything left in the shop this group could still buy? */
+export function canAffordAny(t: TeamState): boolean {
+  return PRACTICES.some((p) => !own(t, p.id) && t.ip >= p.ip);
+}
+
 export function emptyTeamState(): TeamState {
   return {
     customers: 0, bugs: 0, findings: 0, ip: 0, ipSpent: 0, slots: DEFAULT_SLOTS, shipped: 0,
     practices: [], portfolio: [], shelf: [],
     picked: [], fix: { bugs: 0, findings: 0 },
     confirmed: false, dev: null, built: [], inc: null, rel: null, eventResolved: null,
-    devMod: 0, blockRelease: false, ipPenalty: 0, retroPay: null,
+    devMod: 0, blockRelease: false, ipPenalty: 0, retroPay: null, retroDone: false,
     applied: {}, feed: [],
   };
 }
@@ -137,6 +142,6 @@ export function resetSprint(t: TeamState): void {
   t.picked = []; t.fix = { bugs: 0, findings: 0 };
   t.confirmed = false; t.dev = null; t.built = []; t.inc = null; t.rel = null;
   t.eventResolved = null; t.devMod = 0; t.blockRelease = false; t.ipPenalty = 0;
-  t.retroPay = null;
+  t.retroPay = null; t.retroDone = false;
   t.ip = 0; // unspent points expire with the sprint
 }

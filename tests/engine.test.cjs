@@ -406,6 +406,25 @@ for (const [name, strat] of Object.entries(strategies)) {
   check("a four-slot session can fill more than two slots", usedSlots(t) > 2 && usedSlots(t) <= 4);
 }
 
+// --- the retro is not done until the group is ---
+{
+  const session = { code: "X", seed: 7, sprints: 4, sprint: 1, phase: 5, reveal_incident: true, reveal_event: true, finished: false };
+  const roster = [{ name: "G", customers: 0, bugs: 0 }];
+  const t = syncToPhase(emptyTeamState(), session);
+  check("a group with points to spend is not done at the retro", t.ip >= 2 && !phaseDone(t, session));
+  applyAction(t, session, roster, { kind: "endRetro" });
+  check("saying so marks the retro done", phaseDone(t, session));
+
+  const broke = syncToPhase(emptyTeamState(), session);
+  broke.ip = 0;
+  check("a group with nothing it can afford is done without clicking", phaseDone(broke, session));
+
+  // The flag belongs to one retro, not to the game.
+  session.sprint = 2; session.phase = 0; syncToPhase(t, session);
+  session.phase = 5; syncToPhase(t, session);
+  check("the next retro starts undone again", !t.retroDone && !phaseDone(t, session));
+}
+
 // --- a market event may pay in investment points ---
 {
   const session = { code: "X", seed: 7, sprints: 4, sprint: 1, phase: 4, reveal_incident: true, reveal_event: true, finished: false };

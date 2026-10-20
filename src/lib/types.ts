@@ -113,6 +113,8 @@ export interface TeamState {
   ipPenalty: number;
   /** What the retro paid and why, for the panel to explain itself. */
   retroPay: { base: number; bonus: number; reason: string } | null;
+  /** The group said it has finished shopping this retro. */
+  retroDone: boolean;
 
   /** Marks which sprint/phase entry effects have already been applied. */
   applied: Record<string, true>;

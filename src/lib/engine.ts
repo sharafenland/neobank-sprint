@@ -6,7 +6,7 @@ import { FEATURE_BY_ID, INCIDENT_BY_ID, PHASES, PRACTICE_BY_ID } from "./cards";
 import { eventIdFor, incidentIdFor, marketFor } from "./derive";
 import { EVENT_FX, INCIDENT_FX, bug, cust, finding, log, type Fx } from "./effects";
 import {
-  DEFAULT_SLOTS, FIX_PER_SLOT, IP_BONUS_FROM_SPRINT, capacity, devBonus, devTarget, has, maxFixSlots, mitBonus, own,
+  DEFAULT_SLOTS, FIX_PER_SLOT, IP_BONUS_FROM_SPRINT, canAffordAny, capacity, devBonus, devTarget, has, maxFixSlots, mitBonus, own,
   relBonus, relTarget, releasing, resetSprint, usedSlots,
 } from "./rules";
 import type { SessionRow, TeamState } from "./types";
@@ -131,7 +131,8 @@ export type Action =
   | { kind: "rollIncident" }
   | { kind: "rollRelease" }
   | { kind: "resolveEvent" }
-  | { kind: "buy"; practice: string };
+  | { kind: "buy"; practice: string }
+  | { kind: "endRetro" };
 
 function requirePhase(session: SessionRow, id: string) {
   if (PHASES[session.phase].id !== id) {
@@ -308,6 +309,12 @@ export function applyAction(
       log(fx, `Adopted ${p.n}`, "up");
       return t;
     }
+
+    case "endRetro": {
+      requirePhase(session, "retro");
+      t.retroDone = true;
+      return t;
+    }
   }
 }
 
@@ -319,6 +326,8 @@ export function phaseDone(t: TeamState, session: SessionRow): boolean {
     case "incident": return !!t.inc?.done;
     case "release": return !!t.rel?.done;
     case "market": return !!t.eventResolved;
-    case "retro": return true;
+    // Done when the group says so, or when there is nothing left it could
+    // buy — a group with no points should not have to click to be counted.
+    case "retro": return !!t.retroDone || !canAffordAny(t);
   }
 }

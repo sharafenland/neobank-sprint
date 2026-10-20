@@ -8,7 +8,7 @@ import { act } from "@/lib/client";
 import { INCIDENT_FX } from "@/lib/effects";
 import {
   FIX_PER_SLOT, INFRA_CAP, IP_BONUS_FROM_SPRINT, capacity, cardDevTarget, devBonus, devTarget, infraBonus, legacyDrag,
-  maxFixSlots, mitBonus, onShelf, own, relBonus, relTarget, releasing, shelvedTarget, usedSlots,
+  canAffordAny, maxFixSlots, mitBonus, onShelf, own, relBonus, relTarget, releasing, shelvedTarget, usedSlots,
 } from "@/lib/rules";
 import type { TeamState } from "@/lib/types";
 import { useGame } from "@/components/useGame";
@@ -494,10 +494,23 @@ function Retro({ t, sprint, lecture, busy, send }: { t: TeamState; sprint: numbe
           );
         })}
       </div>
-      <p className="calc" style={{ marginTop: 14 }}>
-        {t.bugs ? <>Bugs carried into the next sprint: <b>{t.bugs}</b>. </> : "No open bugs. "}
-        {t.findings ? <>Open findings: <b>{t.findings}</b>.</> : "No open findings."}
-      </p>
+      <div className="spread" style={{ marginTop: 14 }}>
+        <p className="calc" style={{ margin: 0 }}>
+          {t.bugs ? <>Bugs carried into the next sprint: <b>{t.bugs}</b>. </> : "No open bugs. "}
+          {t.findings ? <>Open findings: <b>{t.findings}</b>.</> : "No open findings."}
+        </p>
+        {!canAffordAny(t) ? (
+          <span className="mono" style={{ fontSize: 12.5, color: "var(--muted)" }}>Nothing left you can afford.</span>
+        ) : t.retroDone ? (
+          <span className="mono" style={{ fontSize: 12.5, color: "var(--muted)" }}>
+            Marked done &mdash; you can still buy until the next sprint starts.
+          </span>
+        ) : (
+          <button className="btn" disabled={busy} onClick={() => send({ kind: "endRetro" })}>
+            Done with the retro{t.ip > 0 ? ` (${t.ip} IP left unspent)` : ""}
+          </button>
+        )}
+      </div>
     </>
   );
 }
