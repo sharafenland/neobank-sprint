@@ -5,15 +5,16 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 import { EVENT_BY_ID, FEATURE_BY_ID, INCIDENT_BY_ID, PHASES, PRACTICES, PRACTICE_BY_ID } from "@/lib/cards";
 import { act } from "@/lib/client";
-import { INCIDENT_FX } from "@/lib/effects";
+import { INCIDENT_FX, incidentParts } from "@/lib/effects";
 import {
   FIX_PER_SLOT, INFRA_CAP, IP_BONUS_FROM_SPRINT, capacity, cardDevTarget, devBonus, devTarget, infraBonus, legacyDrag,
-  canAffordAny, maxFixSlots, mitBonus, onShelf, own, relBonus, relTarget, releasing, shelvedTarget, usedSlots,
+  canAffordAny, cartCost, devParts, maxFixSlots, mitParts, onShelf, own, relParts, relTarget, releasing, shelvedTarget,
+  sumParts, usedSlots,
 } from "@/lib/rules";
 import type { TeamState } from "@/lib/types";
 import { useGame } from "@/components/useGame";
 import { CardIcon } from "@/components/CardIcon";
-import { CheatSheet, Die, ErrorBar, FeatureCard, PhaseHead, Stepper, sgn } from "@/components/ui";
+import { Breakdown, CheatSheet, Die, ErrorBar, FeatureCard, PhaseHead, Stepper, sgn } from "@/components/ui";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
 
 export default function Play() {
@@ -292,7 +293,7 @@ function Development({ t, busy, send }: { t: TeamState; busy: boolean; send: Sen
           {legacyDrag(t) > 0 ? ` + ${legacyDrag(t)} legacy drag` : ""}
           {own(t, "modular") && t.picked.length >= 2 ? " − 3" : ""}<br />
           Roll <b>d20 {sgn(devBonus(t))}</b>
-          {t.devMod !== 0 && <span style={{ color: "var(--bad)" }}> (incident penalty included)</span>}
+          <Breakdown parts={devParts(t)} />
         </div>
         <button className="btn" style={{ marginLeft: "auto" }} disabled={busy} onClick={() => send({ kind: "rollDev" })}>Roll to build</button>
       </div>
@@ -303,8 +304,9 @@ function Development({ t, busy, send }: { t: TeamState; busy: boolean; send: Sen
       <div className="rollbox">
         <Die value={t.dev.roll} />
         <div className="calc">
-          {t.dev.roll} {sgn(devBonus(t))} = <b>{t.dev.total}</b> against <b>{t.dev.target}</b><br />
+          {t.dev.roll} {sgn(t.dev.total - t.dev.roll)} = <b>{t.dev.total}</b> against <b>{t.dev.target}</b><br />
           <span className={`verdict ${t.dev.pass ? "ok" : "no"}`}>{t.dev.pass ? "Everything built" : "Missed the bar"}</span>
+          <Breakdown parts={t.dev.parts} />
         </div>
       </div>
       {!t.dev.pass && (
@@ -341,8 +343,7 @@ function Incident({ t, id, revealed, busy, send }: { t: TeamState; id: string; r
   if (!revealed) return <p className="empty">Waiting for the facilitator to turn the card over.</p>;
   const card = INCIDENT_BY_ID[id];
   const spec = INCIDENT_FX[id];
-  const mod = spec.mod ? spec.mod(t) : 0;
-  const modTxt = spec.modTxt ? spec.modTxt(t) : "";
+  const parts = [...mitParts(t), ...incidentParts(spec, t)];
   const inc = t.inc;
 
   return (
@@ -365,8 +366,8 @@ function Incident({ t, id, revealed, busy, send }: { t: TeamState; id: string; r
         <div className="rollbox">
           <Die />
           <div className="calc">
-            Mitigation target <b>{card.mit}</b><br />Roll <b>d20 {sgn(mitBonus(t) + mod)}</b>
-            {modTxt && <><br /><span style={{ color: "var(--muted)" }}>{modTxt}</span></>}
+            Mitigation target <b>{card.mit}</b><br />Roll <b>d20 {sgn(sumParts(parts))}</b>
+            <Breakdown parts={parts} />
           </div>
           <button className="btn" style={{ marginLeft: "auto" }} disabled={busy} onClick={() => send({ kind: "rollIncident" })}>Roll to mitigate</button>
         </div>
@@ -375,8 +376,9 @@ function Incident({ t, id, revealed, busy, send }: { t: TeamState; id: string; r
         <div className="rollbox">
           <Die value={inc.roll} />
           <div className="calc">
-            {inc.roll} {sgn(mitBonus(t) + mod)} = <b>{inc.total}</b> against <b>{card.mit}</b><br />
+            {inc.roll} {sgn(inc.total! - inc.roll!)} = <b>{inc.total}</b> against <b>{card.mit}</b><br />
             <span className={`verdict ${inc.pass ? "ok" : "no"}`}>{inc.pass ? "Mitigated" : "It hit you"}</span>
+            <Breakdown parts={inc.parts} />
           </div>
         </div>
       )}
@@ -397,17 +399,14 @@ function Release({ t, busy, send }: { t: TeamState; busy: boolean; send: Send })
     );
   }
   if (!t.rel?.rolled) {
-    const buggy = list.filter((b) => b.buggy).length;
+    const parts = relParts(t);
     return (
       <div className="rollbox">
         <Die />
         <div className="calc">
           Shipping <b>{list.map((b) => FEATURE_BY_ID[b.id].n).join(", ")}</b><br />
-          Target <b>{relTarget(t)}</b> &middot; Roll <b>d20 {sgn(relBonus(t))}</b>{" "}
-          <span style={{ color: "var(--faint)" }}>
-            (base +2{own(t, "cicd") ? ", CI/CD +3" : ""}{own(t, "retro") ? ", retro +1" : ""}
-            {t.bugs ? `, bugs −${t.bugs}` : ""}{buggy ? `, buggy work −${2 * buggy}` : ""})
-          </span>
+          Target <b>{relTarget(t)}</b> &middot; Roll <b>d20 {sgn(sumParts(parts))}</b>
+          <Breakdown parts={parts} />
         </div>
         <button className="btn" style={{ marginLeft: "auto" }} disabled={busy} onClick={() => send({ kind: "rollRelease" })}>Roll to release</button>
       </div>
@@ -417,10 +416,11 @@ function Release({ t, busy, send }: { t: TeamState; busy: boolean; send: Send })
     <div className="rollbox">
       <Die value={t.rel.roll} />
       <div className="calc">
-        {t.rel.roll} {sgn(relBonus(t))} = <b>{t.rel.total}</b> against <b>{t.rel.target}</b><br />
+        {t.rel.roll} {sgn(t.rel.total! - t.rel.roll!)} = <b>{t.rel.total}</b> against <b>{t.rel.target}</b><br />
         <span className={`verdict ${t.rel.full ? "ok" : "soft"}`}>
           {t.rel.full ? "Shipped in full" : "Soft launch — 25% of the reward"}
         </span>
+        <Breakdown parts={t.rel.parts} />
       </div>
     </div>
   );
@@ -454,6 +454,9 @@ function MarketEvent({ t, id, revealed, busy, send }: { t: TeamState; id: string
 
 function Retro({ t, sprint, lecture, busy, send }: { t: TeamState; sprint: number; lecture: boolean; busy: boolean; send: Send }) {
   const pay = t.retroPay;
+  const cart = t.retroCart ?? [];
+  const bought = t.retroBought ?? [];
+  const left = t.ip - cartCost(t);
   return (
     <>
       <div className="payline">
@@ -480,14 +483,20 @@ function Retro({ t, sprint, lecture, busy, send }: { t: TeamState; sprint: numbe
       <div className="shop">
         {PRACTICES.map((p) => {
           const owned = own(t, p.id);
-          const poor = !owned && t.ip < p.ip;
+          const fresh = bought.includes(p.id);
+          const picked = cart.includes(p.id);
+          const poor = !owned && !picked && left < p.ip;
           return (
             <button
               key={p.id} className={`pcard ${owned ? "owned" : ""} ${poor ? "poor" : ""}`}
-              disabled={busy || owned || poor}
+              aria-pressed={picked}
+              disabled={busy || owned || poor || t.retroDone}
               onClick={() => send({ kind: "buy", practice: p.id })}
             >
-              <span className="ph"><span className="pn">{p.n}</span><span className="cost">{owned ? "owned" : `${p.ip} IP`}</span></span>
+              <span className="ph">
+                <span className="pn">{p.n}</span>
+                <span className="cost">{fresh ? "bought" : owned ? "owned" : picked ? `${p.ip} IP ✓` : `${p.ip} IP`}</span>
+              </span>
               <span className="eff">{p.e}</span>
               {lecture && <span className="src">{p.src}</span>}
             </button>
@@ -496,18 +505,27 @@ function Retro({ t, sprint, lecture, busy, send }: { t: TeamState; sprint: numbe
       </div>
       <div className="spread" style={{ marginTop: 14 }}>
         <p className="calc" style={{ margin: 0 }}>
+          {!t.retroDone && cart.length > 0 && <>Selected: <b>{cartCost(t)} IP</b> &middot; left after confirming: <b>{left}</b>. </>}
           {t.bugs ? <>Bugs carried into the next sprint: <b>{t.bugs}</b>. </> : "No open bugs. "}
           {t.findings ? <>Open findings: <b>{t.findings}</b>.</> : "No open findings."}
         </p>
-        {!canAffordAny(t) ? (
-          <span className="mono" style={{ fontSize: 12.5, color: "var(--muted)" }}>Nothing left you can afford.</span>
-        ) : t.retroDone ? (
-          <span className="mono" style={{ fontSize: 12.5, color: "var(--muted)" }}>
-            Marked done &mdash; you can still buy until the next sprint starts.
+        {t.retroDone ? (
+          <span className="row" style={{ alignItems: "center" }}>
+            <span className="mono" style={{ fontSize: 12.5, color: "var(--muted)" }}>
+              {bought.length
+                ? <>Confirmed: {bought.map((id) => PRACTICE_BY_ID[id].n).join(", ")}.</>
+                : <>Confirmed &mdash; nothing bought.</>}
+              {t.ip > 0 ? ` ${t.ip} IP will expire.` : ""}
+            </span>
+            <button className="btn ghost sm" disabled={busy} onClick={() => send({ kind: "reopenRetro" })}>Change my mind</button>
           </span>
+        ) : !cart.length && !canAffordAny(t) ? (
+          <span className="mono" style={{ fontSize: 12.5, color: "var(--muted)" }}>Nothing left you can afford.</span>
         ) : (
-          <button className="btn" disabled={busy} onClick={() => send({ kind: "endRetro" })}>
-            Done with the retro{t.ip > 0 ? ` (${t.ip} IP left unspent)` : ""}
+          <button className="btn" disabled={busy} onClick={() => send({ kind: "confirmRetro" })}>
+            {cart.length
+              ? `Confirm ${cart.length} practice${cart.length === 1 ? "" : "s"} (${cartCost(t)} IP)`
+              : `Confirm — buy nothing (${t.ip} IP expire)`}
           </button>
         )}
       </div>

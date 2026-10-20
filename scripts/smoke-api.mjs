@@ -122,8 +122,19 @@ for (let sprint = 1; sprint <= SPRINTS; sprint++) {
       }
       if (id === "retro") {
         const st = (await call(`/api/sessions/${code}`, { team: token })).json.you.state;
-        if (st.ip >= 1) await act({ kind: "buy", practice: "blameless" });
-        await act({ kind: "endRetro" });
+        const owns = st.practices.includes("blameless");
+        if (st.ip >= 1 && !owns) {
+          await act({ kind: "buy", practice: "blameless" });
+          const sel = (await call(`/api/sessions/${code}`, { team: token })).json.you.state;
+          if (sprint === 1 && token === A) {
+            check("selecting a practice does not spend points yet", sel.ip === st.ip && sel.retroCart.includes("blameless"), sel);
+          }
+        }
+        await act({ kind: "confirmRetro" });
+        if (sprint === 1 && token === A && st.ip >= 1 && !owns) {
+          const conf = (await call(`/api/sessions/${code}`, { team: token })).json.you.state;
+          check("confirming pays for the selection", conf.practices.includes("blameless") && conf.ip === st.ip - 1, conf);
+        }
       }
       if (id === "planning" && sprint === 2 && token === A) {
         const wrong = await act({ kind: "rollDev" });

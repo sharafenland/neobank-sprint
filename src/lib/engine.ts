@@ -4,10 +4,10 @@
  */
 import { FEATURE_BY_ID, INCIDENT_BY_ID, PHASES, PRACTICE_BY_ID } from "./cards";
 import { eventIdFor, incidentIdFor, marketFor } from "./derive";
-import { EVENT_FX, INCIDENT_FX, bug, cust, finding, log, type Fx } from "./effects";
+import { EVENT_FX, INCIDENT_FX, bug, cust, finding, incidentParts, log, type Fx } from "./effects";
 import {
-  DEFAULT_SLOTS, FIX_PER_SLOT, IP_BONUS_FROM_SPRINT, canAffordAny, capacity, devBonus, devTarget, has, maxFixSlots, mitBonus, own,
-  relBonus, relTarget, releasing, resetSprint, usedSlots,
+  DEFAULT_SLOTS, FIX_PER_SLOT, IP_BONUS_FROM_SPRINT, canAffordAny, capacity, cartCost, devParts, devTarget, has, maxFixSlots, mitParts, own,
+  relParts, relTarget, releasing, resetSprint, sumParts, usedSlots,
 } from "./rules";
 import type { SessionRow, TeamState } from "./types";
 
@@ -37,9 +37,17 @@ export function syncToPhase(t: TeamState, session: SessionRow): TeamState {
   if (!t.fix) t.fix = { bugs: 0, findings: 0 };
   if (!t.shelf) t.shelf = [];
   t.slots = session.slots ?? DEFAULT_SLOTS;
+  if (!t.retroCart) t.retroCart = [];
+  if (!t.retroBought) t.retroBought = [];
+
+  // A selection the group never confirmed still counts when the room moves
+  // on, the same way an uncommitted plan does — points are not lost to a
+  // missed click. This covers the last retro too, when the session finishes.
+  if (session.finished && t.retroCart.length) adoptCart({ t, sprint });
 
   const resetKey = `reset:${sprint}`;
   if (sprint > 1 && !t.applied[resetKey]) {
+    if (t.retroCart.length) adoptCart({ t, sprint: sprint - 1 });
     resetSprint(t);
     t.applied[resetKey] = true;
   }
@@ -108,6 +116,21 @@ export function syncToPhase(t: TeamState, session: SessionRow): TeamState {
   return t;
 }
 
+/** Pays for everything selected at the retro. */
+function adoptCart(fx: Fx) {
+  const { t } = fx;
+  for (const id of t.retroCart) {
+    const p = PRACTICE_BY_ID[id];
+    if (!p || own(t, id) || t.ip < p.ip) continue;
+    t.ip -= p.ip;
+    t.ipSpent += p.ip;
+    t.practices.push(id);
+    t.retroBought.push(id);
+    log(fx, `Adopted ${p.n}`, "up");
+  }
+  t.retroCart = [];
+}
+
 const unshelve = (t: TeamState, id: string) => { t.shelf = t.shelf.filter((x) => x !== id); };
 
 function settleShelved(fx: Fx) {
@@ -132,7 +155,8 @@ export type Action =
   | { kind: "rollRelease" }
   | { kind: "resolveEvent" }
   | { kind: "buy"; practice: string }
-  | { kind: "endRetro" };
+  | { kind: "confirmRetro" }
+  | { kind: "reopenRetro" };
 
 function requirePhase(session: SessionRow, id: string) {
   if (PHASES[session.phase].id !== id) {
@@ -203,10 +227,11 @@ export function applyAction(
       if (t.dev) throw new GameError("You have already rolled this sprint.", 409);
       if (!t.picked.length) throw new GameError("You committed nothing — there is nothing to roll.");
       const roll = d20();
-      const total = roll + devBonus(t);
+      const parts = devParts(t);
+      const total = roll + sumParts(parts);
       const target = devTarget(t);
       const pass = total >= target;
-      t.dev = { roll, total, target, pass, decided: {} };
+      t.dev = { roll, total, target, pass, parts, decided: {} };
       if (pass) {
         t.built = t.picked.map((id) => ({ id, buggy: false, shelved: false }));
         for (const id of t.picked) {
@@ -249,11 +274,11 @@ export function applyAction(
       const spec = INCIDENT_FX[cardId];
       if (!t.inc || t.inc.done) throw new GameError("This incident is already settled for you.", 409);
       if (card.mit === null) throw new GameError("This card is not rolled against.");
-      const mod = spec.mod ? spec.mod(t) : 0;
+      const parts = [...mitParts(t), ...incidentParts(spec, t)];
       const roll = d20();
-      const total = roll + mitBonus(t) + mod;
+      const total = roll + sumParts(parts);
       const pass = total >= card.mit;
-      t.inc = { ...t.inc, rolled: true, roll, total, pass, done: true };
+      t.inc = { ...t.inc, rolled: true, roll, total, pass, parts, done: true };
       log(fx, `${pass ? "Mitigated" : "Hit by"} ${card.n} (${total} vs ${card.mit})`, pass ? "up" : "down");
       if (pass) spec.pass?.(fx);
       else spec.fail(fx);
@@ -265,10 +290,11 @@ export function applyAction(
       if (!t.rel || t.rel.done) throw new GameError("Your release is already settled.", 409);
       const list = releasing(t);
       const roll = d20();
-      const total = roll + relBonus(t);
+      const parts = relParts(t);
+      const total = roll + sumParts(parts);
       const target = relTarget(t);
       const full = total >= target;
-      t.rel = { ...t.rel, rolled: true, roll, total, target, full, done: true };
+      t.rel = { ...t.rel, rolled: true, roll, total, target, full, parts, done: true };
       const gained = list.reduce((a, b) => a + (full ? FEATURE_BY_ID[b.id].k : Math.round(FEATURE_BY_ID[b.id].k * 0.25)), 0);
       cust(fx, gained);
       t.shipped += list.length;
@@ -297,22 +323,43 @@ export function applyAction(
       return t;
     }
 
+    // Selecting is free to change; nothing is paid until the group confirms.
     case "buy": {
       requirePhase(session, "retro");
+      if (t.retroDone) throw new GameError("Your purchases are confirmed. Reopen them first.");
       const p = PRACTICE_BY_ID[action.practice];
       if (!p) throw new GameError("No such practice.");
       if (own(t, p.id)) throw new GameError("You already have that.", 409);
-      if (t.ip < p.ip) throw new GameError("Not enough Investment Points.");
-      t.ip -= p.ip;
-      t.ipSpent += p.ip;
-      t.practices.push(p.id);
-      log(fx, `Adopted ${p.n}`, "up");
+      const at = t.retroCart.indexOf(p.id);
+      if (at >= 0) t.retroCart.splice(at, 1);
+      else if (cartCost(t) + p.ip <= t.ip) t.retroCart.push(p.id);
+      else throw new GameError("Not enough Investment Points.");
       return t;
     }
 
-    case "endRetro": {
+    case "confirmRetro": {
       requirePhase(session, "retro");
+      if (t.retroDone) throw new GameError("Already confirmed.", 409);
+      adoptCart(fx);
       t.retroDone = true;
+      return t;
+    }
+
+    // Practices only act from the next sprint on, so taking one back before
+    // then changes nothing that has already been rolled.
+    case "reopenRetro": {
+      requirePhase(session, "retro");
+      if (!t.retroDone) throw new GameError("Nothing confirmed to reopen.", 409);
+      for (const id of t.retroBought) {
+        const p = PRACTICE_BY_ID[id];
+        t.practices = t.practices.filter((x) => x !== id);
+        t.ip += p.ip;
+        t.ipSpent -= p.ip;
+        log(fx, `Took back ${p.n}`);
+      }
+      t.retroCart = t.retroBought;
+      t.retroBought = [];
+      t.retroDone = false;
       return t;
     }
   }
@@ -328,6 +375,6 @@ export function phaseDone(t: TeamState, session: SessionRow): boolean {
     case "market": return !!t.eventResolved;
     // Done when the group says so, or when there is nothing left it could
     // buy — a group with no points should not have to click to be counted.
-    case "retro": return !!t.retroDone || !canAffordAny(t);
+    case "retro": return !!t.retroDone || (!canAffordAny(t) && !(t.retroCart ?? []).length);
   }
 }

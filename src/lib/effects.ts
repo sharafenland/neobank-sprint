@@ -3,7 +3,7 @@
  * state, so they never run on a device the players control.
  */
 import { has, own } from "./rules";
-import type { TeamState } from "./types";
+import type { BonusPart, TeamState } from "./types";
 
 export interface Fx {
   t: TeamState;
@@ -37,6 +37,20 @@ export function pctLoss(t: TeamState, pct: number, floor: number): number {
 export function finding(c: Fx, n: number) {
   c.t.findings = Math.max(0, c.t.findings + n);
   log(c, `${sgn(n)} audit finding${Math.abs(n) === 1 ? "" : "s"}`, n >= 0 ? "down" : "up");
+}
+
+/**
+ * The card's modifier as separate reasons. modTxt already reads
+ * "+3: reason · −2: reason", so it is split rather than written twice; if
+ * the text and the number ever disagree, the number wins as one line.
+ */
+export function incidentParts(spec: IncidentSpec, t: TeamState): BonusPart[] {
+  const mod = spec.mod ? spec.mod(t) : 0;
+  if (!mod) return [];
+  const txt = spec.modTxt ? spec.modTxt(t) : "";
+  const parts = txt.split(" · ").map((s) => s.match(/^([+\u2212-])(\d+):\s*(.*)$/)).filter(Boolean)
+    .map((m) => ({ label: m![3], value: (m![1] === "+" ? 1 : -1) * Number(m![2]) }));
+  return parts.reduce((a, p) => a + p.value, 0) === mod ? parts : [{ label: "This card", value: mod }];
 }
 
 export interface IncidentSpec {

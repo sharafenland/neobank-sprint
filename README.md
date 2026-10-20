@@ -109,6 +109,15 @@ three-point practices — Definition of Done, Cross-Functional Team, Retro
 Culture, Agentic Coding, Compliance by Design — exist only for a sprint that
 earned them, and a spare point left on the table is a point lost.
 
+**Buying is a selection until it is confirmed.** In the retro a group picks
+practices the way it picks features in planning: freely, as often as it likes,
+within its points. Confirm pays, and is what puts the tick next to the group
+on the facilitator's console. Confirmed purchases can be reopened and refunded
+until the next sprint starts — practices only act from then, so taking one back
+changes nothing already rolled. A selection never confirmed is still bought
+when the room moves on, the same way an uncommitted plan still counts. A group
+with nothing left it could afford counts as done without clicking.
+
 **Findings clear two ways, both of them a choice.** A remediation slot clears
 one, and Compliance by Design clears one each retro — priced at 2 IP, the same
 as Automated Testing, because the two are meant to read as a pair: one pays

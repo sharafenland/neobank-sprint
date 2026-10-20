@@ -64,6 +64,12 @@ export interface EventCard extends CardDeps {
   needsCall?: string;
 }
 
+/** One line of a roll's modifier, so a group can see where each point comes from. */
+export interface BonusPart {
+  label: string;
+  value: number;
+}
+
 export interface BuiltItem {
   id: string;
   buggy: boolean;
@@ -102,10 +108,11 @@ export interface TeamState {
   /** Slots spent on paying down debt instead of taking new work. */
   fix: { bugs: number; findings: number };
   confirmed: boolean;
-  dev: { roll: number; total: number; target: number; pass: boolean; decided: Record<string, "push" | "shelve"> } | null;
+  /** `parts` is the modifier as it stood when the die was rolled, not as it stands now. */
+  dev: { roll: number; total: number; target: number; pass: boolean; parts?: BonusPart[]; decided: Record<string, "push" | "shelve"> } | null;
   built: BuiltItem[];
-  inc: { skip: boolean; auto: boolean; rolled: boolean; roll?: number; total?: number; pass?: boolean; done: boolean } | null;
-  rel: { blocked: boolean; rolled: boolean; roll?: number; total?: number; target?: number; full?: boolean; done: boolean } | null;
+  inc: { skip: boolean; auto: boolean; rolled: boolean; roll?: number; total?: number; pass?: boolean; parts?: BonusPart[]; done: boolean } | null;
+  rel: { blocked: boolean; rolled: boolean; roll?: number; total?: number; target?: number; full?: boolean; parts?: BonusPart[]; done: boolean } | null;
   eventResolved: { d: number; f: number; w: string } | null;
 
   devMod: number;
@@ -113,7 +120,11 @@ export interface TeamState {
   ipPenalty: number;
   /** What the retro paid and why, for the panel to explain itself. */
   retroPay: { base: number; bonus: number; reason: string } | null;
-  /** The group said it has finished shopping this retro. */
+  /** Practices selected at this retro but not yet paid for. */
+  retroCart: string[];
+  /** Practices paid for at this retro — refundable until the next sprint starts. */
+  retroBought: string[];
+  /** The group confirmed its purchases for this retro. */
   retroDone: boolean;
 
   /** Marks which sprint/phase entry effects have already been applied. */

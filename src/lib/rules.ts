@@ -1,6 +1,6 @@
 /** Pure derivations over a team's state. Shared by the server and the UI. */
 import { FEATURE_BY_ID, PRACTICES } from "./cards";
-import type { TeamState } from "./types";
+import type { BonusPart, TeamState } from "./types";
 
 export const has = (t: TeamState, featureId: string) => t.portfolio.includes(featureId);
 export const own = (t: TeamState, practiceId: string) => t.practices.includes(practiceId);
@@ -64,15 +64,55 @@ export function infraBonus(t: TeamState): { dev: number; rel: number; mit: numbe
   };
 }
 
-export function devBonus(t: TeamState): number {
-  return 2 + (own(t, "pair") ? 2 : 0) + (own(t, "agentic") ? 3 : 0) + (own(t, "retro") ? 1 : 0)
-    + infraBonus(t).dev + t.devMod;
+/**
+ * Each roll's modifier as a list of reasons, so the screen can say where every
+ * point comes from. The bonus functions are the sums of these and nothing else,
+ * which keeps the explanation and the arithmetic from drifting apart.
+ */
+const BASE: BonusPart = { label: "Base", value: 2 };
+
+const practicePart = (t: TeamState, id: string, label: string, value: number): BonusPart[] =>
+  own(t, id) ? [{ label, value }] : [];
+
+/** One line for the whole infrastructure bonus, naming the cards behind it. */
+function infraPart(t: TeamState, key: "dev" | "rel" | "mit"): BonusPart[] {
+  const cards = t.portfolio
+    .map((id) => FEATURE_BY_ID[id])
+    .filter((f) => f?.bonus?.[key])
+    .map((f) => `${f.n} +${f.bonus![key]}`);
+  const value = infraBonus(t)[key];
+  if (!value) return [];
+  const raw = t.portfolio.reduce((a, id) => a + (FEATURE_BY_ID[id]?.bonus?.[key] ?? 0), 0);
+  return [{ label: `Infrastructure (${cards.join(", ")}${raw > value ? `, capped at +${INFRA_CAP}` : ""})`, value }];
 }
 
-export function mitBonus(t: TeamState): number {
-  return 2 + (own(t, "blameless") ? 3 : 0) + (own(t, "sre") ? 2 : 0) + (own(t, "retro") ? 1 : 0)
-    + infraBonus(t).mit - t.findings;
+export const sumParts = (parts: BonusPart[]) => parts.reduce((a, p) => a + p.value, 0);
+
+export function devParts(t: TeamState): BonusPart[] {
+  return [
+    BASE,
+    ...practicePart(t, "pair", "Pair Programming", 2),
+    ...practicePart(t, "agentic", "Agentic Coding", 3),
+    ...practicePart(t, "retro", "Retro Culture", 1),
+    ...infraPart(t, "dev"),
+    // Only the Lead Engineer Resigns incident sets this today.
+    ...(t.devMod ? [{ label: "Lead engineer resigned", value: t.devMod }] : []),
+  ];
 }
+
+export function mitParts(t: TeamState): BonusPart[] {
+  return [
+    BASE,
+    ...practicePart(t, "blameless", "Blameless Postmortems", 3),
+    ...practicePart(t, "sre", "Observability & SRE", 2),
+    ...practicePart(t, "retro", "Retro Culture", 1),
+    ...infraPart(t, "mit"),
+    ...(t.findings ? [{ label: `Open audit findings (${t.findings})`, value: -t.findings }] : []),
+  ];
+}
+
+export const devBonus = (t: TeamState) => sumParts(devParts(t));
+export const mitBonus = (t: TeamState) => sumParts(mitParts(t));
 
 export const DRAG_CAP = 6;
 
@@ -116,15 +156,30 @@ export function relTarget(t: TeamState): number {
   return releasing(t).reduce((a, b) => a + FEATURE_BY_ID[b.id].r, 0);
 }
 
-export function relBonus(t: TeamState): number {
+export function relParts(t: TeamState): BonusPart[] {
   const buggy = releasing(t).filter((b) => b.buggy).length;
-  return 2 + (own(t, "cicd") ? 3 : 0) + (own(t, "retro") ? 1 : 0)
-    + infraBonus(t).rel - t.bugs - 2 * buggy;
+  return [
+    BASE,
+    ...practicePart(t, "cicd", "CI/CD Pipeline", 3),
+    ...practicePart(t, "retro", "Retro Culture", 1),
+    ...infraPart(t, "rel"),
+    ...(t.bugs ? [{ label: `Open bugs (${t.bugs})`, value: -t.bugs }] : []),
+    ...(buggy ? [{ label: `Pushed-through features in this release (${buggy} × 2)`, value: -2 * buggy }] : []),
+  ];
 }
 
-/** Is there anything left in the shop this group could still buy? */
+export const relBonus = (t: TeamState) => sumParts(relParts(t));
+
+/** What the practices selected at this retro would cost. */
+export function cartCost(t: TeamState): number {
+  return (t.retroCart ?? []).reduce((a, id) => a + (PRACTICES.find((p) => p.id === id)?.ip ?? 0), 0);
+}
+
+/** Is there anything left in the shop this group could still add to its selection? */
 export function canAffordAny(t: TeamState): boolean {
-  return PRACTICES.some((p) => !own(t, p.id) && t.ip >= p.ip);
+  const left = t.ip - cartCost(t);
+  const cart = t.retroCart ?? [];
+  return PRACTICES.some((p) => !own(t, p.id) && !cart.includes(p.id) && left >= p.ip);
 }
 
 export function emptyTeamState(): TeamState {
@@ -133,7 +188,8 @@ export function emptyTeamState(): TeamState {
     practices: [], portfolio: [], shelf: [],
     picked: [], fix: { bugs: 0, findings: 0 },
     confirmed: false, dev: null, built: [], inc: null, rel: null, eventResolved: null,
-    devMod: 0, blockRelease: false, ipPenalty: 0, retroPay: null, retroDone: false,
+    devMod: 0, blockRelease: false, ipPenalty: 0, retroPay: null,
+    retroCart: [], retroBought: [], retroDone: false,
     applied: {}, feed: [],
   };
 }
@@ -142,6 +198,6 @@ export function resetSprint(t: TeamState): void {
   t.picked = []; t.fix = { bugs: 0, findings: 0 };
   t.confirmed = false; t.dev = null; t.built = []; t.inc = null; t.rel = null;
   t.eventResolved = null; t.devMod = 0; t.blockRelease = false; t.ipPenalty = 0;
-  t.retroPay = null; t.retroDone = false;
+  t.retroPay = null; t.retroCart = []; t.retroBought = []; t.retroDone = false;
   t.ip = 0; // unspent points expire with the sprint
 }

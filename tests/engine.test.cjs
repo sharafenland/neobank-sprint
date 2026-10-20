@@ -50,6 +50,7 @@ function playGame(seed, sprints, strategy) {
         if (id === "retro") {
           const { PRACTICES } = require("../.test-build/cards");
           for (const p of PRACTICES) { try { A({ kind: "buy", practice: p.id }); } catch (e) { /* not affordable */ } }
+          A({ kind: "confirmRetro" });
         }
         check(`phase ${id} finishes for every team (sprint ${sprint})`, phaseDone(t, session));
       });
@@ -412,8 +413,8 @@ for (const [name, strat] of Object.entries(strategies)) {
   const roster = [{ name: "G", customers: 0, bugs: 0 }];
   const t = syncToPhase(emptyTeamState(), session);
   check("a group with points to spend is not done at the retro", t.ip >= 2 && !phaseDone(t, session));
-  applyAction(t, session, roster, { kind: "endRetro" });
-  check("saying so marks the retro done", phaseDone(t, session));
+  applyAction(t, session, roster, { kind: "confirmRetro" });
+  check("confirming marks the retro done", phaseDone(t, session));
 
   const broke = syncToPhase(emptyTeamState(), session);
   broke.ip = 0;
@@ -423,6 +424,95 @@ for (const [name, strat] of Object.entries(strategies)) {
   session.sprint = 2; session.phase = 0; syncToPhase(t, session);
   session.phase = 5; syncToPhase(t, session);
   check("the next retro starts undone again", !t.retroDone && !phaseDone(t, session));
+}
+
+// --- a retro purchase can be reconsidered until the next sprint ---
+{
+  const session = { code: "X", seed: 7, sprints: 4, sprint: 1, phase: 5, reveal_incident: true, reveal_event: true, finished: false };
+  const roster = [{ name: "G", customers: 0, bugs: 0 }];
+  const A = (t, a) => applyAction(t, session, roster, a);
+  const t = syncToPhase(emptyTeamState(), session);
+  const ip = t.ip;
+
+  A(t, { kind: "buy", practice: "pair" });
+  check("selecting costs nothing yet", t.ip === ip && !t.practices.includes("pair") && t.retroCart.includes("pair"));
+  check("a selection waiting to be confirmed is not done", !phaseDone(t, session));
+  A(t, { kind: "buy", practice: "pair" });
+  check("selecting again deselects", !t.retroCart.includes("pair"));
+
+  A(t, { kind: "buy", practice: "cicd" });
+  let over = false;
+  try { A(t, { kind: "buy", practice: "pair" }); } catch (e) { over = e instanceof GameError; }
+  check("the selection cannot cost more than the points", over && t.retroCart.length === 1);
+
+  A(t, { kind: "confirmRetro" });
+  check("confirming pays", t.practices.includes("cicd") && t.ip === ip - 2 && t.ipSpent === 2);
+  let locked = false;
+  try { A(t, { kind: "buy", practice: "blameless" }); } catch (e) { locked = e instanceof GameError; }
+  check("a confirmed retro is locked", locked);
+
+  A(t, { kind: "reopenRetro" });
+  check("reopening refunds", !t.practices.includes("cicd") && t.ip === ip && t.ipSpent === 0 && t.retroCart.includes("cicd"));
+  A(t, { kind: "buy", practice: "cicd" });
+  A(t, { kind: "buy", practice: "pair" });
+  A(t, { kind: "confirmRetro" });
+  check("and the group can buy something else instead", t.practices.includes("pair") && !t.practices.includes("cicd"));
+
+  // A selection nobody confirmed still counts when the room moves on.
+  const lazy = syncToPhase(emptyTeamState(), session);
+  A(lazy, { kind: "buy", practice: "blameless" });
+  syncToPhase(lazy, { ...session, sprint: 2, phase: 0 });
+  check("an unconfirmed selection is bought at the next sprint", lazy.practices.includes("blameless") && lazy.retroCart.length === 0);
+
+  const last = syncToPhase(emptyTeamState(), session);
+  A(last, { kind: "buy", practice: "pair" });
+  syncToPhase(last, { ...session, finished: true });
+  check("and at the end of the game", last.practices.includes("pair"));
+}
+
+// --- every point of a modifier is accounted for ---
+{
+  const { devParts, mitParts, relParts, sumParts, devBonus, mitBonus, relBonus } = require("../.test-build/rules");
+  const { INCIDENT_FX, incidentParts } = require("../.test-build/effects");
+  const { INCIDENTS } = require("../.test-build/cards");
+  const states = [
+    emptyTeamState(),
+    Object.assign(emptyTeamState(), {
+      practices: ["pair", "agentic", "retro", "blameless", "sre", "cicd", "tests"],
+      portfolio: ["gates", "wiki", "testauto", "obs", "runbooks", "shard", "lb", "cache", "gdpr", "auditlog", "aml",
+        "ratelimit", "sca", "pipeline", "backup", "containers", "kyc"],
+      bugs: 3, findings: 2, devMod: -3,
+      built: [{ id: "kyc", buggy: true, shelved: false }],
+    }),
+  ];
+  for (const t of states) {
+    check("Dev parts add up to the Dev bonus", sumParts(devParts(t)) === devBonus(t));
+    check("Mit parts add up to the Mit bonus", sumParts(mitParts(t)) === mitBonus(t));
+    check("Rel parts add up to the Rel bonus", sumParts(relParts(t)) === relBonus(t));
+    for (const c of INCIDENTS) {
+      const spec = INCIDENT_FX[c.id];
+      const mod = spec.mod ? spec.mod(t) : 0;
+      const parts = incidentParts(spec, t);
+      check(`${c.id}: card parts add up to its modifier`, sumParts(parts) === mod);
+      check(`${c.id}: card parts carry their own reasons`, parts.every((p) => p.label !== "This card"));
+    }
+  }
+  const capped = states[1];
+  check("the infrastructure line names the cap when it bites",
+    devParts(capped).some((p) => /^Infrastructure/.test(p.label)) && mitParts(capped).some((p) => /capped/.test(p.label)));
+
+  // The modifier shown after a roll is the one the roll used.
+  const session = { code: "X", seed: 7, sprints: 4, sprint: 1, phase: 0, reveal_incident: true, reveal_event: true, finished: false };
+  const t = syncToPhase(emptyTeamState(), session);
+  const roster = [{ name: "G", customers: 0, bugs: 0 }];
+  const gates = "gates";
+  t.picked = [gates];
+  session.phase = 1; syncToPhase(t, session);
+  const real = Math.random; Math.random = () => 0.999;
+  applyAction(t, session, roster, { kind: "rollDev" });
+  Math.random = real;
+  check("stored parts explain the stored total", t.dev.roll + sumParts(t.dev.parts) === t.dev.total);
+  check("even after building changed the live bonus", devBonus(t) !== t.dev.total - t.dev.roll);
 }
 
 // --- a market event may pay in investment points ---

@@ -83,7 +83,8 @@ export default function Rules() {
         &mdash; rolled against it and won, or built the card that removes it &mdash; or ended with no bugs.
         Only one extra point, however well both went. <b>Points do not carry over</b>: whatever is not spent at
         the retro is gone when the next sprint starts, so the three-point practices are only within reach in a
-        sprint that earned the bonus.
+        sprint that earned the bonus. Picking a practice only selects it; nothing is paid until you
+        <b> confirm</b>, and you can reopen and change your mind until the next sprint starts.
       </p>
 
       <h2 style={{ fontSize: 21, margin: "30px 0 4px" }}>Paying down debt</h2>

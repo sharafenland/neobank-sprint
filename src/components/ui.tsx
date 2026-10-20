@@ -2,10 +2,24 @@
 
 import { useEffect, useRef, useState } from "react";
 import { FEATURE_BY_ID, PHASES, type Phase } from "@/lib/cards";
-import { capacity, devBonus, legacyDrag, mitBonus, relBonus, shelvedTarget } from "@/lib/rules";
-import type { TeamState } from "@/lib/types";
+import { capacity, devBonus, devParts, legacyDrag, mitBonus, mitParts, relBonus, relParts, shelvedTarget } from "@/lib/rules";
+import type { BonusPart, TeamState } from "@/lib/types";
 
 export const sgn = (n: number) => (n > 0 ? "+" : "") + n;
+
+/** Where every point of a roll's modifier comes from, one reason per line. */
+export function Breakdown({ parts }: { parts?: BonusPart[] }) {
+  if (!parts?.length) return null;
+  return (
+    <ul className="parts" aria-label="Where the modifier comes from">
+      {parts.map((p, i) => (
+        <li key={i} className={p.value < 0 ? "neg" : ""}><b>{sgn(p.value)}</b> {p.label}</li>
+      ))}
+    </ul>
+  );
+}
+
+const partsTitle = (parts: BonusPart[]) => parts.map((p) => `${sgn(p.value)} ${p.label}`).join("\n");
 
 export function Stepper({ phase }: { phase: number }) {
   return (
@@ -122,9 +136,9 @@ export function CheatSheet({ t, phase, alwaysOpen = false }: { t?: TeamState; ph
       </details>
       {t && (
         <div className="state">
-          <span>Dev <b>{sgn(devBonus(t))}</b></span>
-          <span>Mit <b>{sgn(mitBonus(t))}</b></span>
-          <span>Rel <b>{sgn(relBonus(t))}</b></span>
+          <span title={partsTitle(devParts(t))}>Dev <b>{sgn(devBonus(t))}</b></span>
+          <span title={partsTitle(mitParts(t))}>Mit <b>{sgn(mitBonus(t))}</b></span>
+          <span title={partsTitle(relParts(t))}>Rel <b>{sgn(relBonus(t))}</b></span>
           <span>Slots <b>{capacity(t)}</b></span>
           <span>Bugs <b className={t.bugs >= 5 ? "crit" : t.bugs >= 3 ? "warn" : ""}>{t.bugs}</b></span>
           <span>Findings <b className={t.findings >= 3 ? "crit" : t.findings >= 2 ? "warn" : ""}>{t.findings}</b></span>
