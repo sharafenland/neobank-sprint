@@ -93,7 +93,10 @@ export interface TeamState {
    * can stay a function of the team alone, on the server and in the UI.
    */
   slots: number;
+  /** Features released, in full or as a soft launch. */
   shipped: number;
+  /** Every raw d20 this group rolled, before modifiers — the luck half of the result. */
+  rolls: number[];
   practices: string[];
   portfolio: string[];
   /**
@@ -154,6 +157,10 @@ export interface SessionRow {
 export interface TeamSummary {
   name: string;
   customers: number;
+  shipped: number;
+  /** Average raw d20 over the game, or null before the first roll. */
+  avgRoll: number | null;
+  rollCount: number;
   bugs: number;
   findings: number;
   ip: number;

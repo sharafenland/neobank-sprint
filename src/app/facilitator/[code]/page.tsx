@@ -271,12 +271,22 @@ function Debrief({ view }: { view: NonNullable<ReturnType<typeof useGame>["view"
                   <span className="rank">{i + 1}</span>
                   <span>
                     <span className="nm">{t.name}</span>
-                    <span className="sub">{t.bugs} bugs &middot; {t.findings} findings &middot; {t.practices.length} practices</span>
+                    <span className="sub">
+                      {t.shipped} features released &middot;{" "}
+                      <span title={`Average raw d20 over ${t.rollCount} rolls, before modifiers. A fair die averages 10.5.`}>
+                        avg. roll {t.avgRoll === null ? "\u2014" : t.avgRoll.toFixed(1)}
+                      </span>
+                      {" "}&middot; {t.bugs} bugs &middot; {t.findings} findings &middot; {t.practices.length} practices
+                    </span>
                   </span>
                   <span className="tot">{t.customers}k</span>
                 </div>
               ))}
             </div>
+            <p style={{ margin: "0 0 18px", fontSize: 12.5, color: "var(--muted)" }}>
+              Avg. roll is the bare d20 before any modifier &mdash; a fair die averages 10.5. A group that finished
+              high with an average roll had a strategy; one that finished high on 13s had luck.
+            </p>
             <p className="eyebrow" style={{ marginBottom: 10 }}>Debrief &middot; 15 minutes, in this order</p>
             <ol className="debrief" style={{ padding: 0, margin: 0 }}>
               {questions.map(([q, w]) => <li key={q}>{q}{view.session.teaching && <span>{w}</span>}</li>)}

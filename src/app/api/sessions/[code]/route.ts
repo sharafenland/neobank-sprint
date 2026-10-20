@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { eventIdFor, incidentIdFor, marketFor } from "@/lib/derive";
 import { phaseDone } from "@/lib/engine";
+import { avgRoll } from "@/lib/rules";
 import { getSession, getTeamByToken, isHost, listTeams } from "@/lib/store";
 import type { GameView } from "@/lib/types";
 
@@ -26,6 +27,9 @@ export async function GET(req: Request, ctx: { params: Promise<{ code: string }>
     teams: teams.map((t) => ({
       name: t.name,
       customers: t.state.customers,
+      shipped: t.state.shipped ?? 0,
+      avgRoll: avgRoll(t.state),
+      rollCount: t.state.rolls?.length ?? 0,
       bugs: t.state.bugs,
       findings: t.state.findings,
       ip: t.state.ip,

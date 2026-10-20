@@ -182,9 +182,15 @@ export function canAffordAny(t: TeamState): boolean {
   return PRACTICES.some((p) => !own(t, p.id) && !cart.includes(p.id) && left >= p.ip);
 }
 
+/** Average raw d20, one decimal; null until something has been rolled. */
+export function avgRoll(t: TeamState): number | null {
+  const r = t.rolls ?? [];
+  return r.length ? Math.round((r.reduce((a, b) => a + b, 0) / r.length) * 10) / 10 : null;
+}
+
 export function emptyTeamState(): TeamState {
   return {
-    customers: 0, bugs: 0, findings: 0, ip: 0, ipSpent: 0, slots: DEFAULT_SLOTS, shipped: 0,
+    customers: 0, bugs: 0, findings: 0, ip: 0, ipSpent: 0, slots: DEFAULT_SLOTS, shipped: 0, rolls: [],
     practices: [], portfolio: [], shelf: [],
     picked: [], fix: { bugs: 0, findings: 0 },
     confirmed: false, dev: null, built: [], inc: null, rel: null, eventResolved: null,

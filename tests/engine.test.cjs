@@ -515,6 +515,20 @@ for (const [name, strat] of Object.entries(strategies)) {
   check("even after building changed the live bonus", devBonus(t) !== t.dev.total - t.dev.roll);
 }
 
+// --- final standings: features released and the average raw roll ---
+{
+  const { avgRoll } = require("../.test-build/rules");
+  const t = emptyTeamState();
+  check("no rolls, no average", avgRoll(t) === null);
+  t.rolls = [3, 18, 10];
+  check("the average is the bare die, one decimal", avgRoll(t) === 10.3);
+
+  // A full game records every roll a group made, and nothing else.
+  const [g] = playGame(4242, 6, () => true);
+  check("every recorded roll is a d20", g.rolls.length > 0 && g.rolls.every((r) => r >= 1 && r <= 20 && Number.isInteger(r)));
+  check("at most three rolls a sprint", g.rolls.length <= 6 * 3);
+}
+
 // --- a market event may pay in investment points ---
 {
   const session = { code: "X", seed: 7, sprints: 4, sprint: 1, phase: 4, reveal_incident: true, reveal_event: true, finished: false };

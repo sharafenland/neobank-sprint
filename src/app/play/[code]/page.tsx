@@ -8,7 +8,7 @@ import { act } from "@/lib/client";
 import { INCIDENT_FX, incidentParts } from "@/lib/effects";
 import {
   FIX_PER_SLOT, INFRA_CAP, IP_BONUS_FROM_SPRINT, capacity, cardDevTarget, devBonus, devTarget, infraBonus, legacyDrag,
-  canAffordAny, cartCost, devParts, maxFixSlots, mitParts, onShelf, own, relParts, relTarget, releasing, shelvedTarget,
+  avgRoll, canAffordAny, cartCost, devParts, maxFixSlots, mitParts, onShelf, own, relParts, relTarget, releasing, shelvedTarget,
   sumParts, usedSlots,
 } from "@/lib/rules";
 import type { TeamState } from "@/lib/types";
@@ -552,7 +552,9 @@ function TeamDebrief({ name, t }: { name: string; t: TeamState }) {
               <span className="rank">&mdash;</span>
               <span>
                 <span className="nm">{name}</span>
-                <span className="sub">{t.shipped} shipped &middot; {t.bugs} bugs &middot; {t.findings} findings &middot; {t.practices.length} practices</span>
+                <span className="sub">
+                  {t.shipped} features released &middot; avg. roll {avgRoll(t) === null ? "\u2014" : avgRoll(t)!.toFixed(1)}
+                  {" "}(a fair die: 10.5) &middot; {t.bugs} bugs &middot; {t.findings} findings &middot; {t.practices.length} practices</span>
               </span>
               <span className="tot">{t.customers}k</span>
             </div>

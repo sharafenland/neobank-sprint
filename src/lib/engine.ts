@@ -39,6 +39,7 @@ export function syncToPhase(t: TeamState, session: SessionRow): TeamState {
   t.slots = session.slots ?? DEFAULT_SLOTS;
   if (!t.retroCart) t.retroCart = [];
   if (!t.retroBought) t.retroBought = [];
+  if (!t.rolls) t.rolls = [];
 
   // A selection the group never confirmed still counts when the room moves
   // on, the same way an uncommitted plan does — points are not lost to a
@@ -227,6 +228,7 @@ export function applyAction(
       if (t.dev) throw new GameError("You have already rolled this sprint.", 409);
       if (!t.picked.length) throw new GameError("You committed nothing — there is nothing to roll.");
       const roll = d20();
+      t.rolls.push(roll);
       const parts = devParts(t);
       const total = roll + sumParts(parts);
       const target = devTarget(t);
@@ -276,6 +278,7 @@ export function applyAction(
       if (card.mit === null) throw new GameError("This card is not rolled against.");
       const parts = [...mitParts(t), ...incidentParts(spec, t)];
       const roll = d20();
+      t.rolls.push(roll);
       const total = roll + sumParts(parts);
       const pass = total >= card.mit;
       t.inc = { ...t.inc, rolled: true, roll, total, pass, parts, done: true };
@@ -290,6 +293,7 @@ export function applyAction(
       if (!t.rel || t.rel.done) throw new GameError("Your release is already settled.", 409);
       const list = releasing(t);
       const roll = d20();
+      t.rolls.push(roll);
       const parts = relParts(t);
       const total = roll + sumParts(parts);
       const target = relTarget(t);
