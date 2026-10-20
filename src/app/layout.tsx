@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Neobank Sprint",
-  description: "An agile sprint simulation for the Financial Software Engineering lecture.",
+  description: "An agile sprint simulation: groups run a neobank, one device each, paced by a facilitator.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -514,7 +514,7 @@ function TeamDebrief({ name, t }: { name: string; t: TeamState }) {
       </div></header>
     <main className="solo" style={{ gridTemplateColumns: "minmax(0,1fr)" }}>
       <div className="panel">
-        <div className="panel-head"><div><h2>{name} &mdash; final position</h2><p>The room&rsquo;s standings are on the projector.</p></div></div>
+        <div className="panel-head"><div><h2>{name} &mdash; final position</h2><p>The room&rsquo;s standings are on the facilitator&rsquo;s screen.</p></div></div>
         <div className="panel-body">
           <div className="podium">
             <div className="prow first">

@@ -7,7 +7,7 @@ export default function Landing() {
     <div className="setup">
       <div className="hero">
         <div className="spread" style={{ marginBottom: 10 }}>
-          <p className="eyebrow" style={{ margin: 0 }}>Frankfurt School &middot; Financial Software Engineering</p>
+          <p className="eyebrow" style={{ margin: 0 }}>An agile sprint simulation</p>
           <ThemeSwitch />
         </div>
         <h1>Neobank Sprint</h1>
@@ -21,10 +21,10 @@ export default function Landing() {
 
       <div className="choose">
         <div className="mode">
-          <span className="k">Teaching</span>
+          <span className="k">Host</span>
           <span className="t">Facilitate a session</span>
           <span className="d">
-            Creates the access code, paces the six phases on the projector, reveals the incident and market cards,
+            Creates the access code, paces the six phases on a shared screen, reveals the incident and market cards,
             and shows every group&rsquo;s standing live.
           </span>
           <Link className="btn" href="/host">Create a session</Link>
