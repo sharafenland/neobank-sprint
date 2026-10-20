@@ -191,6 +191,12 @@ story.append(Paragraph(
     "slot clears two bugs, or one audit finding. It takes effect at the start of Development, before the release "
     "roll &mdash; so at five bugs, one slot gets you shipping again in the same sprint.", BODY))
 
+story.append(Paragraph(
+    "Miss the Development roll and you decide per card: <b>push it through</b> (built and released, plus a bug) "
+    "or <b>shelve it</b>. A shelved card goes on your shelf: from the next sprint you can pick it from there, even "
+    "after it has left the table, at <b>half its Dev target</b>, rounded up. Full slots, and it stays on the shelf "
+    "until it is built or pushed through.", BODY))
+
 story.append(Paragraph("Investment points", H2))
 story.append(Paragraph(
     "Every retro pays <b>two</b>. From sprint 3 it pays a <b>third</b> if the sprint handled its incident "

@@ -496,12 +496,14 @@
   {
    "id": "outage",
    "n": "Payday Peak Outage",
+   "icon": "power",
    "mit": 12,
    "txt": "It is the 28th. Salaries land, everyone opens the app at once, and the authorisation service starts timing out."
   },
   {
    "id": "breach",
    "n": "Data Breach",
+   "icon": "unlock",
    "needs": [
     "gdpr"
    ],
@@ -511,6 +513,7 @@
   {
    "id": "resign",
    "n": "Lead Engineer Resigns",
+   "icon": "person-leaving",
    "mit": null,
    "txt": "Your most senior developer hands in notice. Everything she knew lives in her head.",
    "autoTxt": "Pair Programming — the knowledge was never in one head"
@@ -518,6 +521,7 @@
   {
    "id": "audit",
    "n": "BaFin Spot Audit",
+   "icon": "magnifier",
    "needs": [
     "aml",
     "auditlog"
@@ -529,12 +533,14 @@
   {
    "id": "scheme",
    "n": "Card Scheme Mandate",
+   "icon": "card",
    "mit": 11,
    "txt": "The scheme pushes a mandatory protocol update with a hard deadline. Non-compliance means suspension."
   },
   {
    "id": "fraudring",
    "n": "Fraud Ring",
+   "icon": "person-x",
    "needs": [
     "fraud"
    ],
@@ -545,6 +551,7 @@
   {
    "id": "region",
    "n": "Cloud Region Failure",
+   "icon": "cloud-off",
    "needs": [
     "dr"
    ],
@@ -555,12 +562,14 @@
   {
    "id": "cve",
    "n": "Critical Dependency CVE",
+   "icon": "bug",
    "mit": 12,
    "txt": "A remote-code-execution flaw drops in a library that sits in every one of your services."
   },
   {
    "id": "sla",
    "n": "Instant Payment SLA Breach",
+   "icon": "stopwatch",
    "needs": [
     "sepa"
    ],
@@ -571,6 +580,7 @@
   {
    "id": "warroom",
    "n": "Blame Storm",
+   "icon": "speech",
    "mit": null,
    "txt": "The post-incident review turns into a search for someone to fire. Two days disappear.",
    "autoTxt": "Blameless Postmortems — the review stayed about the system"
@@ -578,6 +588,7 @@
   {
    "id": "reporting",
    "n": "Regulatory Reporting Deadline",
+   "icon": "calendar",
    "needs": [
     "dwh",
     "pipeline"
@@ -590,6 +601,7 @@
   {
    "id": "phish",
    "n": "Customer Phishing Wave",
+   "icon": "hook",
    "needs": [
     "sca",
     "ratelimit"
@@ -603,6 +615,7 @@
   {
    "id": "dora",
    "n": "DORA Comes Into Force",
+   "icon": "shield-check",
    "needs": [
     "dr"
    ],
@@ -611,6 +624,7 @@
   {
    "id": "gdprwave",
    "n": "GDPR Enforcement Wave",
+   "icon": "gavel",
    "needs": [
     "gdpr"
    ],
@@ -619,6 +633,7 @@
   {
    "id": "ipr",
    "n": "Instant Payments Regulation",
+   "icon": "bolt",
    "needs": [
     "sepa"
    ],
@@ -627,18 +642,21 @@
   {
    "id": "winter",
    "n": "Funding Winter",
+   "icon": "snowflake",
    "txt": "Venture money dries up. The market leader is expected to prove unit economics first.",
    "needsCall": "the current leader"
   },
   {
    "id": "feature",
    "n": "App Store Feature Spot",
+   "icon": "star",
    "txt": "The editorial team picks the category leader for the front page.",
    "needsCall": "the current leader"
   },
   {
    "id": "mica",
    "n": "MiCA Licensing Round",
+   "icon": "coin",
    "needs": [
     "crypto"
    ],
@@ -647,6 +665,7 @@
   {
    "id": "rates",
    "n": "Central Bank Raises Rates",
+   "icon": "trend-up",
    "needs": [
     "pots"
    ],
@@ -655,6 +674,7 @@
   {
    "id": "openbank",
    "n": "Open Banking Breakthrough",
+   "icon": "network",
    "needs": [
     "psd2"
    ],
@@ -663,12 +683,14 @@
   {
    "id": "viral",
    "n": "Reviewer Tests Every Neobank",
+   "icon": "eye",
    "txt": "A widely-followed reviewer runs the same twenty transactions through each app and posts the bugs.",
    "needsCall": "the group with the fewest bugs"
   },
   {
    "id": "pricewar",
    "n": "Incumbent Price War",
+   "icon": "tag",
    "needs": [
     "app"
    ],
@@ -677,11 +699,13 @@
   {
    "id": "trust",
    "n": "Consumer Trust Index",
+   "icon": "rosette",
    "txt": "A consumer body publishes supervisory findings per provider."
   },
   {
    "id": "latency",
    "n": "Latency Benchmark Published",
+   "icon": "gauge",
    "needs": [
     "cdn",
     "cache",
@@ -693,6 +717,7 @@
   {
    "id": "hiring",
    "n": "Engineering Brand",
+   "icon": "people",
    "needs": [
     "wiki",
     "gates",

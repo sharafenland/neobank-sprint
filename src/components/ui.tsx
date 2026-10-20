@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { FEATURE_BY_ID, PHASES, type Phase } from "@/lib/cards";
-import { capacity, devBonus, legacyDrag, mitBonus, relBonus } from "@/lib/rules";
+import { capacity, devBonus, legacyDrag, mitBonus, relBonus, shelvedTarget } from "@/lib/rules";
 import type { TeamState } from "@/lib/types";
 
 export const sgn = (n: number) => (n > 0 ? "+" : "") + n;
@@ -89,7 +89,7 @@ export function CheatSheet({ t, phase, alwaysOpen = false }: { t?: TeamState; ph
   const rows: { k: string; id: string; f: React.ReactNode }[] = [
     {
       k: "Develop", id: "dev",
-      f: <>d20 + <b>Dev</b> &ge; sum of the targets you picked{drag > 0 ? <> + <b>{drag}</b> legacy drag</> : null} &mdash; all or nothing</>,
+      f: <>d20 + <b>Dev</b> &ge; sum of the targets you picked{drag > 0 ? <> + <b>{drag}</b> legacy drag</> : null} &mdash; all or nothing; shelved cards count half</>,
     },
     {
       k: "Mitigate", id: "incident",
@@ -137,8 +137,8 @@ export function CheatSheet({ t, phase, alwaysOpen = false }: { t?: TeamState; ph
 }
 
 export function FeatureCard({
-  id, on = false, disabled = false, reason, onPick,
-}: { id: string; on?: boolean; disabled?: boolean; reason?: string; onPick?: (id: string) => void }) {
+  id, on = false, disabled = false, reason, shelved = false, onPick,
+}: { id: string; on?: boolean; disabled?: boolean; reason?: string; shelved?: boolean; onPick?: (id: string) => void }) {
   const f = FEATURE_BY_ID[id];
   const inner = (
     <>
@@ -160,9 +160,12 @@ export function FeatureCard({
           ].filter(Boolean).join("  ")}{"  forever"}
         </span>
       )}
+      {shelved && <span className="bonus">On your shelf &mdash; half the work is done</span>}
       {reason && <span className="whynot">{reason}</span>}
       <span className="stats">
-        <span><span className="dt">Dev</span><span className="dd">{f.t}</span></span>
+        <span><span className="dt">Dev</span><span className="dd">
+          {shelved ? <><s style={{ color: "var(--faint)", fontWeight: 400 }}>{f.t}</s> {shelvedTarget(f.id)}</> : f.t}
+        </span></span>
         <span><span className="dt">Rel</span><span className="dd">{f.r}</span></span>
         <span><span className="dt">Users</span><span className="dd">{f.k}k</span></span>
         <span><span className="dt">Cost</span><span className="dd">{f.s}</span></span>

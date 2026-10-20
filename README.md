@@ -112,6 +112,16 @@ practice that clears one bug a retro and does not clear in the retro you buy
 it, which is two dead sprints of watching. The choice is the lesson: you can
 always stop and fix, it just costs you what the sprint would have earned.
 
+**Shelving keeps the work, pushing keeps the date.** On a missed Development
+roll each card is either pushed through — built, released, and carrying a bug —
+or shelved. A shelved card goes on the group's shelf and can be picked from
+there in any later sprint at half its Development target, rounded up, whether
+or not it is still on the table. It costs its full slots and stays on the
+shelf until it is built or pushed through; shelving it again does not halve it
+again. Without this, shelving threw the sprint's work away and pushing was
+almost always right, so the decision had nothing in it. Now it is the real
+trade: ship it now with a defect, or ship it later, cleaner and cheaper.
+
 **Defensive features pay late.** Observability, Disaster Recovery and Privacy
 earn almost nothing on release, and then decide the Incident and Market Event
 phases. A backlog ranked purely on customer value never reaches them.

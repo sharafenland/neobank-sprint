@@ -81,7 +81,7 @@ export default function Facilitator() {
               {phase.id === "dev" && (
                 <p style={{ margin: 0, color: "var(--muted)", fontSize: 13.5 }}>
                   Each group rolls one d20 plus its Dev bonus against the summed targets of everything it picked.
-                  All or nothing. On a miss they choose per feature: push it through and take the bug, or shelve it.
+                  All or nothing. On a miss they choose per feature: push it through and take the bug, or shelve it &mdash; a shelved card stays on the group&rsquo;s shelf at half its Dev target until it is built.
                 </p>
               )}
 

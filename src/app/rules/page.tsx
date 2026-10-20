@@ -91,6 +91,14 @@ export default function Rules() {
         It costs you what that slot would have earned.
       </p>
 
+      <h2 style={{ fontSize: 21, margin: "30px 0 4px" }}>Push or shelve</h2>
+      <p style={{ margin: 0, color: "var(--muted)", maxWidth: "62ch", fontSize: 13.5 }}>
+        Miss the Development roll and you decide per card. <b>Push it through</b>: it is built and released, but
+        carries a bug. <b>Shelve it</b>: nothing ships now, but the card goes on your shelf. From the next sprint you
+        can pick it from there &mdash; even after it has left the table &mdash; at <b>half its Dev target</b>, rounded
+        up. It still costs its full slots, and it stays on the shelf until it is built or pushed through.
+      </p>
+
       <h2 style={{ fontSize: 21, margin: "30px 0 4px" }}>Capacity</h2>
       <p style={{ margin: 0, color: "var(--muted)", maxWidth: "62ch", fontSize: 13.5 }}>
         Two slots a sprint, three with Cross-Functional Team, one fewer while you have three open findings.

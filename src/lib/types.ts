@@ -85,6 +85,12 @@ export interface TeamState {
   shipped: number;
   practices: string[];
   portfolio: string[];
+  /**
+   * Features shelved after a missed Development roll. They stay pickable,
+   * whether or not they are still on the table, at half their Development
+   * target, until they are built or pushed through. Not reset per sprint.
+   */
+  shelf: string[];
 
   /** Per-sprint working set. */
   picked: string[];

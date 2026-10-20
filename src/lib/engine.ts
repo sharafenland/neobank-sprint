@@ -35,6 +35,7 @@ export interface RosterEntry {
 export function syncToPhase(t: TeamState, session: SessionRow): TeamState {
   const { sprint } = session;
   if (!t.fix) t.fix = { bugs: 0, findings: 0 };
+  if (!t.shelf) t.shelf = [];
 
   const resetKey = `reset:${sprint}`;
   if (sprint > 1 && !t.applied[resetKey]) {
@@ -106,6 +107,8 @@ export function syncToPhase(t: TeamState, session: SessionRow): TeamState {
   return t;
 }
 
+const unshelve = (t: TeamState, id: string) => { t.shelf = t.shelf.filter((x) => x !== id); };
+
 function settleShelved(fx: Fx) {
   if (!own(fx.t, "flags")) return;
   for (const b of fx.t.built.filter((x) => x.shelved)) {
@@ -149,8 +152,10 @@ export function applyAction(
       if (t.confirmed) throw new GameError("Your plan is committed. Reopen it first.");
       const f = FEATURE_BY_ID[action.feature];
       if (!f) throw new GameError("No such feature.");
-      if (!marketFor(session.seed, session.sprint).includes(f.id)) {
-        throw new GameError("That card is not on the table this sprint.");
+      // The shelf is open whatever the table shows: rotating off must not
+      // throw away work a group chose to keep.
+      if (!marketFor(session.seed, session.sprint).includes(f.id) && !t.shelf.includes(f.id)) {
+        throw new GameError("That card is neither on the table this sprint nor on your shelf.");
       }
       const at = t.picked.indexOf(f.id);
       if (at >= 0) t.picked.splice(at, 1);
@@ -202,7 +207,10 @@ export function applyAction(
       t.dev = { roll, total, target, pass, decided: {} };
       if (pass) {
         t.built = t.picked.map((id) => ({ id, buggy: false, shelved: false }));
-        for (const id of t.picked) if (!has(t, id)) t.portfolio.push(id);
+        for (const id of t.picked) {
+          if (!has(t, id)) t.portfolio.push(id);
+          unshelve(t, id);
+        }
         log(fx, `Built ${t.picked.length} feature${t.picked.length === 1 ? "" : "s"} (${total} vs ${target})`, "up");
       } else {
         log(fx, `Development missed (${total} vs ${target})`, "down");
@@ -221,11 +229,13 @@ export function applyAction(
         const clean = own(t, "dod");
         t.built.push({ id: f.id, buggy: !clean, shelved: false });
         if (!has(t, f.id)) t.portfolio.push(f.id);
+        unshelve(t, f.id);
         if (!clean) bug(fx, own(t, "agentic") ? 2 : 1);
         log(fx, `Pushed through: ${f.n}`, clean ? "" : "down");
       } else {
         t.built.push({ id: f.id, buggy: false, shelved: true });
-        log(fx, `Shelved: ${f.n}`);
+        if (!t.shelf.includes(f.id)) t.shelf.push(f.id);
+        log(fx, `Shelved: ${f.n} — on your shelf at half its Dev target`);
       }
       return t;
     }

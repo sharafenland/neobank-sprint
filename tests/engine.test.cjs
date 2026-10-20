@@ -331,6 +331,54 @@ for (const [name, strat] of Object.entries(strategies)) {
   check("drag raises the combined Development target", devTarget(t) > FEATURE_BY_ID.kyc.t);
 }
 
+// --- shelving keeps half the work, and the shelf outlives the table ---
+{
+  const { devTarget, shelvedTarget } = require("../.test-build/rules");
+  const seed = 7;
+  const session = { code: "X", seed, sprints: 8, sprint: 1, phase: 0, reveal_incident: true, reveal_event: true, finished: false };
+  const t = emptyTeamState();
+  const roster = [{ name: "G", customers: 0, bugs: 0 }];
+  const A = (a) => applyAction(t, session, roster, a);
+  const f = marketFor(seed, 1).find((id) => FEATURE_BY_ID[id].s === 1 && FEATURE_BY_ID[id].t >= 9);
+
+  syncToPhase(t, session);
+  A({ kind: "pick", feature: f });
+  A({ kind: "commit" });
+  session.phase = 1; syncToPhase(t, session);
+  // Force a miss: the shelve path only exists after one.
+  const realRandom = Math.random; Math.random = () => 0;
+  A({ kind: "rollDev" });
+  Math.random = realRandom;
+  check("a forced roll of 1 misses", t.dev && !t.dev.pass);
+  A({ kind: "decide", feature: f, how: "shelve" });
+  check("a shelved card goes on the shelf", t.shelf.includes(f) && !t.portfolio.includes(f));
+
+  // Jump to a sprint where the card has rotated off the table.
+  let later = 2;
+  while (marketFor(seed, later).includes(f)) later++;
+  session.sprint = later; session.phase = 0; syncToPhase(t, session);
+  check("the shelf survives the sprint reset", t.shelf.includes(f));
+  A({ kind: "pick", feature: f });
+  check("a shelved card can be picked after it left the table", t.picked.includes(f));
+  check("a shelved card counts half its Dev target, rounded up",
+    shelvedTarget(f) === Math.ceil(FEATURE_BY_ID[f].t / 2) && devTarget(t) === shelvedTarget(f));
+
+  A({ kind: "commit" });
+  session.phase = 1; syncToPhase(t, session);
+  Math.random = () => 0.999;
+  A({ kind: "rollDev" });
+  Math.random = realRandom;
+  check("building a shelved card takes it off the shelf", t.dev.pass && !t.shelf.includes(f) && t.portfolio.includes(f));
+
+  // A card neither on the table nor on the shelf is still refused.
+  const t2 = emptyTeamState();
+  const off = Object.keys(FEATURE_BY_ID).find((id) => !marketFor(seed, 1).includes(id));
+  let refused = false;
+  try { applyAction(t2, { ...session, sprint: 1, phase: 0 }, roster, { kind: "pick", feature: off }); }
+  catch (e) { refused = e instanceof GameError; }
+  check("a card off the table and off the shelf cannot be picked", refused);
+}
+
 // --- a market event may pay in investment points ---
 {
   const session = { code: "X", seed: 7, sprints: 4, sprint: 1, phase: 4, reveal_incident: true, reveal_event: true, finished: false };

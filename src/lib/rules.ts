@@ -86,8 +86,21 @@ export function legacyDrag(t: TeamState): number {
   return Math.min(DRAG_CAP, Math.max(0, Math.floor(product / 2) - platform));
 }
 
+export const onShelf = (t: TeamState, featureId: string) => (t.shelf ?? []).includes(featureId);
+
+/**
+ * Shelved work is not lost: the half that was done stays done. A card picked
+ * from the shelf counts half its Development target, rounded up — once, not
+ * again for every time it is shelved.
+ */
+export const shelvedTarget = (featureId: string) => Math.ceil(FEATURE_BY_ID[featureId].t / 2);
+
+export function cardDevTarget(t: TeamState, featureId: string): number {
+  return onShelf(t, featureId) ? shelvedTarget(featureId) : FEATURE_BY_ID[featureId].t;
+}
+
 export function devTarget(t: TeamState): number {
-  const raw = t.picked.reduce((a, id) => a + FEATURE_BY_ID[id].t, 0);
+  const raw = t.picked.reduce((a, id) => a + cardDevTarget(t, id), 0);
   const modular = own(t, "modular") && t.picked.length >= 2 ? 3 : 0;
   return Math.max(1, raw + legacyDrag(t) - modular);
 }
@@ -107,7 +120,7 @@ export function relBonus(t: TeamState): number {
 export function emptyTeamState(): TeamState {
   return {
     customers: 0, bugs: 0, findings: 0, ip: 0, ipSpent: 0, shipped: 0,
-    practices: [], portfolio: [],
+    practices: [], portfolio: [], shelf: [],
     picked: [], fix: { bugs: 0, findings: 0 },
     confirmed: false, dev: null, built: [], inc: null, rel: null, eventResolved: null,
     devMod: 0, blockRelease: false, ipPenalty: 0, retroPay: null,

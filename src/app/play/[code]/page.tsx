@@ -7,8 +7,8 @@ import { EVENT_BY_ID, FEATURE_BY_ID, INCIDENT_BY_ID, PHASES, PRACTICES, PRACTICE
 import { act } from "@/lib/client";
 import { INCIDENT_FX } from "@/lib/effects";
 import {
-  FIX_PER_SLOT, INFRA_CAP, IP_BONUS_FROM_SPRINT, capacity, devBonus, devTarget, infraBonus, legacyDrag,
-  maxFixSlots, mitBonus, own, relBonus, relTarget, releasing, usedSlots,
+  FIX_PER_SLOT, INFRA_CAP, IP_BONUS_FROM_SPRINT, capacity, cardDevTarget, devBonus, devTarget, infraBonus, legacyDrag,
+  maxFixSlots, mitBonus, onShelf, own, relBonus, relTarget, releasing, shelvedTarget, usedSlots,
 } from "@/lib/rules";
 import type { TeamState } from "@/lib/types";
 import { useGame } from "@/components/useGame";
@@ -129,7 +129,12 @@ export default function Play() {
                 {t.portfolio.map((f) => <span key={f} className="chip">{FEATURE_BY_ID[f].n}</span>)}
               </div>
             )}
-            {t.practices.length === 0 && t.portfolio.length === 0 && (
+            {(t.shelf ?? []).length > 0 && (
+              <div className="chips" style={{ borderTop: "1px solid var(--line)" }}>
+                {t.shelf.map((f) => <span key={f} className="chip" style={{ borderStyle: "dashed" }}>Shelved: {FEATURE_BY_ID[f].n}</span>)}
+              </div>
+            )}
+            {t.practices.length === 0 && t.portfolio.length === 0 && (t.shelf ?? []).length === 0 && (
               <div className="chips"><span className="empty" style={{ fontSize: 12.5 }}>Nothing shipped or adopted yet.</span></div>
             )}
           </div>
@@ -163,6 +168,27 @@ type Send = (action: unknown) => Promise<void>;
 function Planning({ t, market, busy, send }: { t: TeamState; market: string[]; busy: boolean; send: Send }) {
   const cap = capacity(t);
   const used = usedSlots(t);
+  const card = (id: string) => {
+    const on = t.picked.includes(id);
+    const size = FEATURE_BY_ID[id].s;
+    const tooBig = size > cap;
+    const noRoom = !tooBig && used + size > cap;
+    return (
+      <FeatureCard
+        key={id} id={id} on={on} shelved={onShelf(t, id)}
+        disabled={busy || (!on && (t.confirmed || tooBig || noRoom))}
+        reason={
+          on || t.confirmed ? undefined
+            : tooBig ? `Takes ${size} slots. Cross-Functional Team buys you the third.`
+            : noRoom ? "No slots left this sprint."
+            : undefined
+        }
+        onPick={(f) => send({ kind: "pick", feature: f })}
+      />
+    );
+  };
+  // A shelved card still on the table is shown there, once, carrying its discount.
+  const shelfOnly = (t.shelf ?? []).filter((id) => !market.includes(id));
   return (
     <>
       {t.findings >= 3 && (
@@ -170,27 +196,13 @@ function Planning({ t, market, busy, send }: { t: TeamState; market: string[]; b
           Three open findings. The supervisor has withheld one of your slots until you clear them.
         </p>
       )}
-      <div className="market">
-        {market.map((id) => {
-          const on = t.picked.includes(id);
-          const size = FEATURE_BY_ID[id].s;
-          const tooBig = size > cap;
-          const noRoom = !tooBig && used + size > cap;
-          return (
-            <FeatureCard
-              key={id} id={id} on={on}
-              disabled={busy || (!on && (t.confirmed || tooBig || noRoom))}
-              reason={
-                on || t.confirmed ? undefined
-                  : tooBig ? `Takes ${size} slots. Cross-Functional Team buys you the third.`
-                  : noRoom ? "No slots left this sprint."
-                  : undefined
-              }
-              onPick={(f) => send({ kind: "pick", feature: f })}
-            />
-          );
-        })}
-      </div>
+      <div className="market">{market.map(card)}</div>
+      {shelfOnly.length > 0 && (
+        <>
+          <p className="eyebrow" style={{ margin: "18px 0 8px" }}>Your shelf &mdash; half the Dev target, full slots</p>
+          <div className="market">{shelfOnly.map(card)}</div>
+        </>
+      )}
       <Remediation t={t} busy={busy} send={send} />
       <div className="spread" style={{ marginTop: 16 }}>
         <div className="calc">
@@ -273,7 +285,7 @@ function Development({ t, busy, send }: { t: TeamState; busy: boolean; send: Sen
       <div className="rollbox">
         <Die />
         <div className="calc">
-          Target <b>{devTarget(t)}</b> = {t.picked.map((id) => FEATURE_BY_ID[id].t).join(" + ")}
+          Target <b>{devTarget(t)}</b> = {t.picked.map((id) => cardDevTarget(t, id) + (onShelf(t, id) ? " (shelved)" : "")).join(" + ")}
           {legacyDrag(t) > 0 ? ` + ${legacyDrag(t)} legacy drag` : ""}
           {own(t, "modular") && t.picked.length >= 2 ? " − 3" : ""}<br />
           Roll <b>d20 {sgn(devBonus(t))}</b>
@@ -309,7 +321,7 @@ function Development({ t, busy, send }: { t: TeamState; busy: boolean; send: Sen
                       Push through {own(t, "dod") ? "(no bug)" : own(t, "agentic") ? "(+2 bugs)" : "(+1 bug)"}
                     </button>
                     <button className="btn sm ghost" disabled={busy} onClick={() => send({ kind: "decide", feature: id, how: "shelve" })}>
-                      Shelve{own(t, "flags") ? " (20% via flags)" : ""}
+                      Shelve (Dev {shelvedTarget(id)} next time{own(t, "flags") ? ", 20% via flags" : ""})
                     </button>
                   </>
                 )}
