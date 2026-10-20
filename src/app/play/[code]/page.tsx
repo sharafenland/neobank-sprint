@@ -92,12 +92,12 @@ export default function Play() {
               }
             />
             <div className="panel-body">
-              {phase.id === "planning" && <Planning t={t} market={view.market} busy={busy} send={send} />}
+              {phase.id === "planning" && <Planning t={t} market={view.market} lecture={s.teaching} busy={busy} send={send} />}
               {phase.id === "dev" && <Development t={t} busy={busy} send={send} />}
               {phase.id === "incident" && <Incident t={t} id={view.incidentId} revealed={s.reveal_incident} busy={busy} send={send} />}
               {phase.id === "release" && <Release t={t} busy={busy} send={send} />}
               {phase.id === "market" && <MarketEvent t={t} id={view.eventId} revealed={s.reveal_event} busy={busy} send={send} />}
-              {phase.id === "retro" && <Retro t={t} sprint={s.sprint} busy={busy} send={send} />}
+              {phase.id === "retro" && <Retro t={t} sprint={s.sprint} lecture={s.teaching} busy={busy} send={send} />}
             </div>
           </div>
         </div>
@@ -165,7 +165,7 @@ export default function Play() {
 
 type Send = (action: unknown) => Promise<void>;
 
-function Planning({ t, market, busy, send }: { t: TeamState; market: string[]; busy: boolean; send: Send }) {
+function Planning({ t, market, lecture, busy, send }: { t: TeamState; market: string[]; lecture: boolean; busy: boolean; send: Send }) {
   const cap = capacity(t);
   const used = usedSlots(t);
   const card = (id: string) => {
@@ -175,7 +175,7 @@ function Planning({ t, market, busy, send }: { t: TeamState; market: string[]; b
     const noRoom = !tooBig && used + size > cap;
     return (
       <FeatureCard
-        key={id} id={id} on={on} shelved={onShelf(t, id)}
+        key={id} id={id} on={on} shelved={onShelf(t, id)} lecture={lecture}
         disabled={busy || (!on && (t.confirmed || tooBig || noRoom))}
         reason={
           on || t.confirmed ? undefined
@@ -452,7 +452,7 @@ function MarketEvent({ t, id, revealed, busy, send }: { t: TeamState; id: string
   );
 }
 
-function Retro({ t, sprint, busy, send }: { t: TeamState; sprint: number; busy: boolean; send: Send }) {
+function Retro({ t, sprint, lecture, busy, send }: { t: TeamState; sprint: number; lecture: boolean; busy: boolean; send: Send }) {
   const pay = t.retroPay;
   return (
     <>
@@ -489,7 +489,7 @@ function Retro({ t, sprint, busy, send }: { t: TeamState; sprint: number; busy: 
             >
               <span className="ph"><span className="pn">{p.n}</span><span className="cost">{owned ? "owned" : `${p.ip} IP`}</span></span>
               <span className="eff">{p.e}</span>
-              <span className="src">{p.src}</span>
+              {lecture && <span className="src">{p.src}</span>}
             </button>
           );
         })}

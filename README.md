@@ -12,7 +12,8 @@ Adapted from the CatTube sprint game, which is itself inspired by the
 ## Running a session
 
 1. Open `/host`, choose the number of sprints and the slots per group per
-   sprint (1–4, default 2), create the session.
+   sprint (1–4, default 2), and whether to show lecture notes (default off),
+   then create the session.
 2. Write the four-character code on the board.
 3. Groups open the start page, enter the code and a group name — one device per group.
 4. You drive the phases from the facilitator console. Groups cannot skip ahead.
@@ -31,8 +32,8 @@ choice is remembered per device. The status line underneath is not collapsible:
 those numbers are what a group checks between every roll. `/rules` shows the
 sheet open, since reading it is the point of that page.
 
-The facilitator's rail reads: access code, cheat sheet, teaching point, live
-standings. The teaching point is collapsed too, but its heading stays visible —
+The facilitator's rail reads: access code, cheat sheet, teaching point (with
+lecture notes on), live standings. The teaching point is collapsed too, but its heading stays visible —
 "Scope is a commitment, not a wish list" already says most of it; the paragraph
 behind it is what you read out.
 
@@ -40,6 +41,19 @@ Each phase names the roll it is asking for — **Roll to build**, **Roll to
 mitigate**, **Roll to release** — rather than naming the action, so it is always
 obvious that a die is about to decide something. `/rules` has the same sheet plus every
 card, for students to open on a phone or for the projector before you start.
+
+### Lecture notes
+
+Everything that only makes sense inside the course is behind one switch, and
+it is **off by default** so that a host outside the university is not shown
+references to lectures they never gave: the teaching point in the
+facilitator's rail, the "Session N" label on every feature and practice card,
+the course line in the retro text, and the lesson printed under each debrief
+question (the questions themselves stay). Turn it on at `/host`, or switch it
+from the facilitator console at any point — every device in the session
+follows on its next poll. `/rules` belongs to no session, so it has its own
+toggle for the card labels, also off by default. The printed handout is the
+course handout and always carries them.
 
 ### Changing your mind about the length
 
@@ -167,7 +181,7 @@ session it comes from. `Agentic Coding` (Session 5) is deliberately
 double-edged: +3 on Development, but pushing unfinished work through costs two
 bugs instead of one.
 
-**Cards carry their session.** The platform cards and the practices are the
+**Cards carry their session** (with lecture notes on). The platform cards and the practices are the
 course content, each labelled with the lecture it comes from, so a group
 choosing between two cards is choosing between two lectures:
 
@@ -366,7 +380,7 @@ project.
 
 ## Schema
 
-Three tables: `sessions` (code, seed, sprints, slots, sprint, phase, host token), `teams`
+Three tables: `sessions` (code, seed, sprints, slots, teaching, sprint, phase, host token), `teams`
 (one row per group, whole state as `jsonb`) and `audit_log` (append-only, every
 action with its sprint and phase). The audit log is not read by the app — it is
 there so you can show the students afterwards what their own decisions looked

@@ -10,6 +10,7 @@ create table if not exists sessions (
   reveal_event      boolean     not null default false,
   finished          boolean     not null default false,
   slots             integer     not null default 2,
+  teaching          boolean     not null default false,
   host_token        text        not null,
   created_at        timestamptz not null default now(),
   updated_at        timestamptz not null default now()
@@ -18,6 +19,7 @@ create table if not exists sessions (
 -- Added after the first release: `create table if not exists` leaves an
 -- existing table alone, so the column has to be added on its own.
 alter table sessions add column if not exists slots integer not null default 2;
+alter table sessions add column if not exists teaching boolean not null default false;
 
 create table if not exists teams (
   id          uuid        primary key default gen_random_uuid(),

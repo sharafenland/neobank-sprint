@@ -125,6 +125,12 @@ export interface SessionRow {
   sprints: number;
   /** Base capacity per group per sprint, chosen by the facilitator. */
   slots: number;
+  /**
+   * Lecture mode: teaching points, the course session printed on each card,
+   * and the lessons under the debrief questions. Off by default, so a host
+   * outside the course is not shown references to lectures they never gave.
+   */
+  teaching: boolean;
   sprint: number;
   phase: number;
   reveal_incident: boolean;

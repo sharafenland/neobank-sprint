@@ -10,6 +10,7 @@ export default function HostSetup() {
   const router = useRouter();
   const [sprints, setSprints] = useState(6);
   const [slots, setSlots] = useState<number>(DEFAULT_SLOTS);
+  const [teaching, setTeaching] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,7 +18,7 @@ export default function HostSetup() {
     setBusy(true);
     setError(null);
     try {
-      const { code, hostToken } = await createSession(sprints, slots);
+      const { code, hostToken } = await createSession(sprints, slots, teaching);
       writeToken("host", code, hostToken);
       router.push(`/facilitator/${code}`);
     } catch (err) {
@@ -63,6 +64,18 @@ export default function HostSetup() {
               ? "Generous: bigger batches from sprint 1, and the three-slot migrations are takeable as soon as they are dealt."
               : "The balanced default. The three-slot migrations need Cross-Functional Team."}
           {" "}Cross-Functional Team adds one; three open findings take one away.
+        </p>
+      </div>
+
+      <div className="field">
+        <span className="lbl">Lecture notes</span>
+        <div className="seg" role="group" aria-label="Lecture notes">
+          <button aria-pressed={!teaching} onClick={() => setTeaching(false)}>Off</button>
+          <button aria-pressed={teaching} onClick={() => setTeaching(true)}>On &middot; for the FSE course</button>
+        </div>
+        <p style={{ margin: "6px 0 0", fontSize: 12.5, color: "var(--muted)", maxWidth: "62ch" }}>
+          Teaching points for each phase, the course session on every card, and the lesson behind each debrief
+          question. Leave it off unless you are teaching the course. You can switch it from the console at any time.
         </p>
       </div>
 

@@ -74,7 +74,7 @@ export default function Facilitator() {
                     of the sprint, picked or not. Platform cards earn few customers and pay a permanent modifier
                     instead; a group that only ships product picks up legacy drag on every later Development roll.
                   </p>
-                  <div className="market">{view.market.map((id) => <FeatureCard key={id} id={id} />)}</div>
+                  <div className="market">{view.market.map((id) => <FeatureCard key={id} id={id} lecture={s.teaching} />)}</div>
                 </>
               )}
 
@@ -149,14 +149,14 @@ export default function Facilitator() {
                   <p style={{ margin: "0 0 14px", color: "var(--muted)", fontSize: 13.5 }}>
                     Two points each, three when a group handled its incident or ended the sprint with no bugs &mdash;
                     never both, and not before sprint 3. Points expire with the sprint, so every retro is a decision.
-                    Twelve practices; each card names the session it comes from.
+                    Twelve practices{s.teaching ? "; each card names the session it comes from" : ""}.
                   </p>
                   <div className="shop">
                     {PRACTICES.map((p) => (
                       <div key={p.id} className="pcard" style={{ cursor: "default" }}>
                         <span className="ph"><span className="pn">{p.n}</span><span className="cost">{p.ip} IP</span></span>
                         <span className="eff">{p.e}</span>
-                        <span className="src">{p.src}</span>
+                        {s.teaching && <span className="src">{p.src}</span>}
                       </div>
                     ))}
                   </div>
@@ -176,7 +176,11 @@ export default function Facilitator() {
             </div>
           </div>
           <CheatSheet phase={phase} />
-          <TeachingNote phase={phase} />
+          {s.teaching && <TeachingNote phase={phase} />}
+          <button className="btn ghost sm" style={{ alignSelf: "flex-start" }}
+            onClick={() => run(s.teaching ? "hideTeaching" : "showTeaching")}>
+            {s.teaching ? "Hide lecture notes" : "Show lecture notes"}
+          </button>
           <Roster view={view} />
         </aside>
       </main>
@@ -275,7 +279,7 @@ function Debrief({ view }: { view: NonNullable<ReturnType<typeof useGame>["view"
             </div>
             <p className="eyebrow" style={{ marginBottom: 10 }}>Debrief &middot; 15 minutes, in this order</p>
             <ol className="debrief" style={{ padding: 0, margin: 0 }}>
-              {questions.map(([q, w]) => <li key={q}>{q}<span>{w}</span></li>)}
+              {questions.map(([q, w]) => <li key={q}>{q}{view.session.teaching && <span>{w}</span>}</li>)}
             </ol>
           </div>
         </div>

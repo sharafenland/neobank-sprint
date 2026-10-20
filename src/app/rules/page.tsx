@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { FEATURES, PHASES, PRACTICES } from "@/lib/cards";
 import { CheatSheet, FeatureCard } from "@/components/ui";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
@@ -9,6 +10,8 @@ import { ThemeSwitch } from "@/components/ThemeSwitch";
 export default function Rules() {
   const product = FEATURES.filter((f) => f.c !== "platform");
   const platform = FEATURES.filter((f) => f.c === "platform");
+  // Not tied to a session, so it follows the same default a new session gets.
+  const [lecture, setLecture] = useState(false);
 
   return (
     <div className="setup" style={{ maxWidth: 980 }}>
@@ -108,11 +111,17 @@ export default function Rules() {
         Taking no new work is always allowed.
       </p>
 
+      <p style={{ margin: "30px 0 0" }}>
+        <button className="btn ghost sm" onClick={() => setLecture((v) => !v)}>
+          {lecture ? "Hide course sessions on the cards" : "Show course sessions on the cards"}
+        </button>
+      </p>
+
       <h2 style={{ fontSize: 21, margin: "30px 0 8px" }}>Product cards <span className="mono" style={{ fontSize: 13, color: "var(--faint)" }}>{product.length}</span></h2>
-      <div className="market">{product.map((f) => <FeatureCard key={f.id} id={f.id} />)}</div>
+      <div className="market">{product.map((f) => <FeatureCard key={f.id} id={f.id} lecture={lecture} />)}</div>
 
       <h2 style={{ fontSize: 21, margin: "30px 0 8px" }}>Platform cards <span className="mono" style={{ fontSize: 13, color: "var(--faint)" }}>{platform.length}</span></h2>
-      <div className="market">{platform.map((f) => <FeatureCard key={f.id} id={f.id} />)}</div>
+      <div className="market">{platform.map((f) => <FeatureCard key={f.id} id={f.id} lecture={lecture} />)}</div>
 
       <h2 style={{ fontSize: 21, margin: "30px 0 8px" }}>Agile practices <span className="mono" style={{ fontSize: 13, color: "var(--faint)" }}>{PRACTICES.length}</span></h2>
       <div className="shop">
@@ -120,7 +129,7 @@ export default function Rules() {
           <div key={p.id} className="pcard" style={{ cursor: "default" }}>
             <span className="ph"><span className="pn">{p.n}</span><span className="cost">{p.ip} IP</span></span>
             <span className="eff">{p.e}</span>
-            <span className="src">{p.src}</span>
+            {lecture && <span className="src">{p.src}</span>}
           </div>
         ))}
       </div>

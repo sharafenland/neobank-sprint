@@ -12,15 +12,15 @@ export interface TeamRow {
   state: TeamState;
 }
 
-export async function createSession(sprints: number, slots: number) {
+export async function createSession(sprints: number, slots: number, teaching: boolean) {
   const hostToken = makeToken();
   const seed = Math.floor(Math.random() * 2 ** 31);
 
   for (let attempt = 0; attempt < 8; attempt++) {
     const code = makeCode();
     const rows = (await sql`
-      insert into sessions (code, seed, sprints, slots, host_token)
-      values (${code}, ${seed}, ${sprints}, ${slots}, ${hostToken})
+      insert into sessions (code, seed, sprints, slots, teaching, host_token)
+      values (${code}, ${seed}, ${sprints}, ${slots}, ${teaching}, ${hostToken})
       on conflict (code) do nothing
       returning code
     `) as unknown as { code: string }[];
@@ -31,7 +31,7 @@ export async function createSession(sprints: number, slots: number) {
 
 export async function getSession(code: string): Promise<SessionRow | null> {
   const rows = (await sql`
-    select code, seed, sprints, slots, sprint, phase, reveal_incident, reveal_event, finished
+    select code, seed, sprints, slots, teaching, sprint, phase, reveal_incident, reveal_event, finished
     from sessions where code = ${code}
   `) as unknown as SessionRow[];
   return rows[0] ?? null;
@@ -90,6 +90,10 @@ export async function setPhase(code: string, sprint: number, phase: number, fini
 
 export async function setSprints(code: string, sprints: number) {
   await sql`update sessions set sprints = ${sprints}, updated_at = now() where code = ${code}`;
+}
+
+export async function setTeaching(code: string, on: boolean) {
+  await sql`update sessions set teaching = ${on}, updated_at = now() where code = ${code}`;
 }
 
 export async function finishSession(code: string) {

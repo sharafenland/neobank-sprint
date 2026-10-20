@@ -137,8 +137,8 @@ export function CheatSheet({ t, phase, alwaysOpen = false }: { t?: TeamState; ph
 }
 
 export function FeatureCard({
-  id, on = false, disabled = false, reason, shelved = false, onPick,
-}: { id: string; on?: boolean; disabled?: boolean; reason?: string; shelved?: boolean; onPick?: (id: string) => void }) {
+  id, on = false, disabled = false, reason, shelved = false, lecture = false, onPick,
+}: { id: string; on?: boolean; disabled?: boolean; reason?: string; shelved?: boolean; lecture?: boolean; onPick?: (id: string) => void }) {
   const f = FEATURE_BY_ID[id];
   const inner = (
     <>
@@ -149,7 +149,7 @@ export function FeatureCard({
         </span>
       </span>
       <span className="ttl">{f.n}</span>
-      {f.src && <span className="src">{f.src}</span>}
+      {lecture && f.src && <span className="src">{f.src}</span>}
       <span className="blurb">{f.b}</span>
       {f.bonus && (
         <span className="bonus">

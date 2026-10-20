@@ -39,6 +39,13 @@ const { code, hostToken } = created.json;
 console.log(`  code ${code}\n`);
 const fresh = (await call(`/api/sessions/${code}`)).json;
 check("a session without a slot choice gets the default of 2", fresh.session?.slots === 2, fresh.session);
+check("lecture notes are off unless asked for", fresh.session?.teaching === false, fresh.session);
+const groupToggles = await call(`/api/sessions/${code}/phase`, { method: "POST", body: { op: "showTeaching" } });
+check("a group cannot switch lecture notes", groupToggles.status === 403, groupToggles.json);
+await call(`/api/sessions/${code}/phase`, { method: "POST", body: { op: "showTeaching" }, host: hostToken });
+check("the facilitator can switch lecture notes on", (await call(`/api/sessions/${code}`)).json.session?.teaching === true);
+await call(`/api/sessions/${code}/phase`, { method: "POST", body: { op: "hideTeaching" }, host: hostToken });
+check("and off again", (await call(`/api/sessions/${code}`)).json.session?.teaching === false);
 
 const roomy = await call("/api/sessions", { method: "POST", body: { sprints: SPRINTS, slots: 3 } });
 const roomyView = (await call(`/api/sessions/${roomy.json.code}`)).json;

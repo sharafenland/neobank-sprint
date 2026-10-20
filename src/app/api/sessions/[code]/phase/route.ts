@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { PHASES } from "@/lib/cards";
 import { syncToPhase } from "@/lib/engine";
-import { finishSession, getSession, isHost, listTeams, saveTeam, setPhase, setReveal, setSprints, writeAudit } from "@/lib/store";
+import { finishSession, getSession, isHost, listTeams, saveTeam, setPhase, setReveal, setSprints, setTeaching, writeAudit } from "@/lib/store";
 
 /** A session can be extended, but not without end. */
 const MAX_SPRINTS = 12;
@@ -21,6 +21,12 @@ export async function POST(req: Request, ctx: { params: Promise<{ code: string }
   if (op === "revealIncident" || op === "revealEvent") {
     await setReveal(session.code, op === "revealIncident" ? "incident" : "event");
     return NextResponse.json({ ok: true });
+  }
+
+  // Lecture notes can be switched at any point; nothing in the game depends on them.
+  if (op === "showTeaching" || op === "hideTeaching") {
+    await setTeaching(session.code, op === "showTeaching");
+    return NextResponse.json({ ok: true, teaching: op === "showTeaching" });
   }
 
   // Stop after the sprint in progress, whatever the plan said.

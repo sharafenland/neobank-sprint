@@ -12,6 +12,7 @@ export async function POST(req: Request) {
   if (!(SLOT_CHOICES as readonly number[]).includes(slots)) {
     return NextResponse.json({ error: `Pick ${SLOT_CHOICES.join(", ")} slots per sprint.` }, { status: 400 });
   }
-  const created = await createSession(sprints, slots);
+  // Lecture notes are opt-in: only an explicit true turns them on.
+  const created = await createSession(sprints, slots, body.teaching === true);
   return NextResponse.json(created, { status: 201 });
 }
