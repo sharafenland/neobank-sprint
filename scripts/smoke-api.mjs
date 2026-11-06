@@ -205,6 +205,59 @@ console.log("  final:", JSON.stringify(lastCustomers));
   check("extending stops at twelve sprints", tooMany.status === 400, tooMany.json);
 }
 
+// ---- solo: one device hosts and plays, bots fill the room ----
+{
+  const solo = await call("/api/sessions", { method: "POST", body: { sprints: 3, solo: true, bots: 2, name: "Solo Bank" } });
+  check("a solo game is created with a team key", solo.status === 201 && !!solo.json.teamToken, solo.json);
+  const { code: sc, hostToken: sh, teamToken: st } = solo.json;
+  const view = async () => (await call(`/api/sessions/${sc}`, { host: sh, team: st })).json;
+
+  let v = await view();
+  check("solo: the player and two bots are in the room", v.teams.length === 3 && v.teams.filter((t) => t.bot).length === 2,
+    v.teams.map((t) => `${t.name}:${t.bot ?? "human"}`).join(" "));
+  check("solo: the device is host and team at once", v.isHost === true && v.you?.name === "Solo Bank");
+  check("solo: bots have already planned", v.teams.filter((t) => t.bot).every((t) => t.phaseDone));
+
+  const steal = await call(`/api/sessions/${sc}/teams`, { method: "POST", body: { name: "Rocket Bank" } });
+  check("joining under a bot's name is refused", steal.status === 409, steal.json);
+
+  await call(`/api/sessions/${sc}/actions`, { method: "POST", body: { kind: "pick", feature: v.market[0] }, team: st });
+  await call(`/api/sessions/${sc}/actions`, { method: "POST", body: { kind: "commit" }, team: st });
+  await call(`/api/sessions/${sc}/phase`, { method: "POST", body: { op: "next" }, host: sh });
+  v = await view();
+  check("solo: bots rolled for Development", v.teams.filter((t) => t.bot).every((t) => t.phaseDone));
+
+  await call(`/api/sessions/${sc}/phase`, { method: "POST", body: { op: "next" }, host: sh });
+  v = await view();
+  check("solo: the incident turns over by itself", v.session.reveal_incident === true, v.session);
+  check("solo: bots played the incident", v.teams.filter((t) => t.bot).every((t) => t.phaseDone));
+}
+
+// ---- a group game can take bots, from setup and from the console ----
+{
+  const g = (await call("/api/sessions", { method: "POST", body: { sprints: 3, bots: 1 } })).json;
+  let v = (await call(`/api/sessions/${g.code}`, { host: g.hostToken })).json;
+  check("a group game starts with the bots it asked for", v.teams.length === 1 && v.teams[0].bot, v.teams);
+  check("cards in a group game stay face down", v.session.reveal_incident === false);
+
+  const add = await call(`/api/sessions/${g.code}/phase`, { method: "POST", body: { op: "addBot" }, host: g.hostToken });
+  v = (await call(`/api/sessions/${g.code}`, { host: g.hostToken })).json;
+  check("the facilitator can add a bot", add.status === 200 && v.teams.length === 2 && v.teams[0].bot !== v.teams[1].bot, v.teams);
+  const notHost = await call(`/api/sessions/${g.code}/phase`, { method: "POST", body: { op: "addBot" } });
+  check("adding a bot needs the host token", notHost.status === 403);
+  await call(`/api/sessions/${g.code}/phase`, { method: "POST", body: { op: "addBot" }, host: g.hostToken });
+  const fourth = await call(`/api/sessions/${g.code}/phase`, { method: "POST", body: { op: "addBot" }, host: g.hostToken });
+  check("a room takes at most three bots", fourth.status === 400, fourth.json);
+
+  // Bots wait for the facilitator to turn the incident over.
+  for (let i = 0; i < 2; i++) await call(`/api/sessions/${g.code}/phase`, { method: "POST", body: { op: "next" }, host: g.hostToken });
+  v = (await call(`/api/sessions/${g.code}`, { host: g.hostToken })).json;
+  const waiting = v.teams.filter((t) => !t.phaseDone).length;
+  await call(`/api/sessions/${g.code}/phase`, { method: "POST", body: { op: "revealIncident" }, host: g.hostToken });
+  v = (await call(`/api/sessions/${g.code}`, { host: g.hostToken })).json;
+  check("bots play the incident once it is revealed", v.teams.every((t) => t.phaseDone), `${waiting} waiting before`);
+}
+
 const missing = await call("/api/sessions/ZZZZ");
 check("an unknown code is a 404", missing.status === 404);
 

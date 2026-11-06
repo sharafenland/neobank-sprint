@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { GameError, applyAction, syncToPhase, type Action } from "@/lib/engine";
-import { getSession, getTeamByToken, listTeams, saveTeam, writeAudit } from "@/lib/store";
+import { getSession, getTeamByToken, listTeams, rosterEntry, saveTeam, writeAudit } from "@/lib/store";
 
 export async function POST(req: Request, ctx: { params: Promise<{ code: string }> }) {
   const { code } = await ctx.params;
@@ -16,11 +16,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ code: string }
     return NextResponse.json({ error: "Malformed action." }, { status: 400 });
   }
 
-  const roster = (await listTeams(session.code)).map((t) => ({
-    name: t.name,
-    customers: t.state.customers,
-    bugs: t.state.bugs,
-  }));
+  const roster = (await listTeams(session.code)).map(rosterEntry);
 
   try {
     const state = applyAction(syncToPhase(team.state, session), session, roster, action);

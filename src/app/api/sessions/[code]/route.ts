@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { eventIdFor, incidentIdFor, marketFor } from "@/lib/derive";
-import { phaseDone } from "@/lib/engine";
+import { eventIdFor, incidentIdFor } from "@/lib/derive";
+import { phaseDone, tableFor } from "@/lib/engine";
 import { avgRoll } from "@/lib/rules";
-import { getSession, getTeamByToken, isHost, listTeams } from "@/lib/store";
+import { getSession, getTeamByToken, isHost, listTeams, rosterEntry } from "@/lib/store";
 import type { GameView } from "@/lib/types";
 
 export async function GET(req: Request, ctx: { params: Promise<{ code: string }> }) {
@@ -20,12 +20,13 @@ export async function GET(req: Request, ctx: { params: Promise<{ code: string }>
 
   const view: GameView & { isHost: boolean } = {
     session,
-    market: marketFor(session.seed, session.sprint),
+    market: tableFor(session, teams.map(rosterEntry)),
     incidentId: incidentIdFor(session.seed, session.sprint),
     eventId: eventIdFor(session.seed, session.sprint),
     isHost: host,
     teams: teams.map((t) => ({
       name: t.name,
+      ...(t.state.bot ? { bot: t.state.bot } : {}),
       customers: t.state.customers,
       shipped: t.state.shipped ?? 0,
       avgRoll: avgRoll(t.state),

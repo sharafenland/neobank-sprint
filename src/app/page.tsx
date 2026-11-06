@@ -31,6 +31,15 @@ export default function Landing() {
         </div>
 
         <div className="mode">
+          <span className="k">Solo</span>
+          <span className="t">Play on your own</span>
+          <span className="d">
+            One bank, your pace. Race up to three bot rivals, or play without them and go for a medal.
+          </span>
+          <Link className="btn" href="/solo">Start a solo game</Link>
+        </div>
+
+        <div className="mode">
           <span className="k">Groups</span>
           <span className="t">Join with a code</span>
           <span className="d">One device per group. Your own backlog, dice, bug count and practice shop.</span>

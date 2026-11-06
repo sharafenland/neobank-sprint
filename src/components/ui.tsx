@@ -7,6 +7,12 @@ import type { BonusPart, TeamState } from "@/lib/types";
 
 export const sgn = (n: number) => (n > 0 ? "+" : "") + n;
 
+/** Marks a computer-played bank wherever team names are listed. */
+export function BotTag({ kind }: { kind?: string }) {
+  if (!kind) return null;
+  return <span className="bottag" title="Played by the computer">bot</span>;
+}
+
 /** Where every point of a roll's modifier comes from, one reason per line. */
 export function Breakdown({ parts }: { parts?: BonusPart[] }) {
   if (!parts?.length) return null;

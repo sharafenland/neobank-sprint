@@ -1,7 +1,14 @@
 import { NextResponse } from "next/server";
 import { PHASES } from "@/lib/cards";
 import { syncToPhase } from "@/lib/engine";
-import { finishSession, getSession, isHost, listTeams, saveTeam, setPhase, setReveal, setSprints, setTeaching, writeAudit } from "@/lib/store";
+import { nextBotKind } from "@/lib/bots";
+import {
+  addBot, finishSession, getSession, isHost, listTeams, playBots, saveTeam, setPhase, setReveal, setSprints, setTeaching,
+  writeAudit,
+} from "@/lib/store";
+
+/** More than this and the bots outnumber a small room. */
+const MAX_BOTS = 3;
 
 /** A session can be extended, but not without end. */
 const MAX_SPRINTS = 12;
@@ -20,7 +27,22 @@ export async function POST(req: Request, ctx: { params: Promise<{ code: string }
 
   if (op === "revealIncident" || op === "revealEvent") {
     await setReveal(session.code, op === "revealIncident" ? "incident" : "event");
+    // Bots play a card only once the room can see it.
+    await playBots(op === "revealIncident" ? { ...session, reveal_incident: true } : { ...session, reveal_event: true });
     return NextResponse.json({ ok: true });
+  }
+
+  if (op === "addBot") {
+    if (session.finished) return NextResponse.json({ error: "The session is over." }, { status: 409 });
+    const teams = await listTeams(session.code);
+    const bots = teams.filter((t) => t.state.bot);
+    if (bots.length >= MAX_BOTS) {
+      return NextResponse.json({ error: `${MAX_BOTS} bots is the most a room can take.` }, { status: 400 });
+    }
+    const name = await addBot(session, nextBotKind(bots.map((t) => t.state.bot)));
+    await playBots(session);
+    await writeAudit(session.code, name, session.sprint, session.phase, "addBot", { name });
+    return NextResponse.json({ ok: true, name });
   }
 
   // Lecture notes can be switched at any point; nothing in the game depends on them.
@@ -61,12 +83,16 @@ export async function POST(req: Request, ctx: { params: Promise<{ code: string }
     return NextResponse.json({ error: "Unknown operation." }, { status: 400 });
   }
 
-  await setPhase(session.code, sprint, phase, finished);
+  await setPhase(session.code, sprint, phase, finished, session.solo);
 
   // Apply whatever the new phase does to each group, once.
-  const next = { ...session, sprint, phase, finished };
+  const next = {
+    ...session, sprint, phase, finished,
+    reveal_incident: session.solo, reveal_event: session.solo,
+  };
   const teams = await listTeams(session.code);
   await Promise.all(teams.map((t) => saveTeam(t.id, syncToPhase(t.state, next))));
+  await playBots(next);
   await writeAudit(session.code, null, sprint, phase, "phase", { op });
 
   return NextResponse.json({ ok: true, sprint, phase, finished });

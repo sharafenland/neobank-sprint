@@ -1,5 +1,8 @@
 export type Category = "core" | "growth" | "compliance" | "platform";
 
+/** The strategies a computer-controlled bank can play. See lib/bots.ts. */
+export type BotKind = "growth" | "balanced" | "platform";
+
 export interface Feature {
   id: string;
   n: string;
@@ -37,11 +40,17 @@ export interface Practice {
  * the features that make the card mean something; `needsCount` is how many of
  * them must be showable (default: all of them).
  *
- * Cards whose counter-play is a *practice* need nothing: the shop is always open.
+ * Cards whose counter-play is a *practice* need no feature, only `earliest: 2`:
+ * the shop opens at the end of sprint 1.
  */
 export interface CardDeps {
   needs?: string[];
   needsCount?: number;
+  /**
+   * First sprint the card may be dealt. For cards whose only answer is a
+   * practice: nobody can own one before the first retro.
+   */
+  earliest?: number;
   /** Key into the icon set in components/CardIcon.tsx. */
   icon?: string;
 }
@@ -83,6 +92,8 @@ export interface LogEntry {
 }
 
 export interface TeamState {
+  /** Set for a computer-controlled bank; the server plays its moves. */
+  bot?: BotKind;
   customers: number;
   bugs: number;
   findings: number;
@@ -119,6 +130,12 @@ export interface TeamState {
   eventResolved: { d: number; f: number; w: string } | null;
 
   devMod: number;
+  /**
+   * A Development modifier earned now but owed to the next sprint. Incidents
+   * come after Development, so a penalty they hand out can only bite on the
+   * next roll; resetSprint moves it into devMod.
+   */
+  devModNext?: number;
   blockRelease: boolean;
   ipPenalty: number;
   /** What the retro paid and why, for the panel to explain itself. */
@@ -147,6 +164,11 @@ export interface SessionRow {
    * outside the course is not shown references to lectures they never gave.
    */
   teaching: boolean;
+  /**
+   * One person plays and drives the room from the same device. Incident and
+   * market cards turn over by themselves, since nobody is there to do it.
+   */
+  solo: boolean;
   sprint: number;
   phase: number;
   reveal_incident: boolean;
@@ -156,6 +178,7 @@ export interface SessionRow {
 
 export interface TeamSummary {
   name: string;
+  bot?: BotKind;
   customers: number;
   shipped: number;
   /** Average raw d20 over the game, or null before the first roll. */

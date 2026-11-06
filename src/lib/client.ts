@@ -34,13 +34,22 @@ async function parse(res: Response) {
 export async function fetchView(code: string): Promise<View> {
   return parse(await fetch(`/api/sessions/${code}`, { headers: authHeaders(code), cache: "no-store" }));
 }
-export async function createSession(sprints: number, slots: number, teaching: boolean): Promise<{ code: string; hostToken: string }> {
-  return parse(await fetch(`/api/sessions`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sprints, slots, teaching }) }));
+export interface NewSession {
+  sprints: number;
+  slots: number;
+  teaching: boolean;
+  bots?: number;
+  /** Solo: this device hosts and plays; `name` is the player's bank. */
+  solo?: boolean;
+  name?: string;
+}
+export async function createSession(opts: NewSession): Promise<{ code: string; hostToken: string; teamToken?: string }> {
+  return parse(await fetch(`/api/sessions`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(opts) }));
 }
 export async function joinSession(code: string, name: string): Promise<{ token: string; name: string }> {
   return parse(await fetch(`/api/sessions/${code}/teams`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ name }) }));
 }
-export type HostOp = "next" | "back" | "revealIncident" | "revealEvent" | "finish" | "extend" | "showTeaching" | "hideTeaching";
+export type HostOp = "next" | "back" | "revealIncident" | "revealEvent" | "finish" | "extend" | "showTeaching" | "hideTeaching" | "addBot";
 
 export async function hostOp(code: string, op: HostOp) {
   return parse(await fetch(`/api/sessions/${code}/phase`, { method: "POST", headers: authHeaders(code), body: JSON.stringify({ op }) }));

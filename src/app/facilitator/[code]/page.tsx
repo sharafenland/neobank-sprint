@@ -7,7 +7,7 @@ import { EVENT_BY_ID, INCIDENT_BY_ID, PHASES, PRACTICES } from "@/lib/cards";
 import { hostOp, type HostOp } from "@/lib/client";
 import { useGame } from "@/components/useGame";
 import { CardIcon } from "@/components/CardIcon";
-import { CheatSheet, ErrorBar, FeatureCard, PhaseHead, Stepper, TeachingNote, Timer } from "@/components/ui";
+import { BotTag, CheatSheet, ErrorBar, FeatureCard, PhaseHead, Stepper, TeachingNote, Timer } from "@/components/ui";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
 
 export default function Facilitator() {
@@ -172,7 +172,11 @@ export default function Facilitator() {
             <div className="lab">Access code</div>
             <div className="val">{s.code}</div>
             <div className="side">
-              {view.teams.length} group{view.teams.length === 1 ? "" : "s"} joined &middot; {s.sprints} sprints &middot; {s.slots ?? 2} slot{(s.slots ?? 2) === 1 ? "" : "s"}
+              {(() => {
+                const bots = view.teams.filter((t) => t.bot).length;
+                const groups = view.teams.length - bots;
+                return `${groups} group${groups === 1 ? "" : "s"} joined${bots ? ` + ${bots} bot${bots === 1 ? "" : "s"}` : ""}`;
+              })()} &middot; {s.sprints} sprints &middot; {s.slots ?? 2} slot{(s.slots ?? 2) === 1 ? "" : "s"}
             </div>
           </div>
           <CheatSheet phase={phase} />
@@ -182,6 +186,11 @@ export default function Facilitator() {
             {s.teaching ? "Hide lecture notes" : "Show lecture notes"}
           </button>
           <Roster view={view} />
+          {view.teams.filter((t) => t.bot).length < 3 && (
+            <button className="btn ghost sm" style={{ alignSelf: "flex-start" }} onClick={() => run("addBot")}>
+              Add a bot rival
+            </button>
+          )}
         </aside>
       </main>
 
@@ -226,7 +235,7 @@ function Roster({ view }: { view: ReturnType<typeof useGame>["view"] & object })
           <div key={t.name} className="ledger">
             <div className="ledger-h">
               <span className="rank mono" style={{ color: "var(--faint)", fontSize: 13 }}>{i + 1}</span>
-              <b>{t.name}</b>
+              <b>{t.name}</b><BotTag kind={t.bot} />
               {t.phaseDone && <span className="tick" style={{ color: "var(--good)", fontFamily: "var(--mono)", fontSize: 11 }}>&#10003;</span>}
               <span className="score">{t.customers}k</span>
             </div>
@@ -270,7 +279,7 @@ function Debrief({ view }: { view: NonNullable<ReturnType<typeof useGame>["view"
                 <div key={t.name} className={`prow ${i === 0 ? "first" : ""}`}>
                   <span className="rank">{i + 1}</span>
                   <span>
-                    <span className="nm">{t.name}</span>
+                    <span className="nm">{t.name}<BotTag kind={t.bot} /></span>
                     <span className="sub">
                       {t.shipped} features released &middot;{" "}
                       <span title={`Average raw d20 over ${t.rollCount} rolls, before modifiers. A fair die averages 10.5.`}>

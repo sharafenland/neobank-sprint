@@ -42,6 +42,40 @@ mitigate**, **Roll to release** — rather than naming the action, so it is alwa
 obvious that a die is about to decide something. `/rules` has the same sheet plus every
 card, for students to open on a phone or for the projector before you start.
 
+### Solo, and bots in a group game
+
+`/solo` starts a game for one person on one device. That device is the host
+and the only human bank at once — it keeps both keys — so the group console
+gets a **Continue** button and moves the room itself; incident and market cards
+turn over on their own. The player chooses zero to three bot rivals:
+
+| Bot | Plays |
+| --- | --- |
+| Rocket Bank | the biggest product cards it dares, pushes unfinished work through |
+| Steady Bank | one product and one platform card a sprint, pays debt down early |
+| Bedrock Bank | lays a platform first and tops it up whenever legacy drag appears |
+
+With no rivals the game ends in a **medal** instead of a ranking: bronze,
+silver and gold are the median, the 75th and the 90th percentile of what all
+three bots reach alone over a hundred decks of the same length and capacity.
+The simulation rolls with a seeded generator, so the thresholds are the same
+for everyone and do not move on a reload.
+
+A group game can take bots too — chosen at `/host`, or added from the console
+with **Add a bot rival**, up to three. Useful with only one or two groups in
+the room, and it gives the leader-dependent market events someone to compare
+against. A bot is an ordinary team whose state names a strategy
+([`src/lib/bots.ts`](src/lib/bots.ts)): it plays through the same engine, under
+the same rules and with the same server-side dice, and it acts whenever the
+room changes — a new phase, a card turned over, a bot added. It never plays an
+incident or market card the facilitator has not revealed, and nobody can join
+under a bot's name to take it over.
+
+Simulated over 300 decks of six sprints, the bots' medians sit at about 70k
+(Rocket), 65k (Steady) and 55k (Bedrock); Bedrock starts slowest and catches
+up over eight sprints. They are meant to be beatable by a group that thinks —
+they never pick a plan that needs more than a 13–15 on the die.
+
 ### Lecture notes
 
 Everything that only makes sense inside the course is behind one switch, and
@@ -92,7 +126,7 @@ releases fail more often.
 | --- | --- | --- |
 | Earned by | pushing unfinished work through | failed incidents, regulatory cards |
 | Taxes | every Release roll | every Mitigation roll |
-| Hard wall | 5 bugs → nothing ships | 3 findings → one slot less capacity |
+| Hard wall | 5 bugs → nothing ships, nothing more can be pushed through | 3 findings → one slot less capacity |
 | Paid down by | Automated Testing, or a slot | Compliance by Design, or a slot |
 
 **Investment points are earned and then expire.** A retro pays two, and from
@@ -108,6 +142,12 @@ question is when to spend. With a conditional point and no hoarding, the
 three-point practices — Definition of Done, Cross-Functional Team, Retro
 Culture, Agentic Coding, Compliance by Design — exist only for a sprint that
 earned them, and a spare point left on the table is a point lost.
+
+Two practices cost a single point: Blameless Postmortems and Feature Flags.
+With only Blameless at 1 IP, a group holding an odd point had exactly one
+thing to buy, and once it owned Blameless the point was simply lost. Feature
+Flags — 20% of a shelved card's reward — was the weakest practice at 2 IP and
+almost never bought; at 1 IP it is the natural partner for the spare point.
 
 **Buying is a selection until it is confirmed.** In the retro a group picks
 practices the way it picks features in planning: freely, as often as it likes,
@@ -145,6 +185,25 @@ shelf until it is built or pushed through; shelving it again does not halve it
 again. Without this, shelving threw the sprint's work away and pushing was
 almost always right, so the decision had nothing in it. Now it is the real
 trade: ship it now with a defect, or ship it later, cleaner and cheaper.
+
+At the five-bug wall the push option closes: the codebase cannot take any more
+unfinished work, so a missed card can only be shelved. Incidents still add bugs,
+but never past six. Before this, a group that kept pushing reached eight or nine
+bugs, and the remediation box's promise — one slot gets you back under the
+line — stopped being true; digging out took two whole sprints. Over 300
+simulated six-sprint games the pushiest bot now peaks at six instead of eight.
+
+**A feature is built once.** A card already in a group's portfolio cannot be
+picked again — it is shown greyed out, so the table still matches the other
+groups'. Once *every* group in the room owns a card it leaves the table and the
+next card in its pile takes the place. Ownership is read as it stood when
+planning began (`settledPortfolio`), so the table never changes mid-sprint.
+
+**Planning shows the dice.** Above the cards a group sees its three modifiers —
+Development, Release, Mitigation — with every line behind them, and for the
+plan as picked the die result it needs and the chance of getting it.
+Remediation picked in the same plan is already counted, since it resolves
+before any roll.
 
 **Defensive features pay late.** Observability, Disaster Recovery and Privacy
 earn almost nothing on release, and then decide the Incident and Market Event
@@ -289,8 +348,13 @@ was never available: rewarding Crypto Custody in a session that never offered
 it does nothing to anybody, and punishing the absence of Privacy & GDPR taxes a
 choice nobody was given. So incidents and events declare `needs` — the features
 that make them mean something — and `scheduleFor` deals only cards whose needs
-the table has already met. Cards whose counter-play is a *practice* declare
-nothing, since the shop is always open.
+the table met in an *earlier* sprint — a feature first shown this sprint is
+competing for two slots, and an incident landing on it the same afternoon is a
+coin toss, not a consequence. Cards whose only counter-play is a *practice*
+(Lead Engineer Resigns, Blame Storm) declare `earliest: 2` instead: the shop
+first opens at the end of sprint 1, so dealt in sprint 1 they hit everyone and
+nobody could have prepared. Blame Storm in sprint 1 was also why a whole room
+sometimes earned a single IP in its first retro.
 
 When the fitting pool runs dry, late in a long session, it repeats a card that
 fits rather than dealing one that does not: the same outage twice is a question
@@ -389,7 +453,7 @@ project.
 
 ## Schema
 
-Three tables: `sessions` (code, seed, sprints, slots, teaching, sprint, phase, host token), `teams`
+Three tables: `sessions` (code, seed, sprints, slots, teaching, solo, sprint, phase, host token), `teams`
 (one row per group, whole state as `jsonb`) and `audit_log` (append-only, every
 action with its sprint and phase). The audit log is not read by the app — it is
 there so you can show the students afterwards what their own decisions looked

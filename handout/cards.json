@@ -514,6 +514,7 @@
    "id": "resign",
    "n": "Lead Engineer Resigns",
    "icon": "person-leaving",
+   "earliest": 2,
    "mit": null,
    "txt": "Your most senior developer hands in notice. Everything she knew lives in her head.",
    "autoTxt": "Pair Programming — the knowledge was never in one head"
@@ -581,6 +582,7 @@
    "id": "warroom",
    "n": "Blame Storm",
    "icon": "speech",
+   "earliest": 2,
    "mit": null,
    "txt": "The post-incident review turns into a search for someone to fire. Two days disappear.",
    "autoTxt": "Blameless Postmortems — the review stayed about the system"
@@ -759,7 +761,7 @@
   {
    "id": "flags",
    "n": "Feature Flags",
-   "ip": 2,
+   "ip": 1,
    "src": "Session 9",
    "e": "Shelved features still earn 20% of their reward."
   },

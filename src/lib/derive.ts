@@ -93,10 +93,19 @@ function decks(seed: number) {
  * half infrastructure would regularly offer a table with nothing to sell, and
  * the trade-off the game is about would disappear.
  */
-export function marketFor(seed: number, sprint: number): string[] {
+export function marketFor(seed: number, sprint: number, retired: ReadonlySet<string> = new Set()): string[] {
   const d = decks(seed);
   const at = sprint - 1;
-  const take = (pile: string[]) => Array.from({ length: 3 }, (_, i) => pile[(at + i) % pile.length]);
+  // A card every group already owns is skipped and the window reaches one
+  // further into the pile, so the table keeps three of each while it can.
+  const take = (pile: string[]) => {
+    const out: string[] = [];
+    for (let i = 0; i < pile.length && out.length < 3; i++) {
+      const id = pile[(at + i) % pile.length];
+      if (!retired.has(id)) out.push(id);
+    }
+    return out;
+  };
   return [...take(d.product), ...take(d.platform)];
 }
 
@@ -121,14 +130,19 @@ function satisfied(card: CardDeps, shown: Set<string>): boolean {
 export const SCHEDULE_LENGTH = 12;
 
 /**
- * Deals one card per sprint, skipping any whose counter-play has not reached
- * the table yet. A card that rewards Crypto Custody in a session that never
- * offered it does nothing to anybody; one that punishes the absence of Privacy
- * & GDPR taxes a choice nobody was given. Both are dealt only once the feature
- * they hang on is available.
+ * Deals one card per sprint, skipping any whose counter-play the groups have
+ * not had a chance at yet. A card that rewards Crypto Custody in a session
+ * that never offered it does nothing to anybody; one that punishes the absence
+ * of Privacy & GDPR taxes a choice nobody was given.
  *
- * Falls back to cards with no dependency, and then to anything unused, so a
- * sprint always has a card.
+ * "Had a chance" means the feature was on the table in an earlier sprint — a
+ * card first shown this sprint competes with everything else for two slots,
+ * and an incident that lands on it the same afternoon is a coin toss, not a
+ * consequence. Cards whose only answer is a practice wait for `earliest`, since
+ * the shop first opens at the end of sprint 1.
+ *
+ * Falls back to cards with no dependency, and then to anything already
+ * allowed, so a sprint always has a card.
  */
 function scheduleFor<T extends CardDeps & { id: string }>(
   pile: T[], order: string[], seed: number,
@@ -138,16 +152,17 @@ function scheduleFor<T extends CardDeps & { id: string }>(
   const out: string[] = [];
 
   for (let sprint = 1; sprint <= SCHEDULE_LENGTH; sprint++) {
-    const shown = shownThrough(seed, sprint);
-    const free = (id: string) => !byId.get(id)!.needs?.length;
+    const shown = shownThrough(seed, sprint - 1);
+    const due = (id: string) => sprint >= (byId.get(id)!.earliest ?? 1);
+    const ok = (id: string) => due(id) && satisfied(byId.get(id)!, shown);
     // A repeat of a card that fits beats a fresh card that does not: the same
     // outage twice is a question worth asking, a reward for something nobody
     // was offered is a wasted phase.
-    const seenFree = out.filter(free);
+    const recent = out.slice(-2);
     const pick =
-      order.find((id) => !used.has(id) && satisfied(byId.get(id)!, shown)) ??
-      order.find((id) => !used.has(id) && free(id)) ??
-      order.find((id) => free(id) && !seenFree.slice(-2).includes(id)) ??
+      order.find((id) => !used.has(id) && ok(id)) ??
+      order.find((id) => ok(id) && !recent.includes(id)) ??
+      order.find((id) => ok(id)) ??
       order.find((id) => !used.has(id)) ??
       order[(sprint - 1) % order.length];
     used.add(pick);

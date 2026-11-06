@@ -6,8 +6,8 @@ import { FEATURE_BY_ID, INCIDENT_BY_ID, PHASES, PRACTICE_BY_ID } from "./cards";
 import { eventIdFor, incidentIdFor, marketFor } from "./derive";
 import { EVENT_FX, INCIDENT_FX, bug, cust, finding, incidentParts, log, type Fx } from "./effects";
 import {
-  DEFAULT_SLOTS, FIX_PER_SLOT, IP_BONUS_FROM_SPRINT, canAffordAny, capacity, cartCost, devParts, devTarget, has, maxFixSlots, mitParts, own,
-  relParts, relTarget, releasing, resetSprint, sumParts, usedSlots,
+  BUG_WALL, DEFAULT_SLOTS, FIX_PER_SLOT, IP_BONUS_FROM_SPRINT, canAffordAny, capacity, cartCost, devParts, devTarget, has, maxFixSlots, mitParts, own,
+  canPush, relParts, relTarget, releasing, resetSprint, retiredFeatures, sumParts, usedSlots,
 } from "./rules";
 import type { SessionRow, TeamState } from "./types";
 
@@ -25,6 +25,13 @@ export interface RosterEntry {
   name: string;
   customers: number;
   bugs: number;
+  /** The settled portfolio (see settledPortfolio), so the engine knows what has left the table. */
+  owned?: string[];
+}
+
+/** This sprint's table for a room, with the cards every group already owns replaced. */
+export function tableFor(session: SessionRow, roster: RosterEntry[]): string[] {
+  return marketFor(session.seed, session.sprint, retiredFeatures(roster.map((r) => r.owned)));
 }
 
 /**
@@ -83,7 +90,7 @@ export function syncToPhase(t: TeamState, session: SessionRow): TeamState {
 
     if (id === "release") {
       const list = releasing(t);
-      const blocked = t.blockRelease || t.bugs >= 5;
+      const blocked = t.blockRelease || t.bugs >= BUG_WALL;
       t.rel = { blocked, rolled: false, done: blocked || list.length === 0 };
       if (t.rel.done) settleShelved(fx);
     }
@@ -179,14 +186,17 @@ export function applyAction(
       if (t.confirmed) throw new GameError("Your plan is committed. Reopen it first.");
       const f = FEATURE_BY_ID[action.feature];
       if (!f) throw new GameError("No such feature.");
+      if (t.picked.includes(f.id)) {
+        t.picked.splice(t.picked.indexOf(f.id), 1);
+        return t;
+      }
+      if (has(t, f.id)) throw new GameError(`${f.n} is already in your portfolio — it cannot be built twice.`);
       // The shelf is open whatever the table shows: rotating off must not
       // throw away work a group chose to keep.
-      if (!marketFor(session.seed, session.sprint).includes(f.id) && !t.shelf.includes(f.id)) {
+      if (!tableFor(session, roster).includes(f.id) && !t.shelf.includes(f.id)) {
         throw new GameError("That card is neither on the table this sprint nor on your shelf.");
       }
-      const at = t.picked.indexOf(f.id);
-      if (at >= 0) t.picked.splice(at, 1);
-      else if (usedSlots(t) + f.s <= capacity(t)) t.picked.push(f.id);
+      if (usedSlots(t) + f.s <= capacity(t)) t.picked.push(f.id);
       else throw new GameError("Not enough slots left for that card.");
       return t;
     }
@@ -252,8 +262,11 @@ export function applyAction(
       if (!t.dev || t.dev.pass) throw new GameError("Nothing to decide.");
       if (t.dev.decided[action.feature]) throw new GameError("Already decided.", 409);
       if (!t.picked.includes(action.feature)) throw new GameError("That card is not in your plan.");
-      t.dev.decided[action.feature] = action.how;
       const f = FEATURE_BY_ID[action.feature];
+      if (action.how === "push" && !canPush(t)) {
+        throw new GameError(`At ${BUG_WALL} bugs the codebase cannot take more unfinished work — shelve it.`);
+      }
+      t.dev.decided[action.feature] = action.how;
       if (action.how === "push") {
         const clean = own(t, "dod");
         t.built.push({ id: f.id, buggy: !clean, shelved: false });

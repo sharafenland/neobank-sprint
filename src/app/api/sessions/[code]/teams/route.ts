@@ -12,7 +12,13 @@ export async function POST(req: Request, ctx: { params: Promise<{ code: string }
     return NextResponse.json({ error: "Group names are 2 to 22 characters." }, { status: 400 });
   }
 
-  const { token, rejoined } = await joinTeam(session, name);
+  let joined: { token: string; rejoined: boolean };
+  try {
+    joined = await joinTeam(session, name);
+  } catch (err) {
+    return NextResponse.json({ error: err instanceof Error ? err.message : "Could not join." }, { status: 409 });
+  }
+  const { token, rejoined } = joined;
   if (!rejoined) await writeAudit(session.code, name, session.sprint, session.phase, "join", { name });
   return NextResponse.json({ token, name, rejoined }, { status: rejoined ? 200 : 201 });
 }

@@ -1,7 +1,7 @@
 const { PHASES } = require("../.test-build/cards");
 const { marketFor, incidentIdFor, eventIdFor } = require("../.test-build/derive");
-const { syncToPhase, applyAction, phaseDone, GameError } = require("../.test-build/engine");
-const { emptyTeamState, capacity, usedSlots } = require("../.test-build/rules");
+const { syncToPhase, applyAction, phaseDone, GameError, tableFor } = require("../.test-build/engine");
+const { emptyTeamState, capacity, usedSlots, canPush, settledPortfolio } = require("../.test-build/rules");
 const { FEATURE_BY_ID } = require("../.test-build/cards");
 
 let failures = 0;
@@ -21,7 +21,7 @@ function playGame(seed, sprints, strategy) {
   const session = { code: "TEST", seed, sprints, sprint: 1, phase: 0,
     reveal_incident: true, reveal_event: true, finished: false };
   const teams = [emptyTeamState(), emptyTeamState(), emptyTeamState()];
-  const roster = () => teams.map((t, i) => ({ name: "G" + i, customers: t.customers, bugs: t.bugs }));
+  const roster = () => teams.map((t, i) => ({ name: "G" + i, customers: t.customers, bugs: t.bugs, owned: settledPortfolio(t) }));
 
   for (let sprint = 1; sprint <= sprints; sprint++) {
     session.sprint = sprint;
@@ -33,7 +33,8 @@ function playGame(seed, sprints, strategy) {
       teams.forEach((t) => {
         const A = (a) => applyAction(t, session, roster(), a);
         if (id === "planning") {
-          for (const f of marketFor(seed, sprint)) {
+          for (const f of tableFor(session, roster())) {
+            if (t.portfolio.includes(f)) continue;
             if (usedSlots(t) + FEATURE_BY_ID[f].s <= capacity(t)) {
               if (strategy(t, f)) A({ kind: "pick", feature: f });
             }
@@ -42,7 +43,7 @@ function playGame(seed, sprints, strategy) {
         }
         if (id === "dev" && t.picked.length) {
           A({ kind: "rollDev" });
-          if (!t.dev.pass) for (const f of t.picked) A({ kind: "decide", feature: f, how: Math.random() < 0.6 ? "push" : "shelve" });
+          if (!t.dev.pass) for (const f of t.picked) A({ kind: "decide", feature: f, how: canPush(t) && Math.random() < 0.6 ? "push" : "shelve" });
         }
         if (id === "incident" && t.inc && !t.inc.done) A({ kind: "rollIncident" });
         if (id === "release" && t.rel && !t.rel.done) A({ kind: "rollRelease" });
@@ -71,6 +72,7 @@ for (const [name, strat] of Object.entries(strategies)) {
     teams.forEach((t, i) => {
       check(`${name}: customers never negative`, t.customers >= 0);
       check(`${name}: bugs never negative`, t.bugs >= 0);
+      check(`${name}: bugs never past the cap`, t.bugs <= 6);
       check(`${name}: findings never negative`, t.findings >= 0);
       check(`${name}: ip never negative`, t.ip >= 0);
       check(`${name}: portfolio has no duplicates`, new Set(t.portfolio).size === t.portfolio.length);
@@ -288,15 +290,20 @@ for (const [name, strat] of Object.entries(strategies)) {
     const have = card.needs.filter((id) => shown.has(id)).length;
     return have >= (card.needsCount ?? card.needs.length);
   };
-  let unmet = 0;
+  let unmet = 0, early = 0;
   for (let seed = 1; seed <= 500; seed++) {
     for (let sprint = 1; sprint <= SCHEDULE_LENGTH; sprint++) {
-      const shown = shownThrough(seed, sprint);
-      if (!satisfied(INCIDENT_BY_ID[incidentIdFor(seed, sprint)], shown)) unmet++;
-      if (!satisfied(EVENT_BY_ID[eventIdFor(seed, sprint)], shown)) unmet++;
+      // On the table in an earlier sprint, not just this one.
+      const shown = shownThrough(seed, sprint - 1);
+      const inc = INCIDENT_BY_ID[incidentIdFor(seed, sprint)];
+      const ev = EVENT_BY_ID[eventIdFor(seed, sprint)];
+      if (!satisfied(inc, shown)) unmet++;
+      if (!satisfied(ev, shown)) unmet++;
+      if (sprint < (inc.earliest ?? 1) || sprint < (ev.earliest ?? 1)) early++;
     }
   }
-  check("every incident and event fits the cards the table has shown", unmet === 0, `${unmet} unmet`);
+  check("every incident and event hangs on a card shown in an earlier sprint", unmet === 0, `${unmet} unmet`);
+  check("practice-only cards wait until the shop has opened", early === 0, `${early} early`);
 
   // Adding a sprint must not rewrite what already happened.
   const first = [1, 2, 3, 4].map((k) => `${incidentIdFor(77, k)}/${eventIdFor(77, k)}`).join(",");
@@ -529,6 +536,58 @@ for (const [name, strat] of Object.entries(strategies)) {
   check("at most three rolls a sprint", g.rolls.length <= 6 * 3);
 }
 
+// --- bots play whole games by the same rules ---
+{
+  const { BOT_KINDS, botPlay, newBotState, nextBotKind, simulateBot, medals } = require("../.test-build/bots");
+  for (const slots of [1, 2, 4]) {
+    for (let seed = 1; seed <= 15; seed++) {
+      const session = { code: "B", seed: seed * 131, sprints: 6, slots, teaching: false, solo: false, sprint: 1, phase: 0,
+        reveal_incident: true, reveal_event: true, finished: false };
+      const bots = BOT_KINDS.map((k) => newBotState(k, session));
+      const roster = () => bots.map((t, i) => ({ name: "B" + i, customers: t.customers, bugs: t.bugs }));
+      for (let sprint = 1; sprint <= 6; sprint++) {
+        for (let phase = 0; phase < PHASES.length; phase++) {
+          session.sprint = sprint; session.phase = phase;
+          bots.forEach((t) => {
+            botPlay(t, session, roster());
+            check(`${t.bot} finishes ${PHASES[phase].id} (slots ${slots}, sprint ${sprint})`, phaseDone(t, session));
+            if (phase === 0) check(`${t.bot} stays within capacity`, usedSlots(t) <= capacity(t));
+            const before = JSON.stringify(t);
+            botPlay(t, session, roster());
+            check(`${t.bot}: playing a finished phase again changes nothing`, JSON.stringify(t) === before);
+          });
+        }
+      }
+      bots.forEach((t) => {
+        check(`${t.bot}: counters stay sane`, t.customers >= 0 && t.bugs >= 0 && t.findings >= 0 && t.ip >= 0);
+        check(`${t.bot}: no duplicate practices`, new Set(t.practices).size === t.practices.length);
+      });
+    }
+  }
+
+  // A bot does not play a card the room has not seen yet.
+  const hidden = { code: "B", seed: 9, sprints: 4, slots: 2, teaching: false, solo: false, sprint: 1, phase: 2,
+    reveal_incident: false, reveal_event: false, finished: false };
+  const b = newBotState("balanced", hidden);
+  botPlay(b, hidden, []);
+  check("a bot waits for the incident to be revealed", !b.inc?.rolled);
+
+  check("added bots differ from each other", nextBotKind([]) !== nextBotKind([nextBotKind([])]));
+
+  // Every bot should finish a typical game with customers; a strategy that ends at zero is broken.
+  for (const kind of BOT_KINDS) {
+    const results = Array.from({ length: 40 }, (_, i) => simulateBot(kind, 500 + i, 6, 2)).sort((x, y) => x - y);
+    check(`${kind} bot gets somewhere in a typical game (median ${results[20]}k)`, results[20] > 20);
+  }
+
+  const started = Date.now();
+  const m = medals(6, 2);
+  check("medals rise from bronze to gold", m.bronze <= m.silver && m.silver <= m.gold && m.bronze > 0);
+  check("medals are the same every time", JSON.stringify(medals(6, 2)) === JSON.stringify(m));
+  check("computing medals leaves the real dice alone", Math.random !== undefined && Math.random() !== Math.random());
+  check(`medals are quick enough to compute in a browser (${Date.now() - started} ms)`, Date.now() - started < 1500);
+}
+
 // --- a market event may pay in investment points ---
 {
   const session = { code: "X", seed: 7, sprints: 4, sprint: 1, phase: 4, reveal_incident: true, reveal_event: true, finished: false };
@@ -539,12 +598,88 @@ for (const [name, strat] of Object.entries(strategies)) {
   check("Engineering Brand pays an investment point", out.ip === 1);
 }
 
+// --- the lead engineer's departure shows on the next Development roll ---
+{
+  const { INCIDENT_FX } = require("../.test-build/effects");
+  const { devBonus } = require("../.test-build/rules");
+  const session = { code: "X", seed: 7, sprints: 4, sprint: 1, phase: 2, reveal_incident: true, reveal_event: true, finished: false };
+  const t = syncToPhase(emptyTeamState(), session);
+  const before = devBonus(t);
+  INCIDENT_FX.resign.fail({ t, sprint: 1 });
+  check("resigning does not touch the roll already made", devBonus(t) === before);
+  syncToPhase(t, { ...session, sprint: 2, phase: 0 });
+  check("it costs 3 on the next sprint's Development roll", devBonus(t) === before - 3);
+  syncToPhase(t, { ...session, sprint: 3, phase: 0 });
+  check("and only that one", devBonus(t) === before);
+}
+
 // --- documentation keeps the bus factor above one ---
 {
   const { INCIDENT_FX } = require("../.test-build/effects");
   const t = emptyTeamState();
   t.portfolio = ["wiki"];
   check("a wiki survives the lead engineer resigning", INCIDENT_FX.resign.auto(t) === true);
+}
+
+// --- a feature is built once, and leaves the table once everyone has it ---
+{
+  const session = { code: "X", seed: 31, sprints: 4, sprint: 1, phase: 0, reveal_incident: true, reveal_event: true, finished: false };
+  const t = emptyTeamState();
+  syncToPhase(t, session);
+  const f = marketFor(31, 1).find((id) => FEATURE_BY_ID[id].s === 1);
+  t.portfolio.push(f);
+  let refused = false;
+  try { applyAction(t, session, [], { kind: "pick", feature: f }); } catch (e) { refused = e instanceof GameError; }
+  check("a feature already in the portfolio cannot be picked again", refused && !t.picked.includes(f));
+
+  const other = emptyTeamState();
+  const both = [{ name: "A", customers: 0, bugs: 0, owned: [f] }, { name: "B", customers: 0, bugs: 0, owned: [] }];
+  check("a card only one group owns stays on the table", tableFor(session, both).includes(f));
+  const all = [{ name: "A", customers: 0, bugs: 0, owned: [f] }, { name: "B", customers: 0, bugs: 0, owned: [f] }];
+  const table = tableFor(session, all);
+  check("a card every group owns leaves the table", !table.includes(f));
+  check("and the next card in the pile takes its place", table.length === 6 && new Set(table).size === 6);
+
+  // Built this sprint does not count yet: the table must not change mid-sprint.
+  other.portfolio = [f];
+  other.built = [{ id: f, buggy: false, shelved: false }];
+  check("a card built this sprint is not yet settled", !settledPortfolio(other).includes(f));
+}
+
+// --- the bug counter stops at the wall plus one ---
+{
+  const { bug } = require("../.test-build/effects");
+  const t = emptyTeamState();
+  t.bugs = 5;
+  bug({ t, sprint: 1 }, 2);
+  check("incidents cannot push bugs past the cap", t.bugs === 6);
+  t.bugs = 4;
+  check("at four bugs a card can still be pushed through", canPush(t));
+  t.bugs = 5;
+  check("at five bugs pushing through is closed", !canPush(t));
+
+  const session = { code: "X", seed: 7, sprints: 4, sprint: 1, phase: 0, reveal_incident: true, reveal_event: true, finished: false };
+  const u = emptyTeamState();
+  syncToPhase(u, session);
+  u.bugs = 5;
+  u.fix = { bugs: 0, findings: 0 };
+  const big = marketFor(7, 1).filter((id) => FEATURE_BY_ID[id].s === 1).slice(0, 2);
+  u.picked = big;
+  session.phase = 1;
+  syncToPhase(u, session);
+  u.dev = { roll: 1, total: 1, target: 30, pass: false, decided: {} };
+  let refused = false;
+  try { applyAction(u, session, [], { kind: "decide", feature: big[0], how: "push" }); } catch (e) { refused = e instanceof GameError; }
+  check("the engine refuses a push at the wall", refused && !u.dev.decided[big[0]] && u.bugs === 5);
+  applyAction(u, session, [], { kind: "decide", feature: big[0], how: "shelve" });
+  check("shelving is still allowed", u.dev.decided[big[0]] === "shelve");
+}
+
+// --- Blame Storm never opens a game ---
+{
+  let first = 0;
+  for (let seed = 1; seed <= 500; seed++) if (["warroom", "resign"].includes(incidentIdFor(seed, 1))) first++;
+  check("no practice-only incident in sprint 1", first === 0, `${first} sessions`);
 }
 
 console.log(failures === 0 ? "\nAll engine checks passed." : `\n${failures} check(s) failed.`);

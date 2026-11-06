@@ -22,6 +22,20 @@ export function capacity(t: TeamState): number {
  */
 export const IP_BONUS_FROM_SPRINT = 3;
 
+/**
+ * Five open bugs stop every release. Past the wall the codebase cannot take
+ * any more unfinished work: a card that misses Development can only be
+ * shelved, and incidents top the counter up to BUG_CAP at most. That keeps
+ * the promise the remediation box makes — one slot (two bugs) is always
+ * enough to get back under the wall — instead of letting a team spiral to
+ * eight or nine bugs and lose two whole sprints digging out.
+ */
+export const BUG_WALL = 5;
+export const BUG_CAP = BUG_WALL + 1;
+
+/** Can a card that missed Development still be pushed through? Definition of Done pushes without bugs. */
+export const canPush = (t: TeamState) => t.bugs < BUG_WALL || own(t, "dod");
+
 /** A slot of remediation clears this much. */
 export const FIX_PER_SLOT = { bugs: 2, findings: 1 };
 
@@ -131,6 +145,28 @@ export function legacyDrag(t: TeamState): number {
   return Math.min(DRAG_CAP, Math.max(0, Math.floor(product / 2) - platform));
 }
 
+/**
+ * The portfolio as it stood when this sprint's planning began. Portfolios only
+ * grow in Development, and with rebuilding ruled out everything built this
+ * sprint is new, so taking it back out gives a table that does not change
+ * under the room halfway through a sprint.
+ */
+export function settledPortfolio(t: TeamState): string[] {
+  const fresh = new Set((t.built ?? []).filter((b) => !b.shelved).map((b) => b.id));
+  return t.portfolio.filter((id) => !fresh.has(id));
+}
+
+/**
+ * Features every group in the room has already built. Nobody can pick them
+ * again, so they leave the table and the next card in the pile takes their place.
+ */
+export function retiredFeatures(portfolios: (string[] | undefined)[]): Set<string> {
+  const lists = portfolios.filter((p): p is string[] => Array.isArray(p));
+  if (!lists.length) return new Set();
+  const [first, ...rest] = lists;
+  return new Set(first.filter((id) => rest.every((p) => p.includes(id))));
+}
+
 export const onShelf = (t: TeamState, featureId: string) => (t.shelf ?? []).includes(featureId);
 
 /**
@@ -203,7 +239,8 @@ export function emptyTeamState(): TeamState {
 export function resetSprint(t: TeamState): void {
   t.picked = []; t.fix = { bugs: 0, findings: 0 };
   t.confirmed = false; t.dev = null; t.built = []; t.inc = null; t.rel = null;
-  t.eventResolved = null; t.devMod = 0; t.blockRelease = false; t.ipPenalty = 0;
+  t.eventResolved = null; t.blockRelease = false; t.ipPenalty = 0;
+  t.devMod = t.devModNext ?? 0; t.devModNext = 0;
   t.retroPay = null; t.retroCart = []; t.retroBought = []; t.retroDone = false;
   t.ip = 0; // unspent points expire with the sprint
 }

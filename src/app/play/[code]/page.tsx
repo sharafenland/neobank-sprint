@@ -2,19 +2,20 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { EVENT_BY_ID, FEATURE_BY_ID, INCIDENT_BY_ID, PHASES, PRACTICES, PRACTICE_BY_ID } from "@/lib/cards";
-import { act } from "@/lib/client";
+import { act, hostOp, type View } from "@/lib/client";
+import { medals } from "@/lib/bots";
 import { INCIDENT_FX, incidentParts } from "@/lib/effects";
 import {
-  FIX_PER_SLOT, INFRA_CAP, IP_BONUS_FROM_SPRINT, capacity, cardDevTarget, devBonus, devTarget, infraBonus, legacyDrag,
+  BUG_WALL, FIX_PER_SLOT, INFRA_CAP, canPush, has, mitBonus, relBonus, IP_BONUS_FROM_SPRINT, capacity, cardDevTarget, devBonus, devTarget, infraBonus, legacyDrag,
   avgRoll, canAffordAny, cartCost, devParts, maxFixSlots, mitParts, onShelf, own, relParts, relTarget, releasing, shelvedTarget,
   sumParts, usedSlots,
 } from "@/lib/rules";
 import type { TeamState } from "@/lib/types";
 import { useGame } from "@/components/useGame";
 import { CardIcon } from "@/components/CardIcon";
-import { Breakdown, CheatSheet, Die, ErrorBar, FeatureCard, PhaseHead, Stepper, sgn } from "@/components/ui";
+import { BotTag, Breakdown, CheatSheet, Die, ErrorBar, FeatureCard, PhaseHead, Stepper, TeachingNote, sgn } from "@/components/ui";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
 
 export default function Play() {
@@ -40,6 +41,22 @@ export default function Play() {
   const s = view.session;
   const t = view.you.state;
   const phase = PHASES[s.phase];
+  // Solo: this device is the host as well as the only human bank.
+  const solo = view.isHost && s.solo;
+  const meDone = !!view.teams.find((x) => x.name === view.you!.name)?.phaseDone;
+
+  async function advance() {
+    setBusy(true);
+    setActionError(null);
+    try {
+      await hostOp(code, "next");
+      await refresh();
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Could not reach the server.");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   async function send(action: unknown) {
     setBusy(true);
@@ -54,7 +71,7 @@ export default function Play() {
     }
   }
 
-  if (s.finished) return <TeamDebrief name={view.you.name} t={t} />;
+  if (s.finished) return <TeamDebrief name={view.you.name} t={t} view={view} />;
 
   return (
     <>
@@ -105,6 +122,8 @@ export default function Play() {
 
         <aside className="rail">
           <CheatSheet t={t} phase={phase} />
+          {solo && s.teaching && <TeachingNote phase={phase} />}
+          {view.teams.length > 1 && <Standings view={view} me={view.you.name} />}
           <div className="ledger">
             <div className="ledger-h"><span className="dot" style={{ background: "var(--accent)" }} /><b>What you own</b></div>
             {(() => {
@@ -154,11 +173,17 @@ export default function Play() {
 
       <div className="footbar"><div className="footbar-in">
         <span className="hint">
-          {view.teams.find((x) => x.name === view.you!.name)?.phaseDone
-            ? "Done. The facilitator moves the room on."
-            : phase.lead}
+          {meDone ? (solo ? "Done. Continue when you are ready." : "Done. The facilitator moves the room on.") : phase.lead}
         </span>
-        <span className="mono" style={{ fontSize: 12.5, color: "var(--faint)" }}>Code {s.code}</span>
+        {solo ? (
+          <button className="btn" disabled={busy || !meDone} onClick={advance}>
+            {phase.id === "retro"
+              ? (s.sprint >= s.sprints ? "Finish and see the results" : `Start sprint ${s.sprint + 1}`)
+              : `Continue to ${PHASES[s.phase + 1].n}`}
+          </button>
+        ) : (
+          <span className="mono" style={{ fontSize: 12.5, color: "var(--faint)" }}>Code {s.code}</span>
+        )}
       </div></div>
     </>
   );
@@ -171,15 +196,17 @@ function Planning({ t, market, lecture, busy, send }: { t: TeamState; market: st
   const used = usedSlots(t);
   const card = (id: string) => {
     const on = t.picked.includes(id);
+    const owned = has(t, id);
     const size = FEATURE_BY_ID[id].s;
     const tooBig = size > cap;
     const noRoom = !tooBig && used + size > cap;
     return (
       <FeatureCard
         key={id} id={id} on={on} shelved={onShelf(t, id)} lecture={lecture}
-        disabled={busy || (!on && (t.confirmed || tooBig || noRoom))}
+        disabled={busy || (!on && (t.confirmed || owned || tooBig || noRoom))}
         reason={
-          on || t.confirmed ? undefined
+          owned ? "Already in your portfolio — nobody builds the same thing twice."
+          : on || t.confirmed ? undefined
             : tooBig
               ? (!own(t, "crossfn") && size <= cap + 1 && t.findings < 3
                 ? `Takes ${size} slots. Cross-Functional Team buys you one more.`
@@ -200,6 +227,7 @@ function Planning({ t, market, lecture, busy, send }: { t: TeamState; market: st
           Three open findings. The supervisor has withheld one of your slots until you clear them.
         </p>
       )}
+      <RollPreview t={t} />
       <div className="market">{market.map(card)}</div>
       {shelfOnly.length > 0 && (
         <>
@@ -230,6 +258,49 @@ function Planning({ t, market, lecture, busy, send }: { t: TeamState; market: st
         )}
       </div>
     </>
+  );
+}
+
+/** Chance of meeting `need` or more on a d20. */
+const odds = (need: number) => Math.round(Math.min(1, Math.max(0, (21 - need) / 20)) * 100);
+
+/**
+ * The three modifiers as they will stand when the dice come out, so a plan can
+ * be sized against them. Remediation chosen in this plan resolves before any
+ * roll, so the preview already counts it.
+ */
+function RollPreview({ t }: { t: TeamState }) {
+  const fix = t.fix ?? { bugs: 0, findings: 0 };
+  const after: TeamState = {
+    ...t,
+    bugs: Math.max(0, t.bugs - fix.bugs * FIX_PER_SLOT.bugs),
+    findings: Math.max(0, t.findings - fix.findings * FIX_PER_SLOT.findings),
+  };
+  const dev = devBonus(after);
+  const rel = relBonus(after);
+  const mit = mitBonus(after);
+  const picked = t.picked.length > 0;
+  const devNeed = devTarget(t) - dev;
+  const relNeed = t.picked.reduce((a, id) => a + FEATURE_BY_ID[id].r, 0) - rel;
+  // A pushed card adds its bugs and another −2 for being in the release; Definition of Done removes both.
+  const pushCost = own(t, "dod") ? 0 : own(t, "agentic") ? 4 : 3;
+  const col = (k: string, bonus: number, parts: ReturnType<typeof devParts>, foot: React.ReactNode) => (
+    <div className="rp-col">
+      <div className="rp-h"><span className="eyebrow">{k}</span><b className="mono">d20 {sgn(bonus)}</b></div>
+      <Breakdown parts={parts} />
+      {foot && <div className="rp-foot">{foot}</div>}
+    </div>
+  );
+  return (
+    <div className="rollpreview" aria-label="Your roll modifiers this sprint">
+      {col("Development", dev, devParts(after), picked
+        ? <>This plan needs <b>{Math.max(1, devNeed)}+</b> on the die &middot; {odds(devNeed)}%</>
+        : "Pick cards to see what this plan needs.")}
+      {col("Release", rel, relParts(after), picked
+        ? <>If built cleanly: <b>{Math.max(1, relNeed)}+</b> &middot; {odds(relNeed)}%. {pushCost ? <> Each card pushed through costs another &minus;{pushCost}.</> : null}</>
+        : null)}
+      {col("Mitigation", mit, mitParts(after), "Against this sprint’s incident; the card may add its own modifier.")}
+    </div>
   );
 }
 
@@ -273,7 +344,7 @@ function Remediation({ t, busy, send }: { t: TeamState; busy: boolean; send: Sen
       <span className="eyebrow">Pay down debt instead of taking new work</span>
       {row("bugs", t.bugs, FIX_PER_SLOT.bugs)}
       {row("findings", t.findings, FIX_PER_SLOT.findings)}
-      {t.bugs >= 5 && (
+      {t.bugs >= BUG_WALL && (
         <p className="warn">
           At five bugs nothing ships at all. One slot here brings you back under the line this sprint.
         </p>
@@ -322,8 +393,10 @@ function Development({ t, busy, send }: { t: TeamState; busy: boolean; send: Sen
                   </span>
                 ) : (
                   <>
-                    <button className="btn sm danger" disabled={busy} onClick={() => send({ kind: "decide", feature: id, how: "push" })}>
-                      Push through {own(t, "dod") ? "(no bug)" : own(t, "agentic") ? "(+2 bugs)" : "(+1 bug)"}
+                    <button className="btn sm danger" disabled={busy || !canPush(t)} onClick={() => send({ kind: "decide", feature: id, how: "push" })}
+                      title={canPush(t) ? undefined : `At ${BUG_WALL} bugs nothing more can be pushed through.`}>
+                      {!canPush(t) ? `Push through (blocked at ${BUG_WALL} bugs)`
+                        : <>Push through {own(t, "dod") ? "(no bug)" : own(t, "agentic") ? "(+2 bugs)" : "(+1 bug)"}</>}
                     </button>
                     <button className="btn sm ghost" disabled={busy} onClick={() => send({ kind: "decide", feature: id, how: "shelve" })}>
                       Shelve (Dev {shelvedTarget(id)} next time{own(t, "flags") ? ", 20% via flags" : ""})
@@ -392,7 +465,7 @@ function Release({ t, busy, send }: { t: TeamState; busy: boolean; send: Send })
   if (t.rel?.blocked) {
     return (
       <p className="empty" style={{ color: "var(--bad)", fontStyle: "normal" }}>
-        {t.bugs >= 5
+        {t.bugs >= BUG_WALL
           ? "Five bugs. The release train is stopped until the backlog is paid down — nothing ships."
           : "Releases are blocked by this sprint's incident."}
       </p>
@@ -533,21 +606,79 @@ function Retro({ t, sprint, lecture, busy, send }: { t: TeamState; sprint: numbe
   );
 }
 
-function TeamDebrief({ name, t }: { name: string; t: TeamState }) {
+/** The room's standings, for a group playing against bots or other groups. */
+function Standings({ view, me }: { view: View; me: string }) {
+  const ranked = [...view.teams].sort((a, b) => b.customers - a.customers);
+  return (
+    <div className="ledger">
+      <div className="ledger-h"><span className="dot" style={{ background: "var(--accent)" }} /><b>Standings</b></div>
+      <ol className="standings">
+        {ranked.map((x, i) => (
+          <li key={x.name} className={x.name === me ? "me" : ""}>
+            <span className="mono rank">{i + 1}</span>
+            <span className="nm">{x.name}<BotTag kind={x.bot} /></span>
+            <span className="mono">{x.customers}k</span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
+/** Without rivals, a solo game is measured against what the bots reach on decks like it. */
+function MedalLine({ customers, sprints, slots }: { customers: number; sprints: number; slots: number }) {
+  const m = useMemo(() => medals(sprints, slots), [sprints, slots]);
+  const won = customers >= m.gold ? "Gold" : customers >= m.silver ? "Silver" : customers >= m.bronze ? "Bronze" : null;
+  return (
+    <div className="announce" style={{ margin: "0 0 18px" }}>
+      <span className="eyebrow">{won ? `${won} medal` : "No medal this time"}</span>
+      <p>
+        Bronze {m.bronze}k &middot; silver {m.silver}k &middot; gold {m.gold}k &mdash; what simple bot strategies
+        reach in a typical, a good and a top-tenth game of {sprints} sprints with {slots} slot{slots === 1 ? "" : "s"}.
+        {won ? "" : " Play it again: the deck will be different."}
+      </p>
+    </div>
+  );
+}
+
+function TeamDebrief({ name, t, view }: { name: string; t: TeamState; view: View }) {
+  const ranked = [...view.teams].sort((a, b) => b.customers - a.customers);
+  const rivals = ranked.length > 1;
   return (
     <>
       <header className="tbar"><div className="tbar-in">
         <span className="nm"><span className="dot" style={{ background: "var(--accent)" }} />{name}</span>
         <div className="tsplit">
           <ThemeSwitch />
+          {view.session.solo && <Link className="btn ghost sm" href="/solo">New solo game</Link>}
           <Link className="btn sm" href="/">Home</Link>
         </div>
       </div></header>
     <main className="solo" style={{ gridTemplateColumns: "minmax(0,1fr)" }}>
       <div className="panel">
-        <div className="panel-head"><div><h2>{name} &mdash; final position</h2><p>The room&rsquo;s standings are on the facilitator&rsquo;s screen.</p></div></div>
+        <div className="panel-head"><div><h2>{name} &mdash; final position</h2><p>{view.session.solo ? "Customers in thousands." : "The room\u2019s standings are on the facilitator\u2019s screen."}</p></div></div>
         <div className="panel-body">
-          <div className="podium">
+          {!rivals && view.session.solo && (
+            <MedalLine customers={t.customers} sprints={view.session.sprints} slots={view.session.slots ?? 2} />
+          )}
+          {rivals && (
+            <div className="podium">
+              {ranked.map((x, i) => (
+                <div key={x.name} className={`prow ${x.name === name ? "first" : ""}`}>
+                  <span className="rank">{i + 1}</span>
+                  <span>
+                    <span className="nm">{x.name}<BotTag kind={x.bot} /></span>
+                    <span className="sub">
+                      {x.shipped} features released &middot; avg. roll {x.avgRoll === null ? "\u2014" : x.avgRoll.toFixed(1)}
+                      {" "}&middot; {x.bugs} bugs &middot; {x.practices.length} practices
+                    </span>
+                  </span>
+                  <span className="tot">{x.customers}k</span>
+                </div>
+              ))}
+            </div>
+          )}
+          {!rivals && <div className="podium">
             <div className="prow first">
               <span className="rank">&mdash;</span>
               <span>
@@ -558,7 +689,7 @@ function TeamDebrief({ name, t }: { name: string; t: TeamState }) {
               </span>
               <span className="tot">{t.customers}k</span>
             </div>
-          </div>
+          </div>}
           <p className="eyebrow" style={{ marginBottom: 8 }}>What you built</p>
           <div className="chips" style={{ border: "1px solid var(--line)", borderRadius: 9, padding: 10 }}>
             {t.portfolio.length

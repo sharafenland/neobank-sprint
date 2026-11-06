@@ -270,7 +270,7 @@ story.append(PageBreak())
 INC_HELP = {
     "outage":    ("Observability avoids −3; Caching or Sharding +3", "−10% customers, +1 bug"),
     "breach":    ("Privacy & GDPR +2; Security Audit Log +2", "−26% (−14% with Privacy), +2 findings"),
-    "resign":    ("Pair Programming or Documentation Wiki removes it", "−3 on this sprint's Dev roll"),
+    "resign":    ("Pair Programming or Documentation Wiki removes it", "−3 on next sprint's Dev roll"),
     "audit":     ("AML Monitoring +3; Security Audit Log +2", "+2 audit findings"),
     "scheme":    ("CI/CD Pipeline +3", "releases blocked this sprint"),
     "fraudring": ("Fraud Detection removes it; Rate Limiting +3", "−13%, +1 finding"),

@@ -2,7 +2,7 @@
  * What the cards actually do. Server-only: these functions mutate a team's
  * state, so they never run on a device the players control.
  */
-import { has, own } from "./rules";
+import { BUG_CAP, has, own } from "./rules";
 import type { BonusPart, TeamState } from "./types";
 
 export interface Fx {
@@ -21,8 +21,12 @@ export function cust(c: Fx, n: number) {
   log(c, `${sgn(n)}k customers`, n >= 0 ? "up" : "down");
 }
 export function bug(c: Fx, n: number) {
-  c.t.bugs = Math.max(0, c.t.bugs + n);
-  log(c, `${sgn(n)} bug${Math.abs(n) === 1 ? "" : "s"}`, n >= 0 ? "down" : "up");
+  const before = c.t.bugs;
+  // Never adds past the cap, but never lowers a count that is already above it.
+  c.t.bugs = Math.max(0, n > 0 ? Math.max(before, Math.min(BUG_CAP, before + n)) : before + n);
+  const d = c.t.bugs - before;
+  if (d === 0) return;
+  log(c, `${sgn(d)} bug${Math.abs(d) === 1 ? "" : "s"}`, d >= 0 ? "down" : "up");
 }
 /**
  * A loss proportional to how big the bank already is, with a floor so the
@@ -94,7 +98,9 @@ export const INCIDENT_FX: Record<string, IncidentSpec> = {
   },
   resign: {
     auto: (t) => own(t, "pair") || has(t, "wiki"),
-    fail: (c) => { c.t.devMod -= 3; log(c, "−3 on this sprint's Development roll", "down"); },
+    // Development is already behind the room when the incident lands, so the
+    // gap in knowledge shows on the next sprint's roll.
+    fail: (c) => { c.t.devModNext = (c.t.devModNext ?? 0) - 3; log(c, "−3 on next sprint's Development roll", "down"); },
   },
   audit: {
     mod: (t) => (has(t, "aml") ? 3 : 0) + (has(t, "auditlog") ? 2 : 0),
