@@ -20,14 +20,11 @@ export default function Landing() {
       </div>
 
       <div className="choose">
-        <div className="mode">
-          <span className="k">Host</span>
-          <span className="t">Facilitate a session</span>
-          <span className="d">
-            Creates the access code, paces the six phases on a shared screen, reveals the incident and market cards,
-            and shows every group&rsquo;s standing live.
-          </span>
-          <Link className="btn" href="/host">Create a session</Link>
+        <div className="mode wide">
+          <span className="k">Groups</span>
+          <span className="t">Join with a code</span>
+          <span className="d">One device per group. Your own backlog, dice, bug count and practice shop.</span>
+          <JoinForm />
         </div>
 
         <div className="mode">
@@ -40,10 +37,13 @@ export default function Landing() {
         </div>
 
         <div className="mode">
-          <span className="k">Groups</span>
-          <span className="t">Join with a code</span>
-          <span className="d">One device per group. Your own backlog, dice, bug count and practice shop.</span>
-          <JoinForm />
+          <span className="k">Host</span>
+          <span className="t">Facilitate a session</span>
+          <span className="d">
+            Creates the access code, paces the six phases on a shared screen, reveals the incident and market cards,
+            and shows every group&rsquo;s standing live.
+          </span>
+          <Link className="btn" href="/host">Create a session</Link>
         </div>
       </div>
 

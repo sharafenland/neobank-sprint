@@ -335,7 +335,9 @@ details.rules[open]>summary::before{content:"– "}
 
 
 /* ---------- landing ---------- */
-.choose{display:grid;grid-template-columns:repeat(auto-fit,minmax(248px,1fr));gap:14px;margin-top:26px}
+.choose{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:26px}
+.mode.wide{grid-column:1/-1}
+@media (max-width:620px){.choose{grid-template-columns:1fr}}
 .mode{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:7px;box-shadow:var(--shadow)}
 .mode .k{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);display:block}
 .mode .t{font-family:var(--display);font-size:20px;font-weight:700;display:block;color:var(--ink)}
